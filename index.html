@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сканер логов | Вход</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #4cc9f0;
+            --primary-dark: #3aa8d8;
+            --secondary: #4895ef;
+            --accent: #7209b7;
+            --background: #0a1a2d;
+            --surface: #1a2b3c;
+            --surface-light: #2c3e50;
+            --text: #f0f8ff;
+            --text-secondary: #b0c4de;
+            --success: #4ade80;
+            --error: #f87171;
+            --warning: #fbbf24;
+            --border: #4a5568;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --snow: #ffffff;
+            --ice: #a8d8ea;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            background-image: 
+                linear-gradient(to bottom, rgba(10, 26, 45, 0.95), rgba(16, 42, 67, 0.95)),
+                radial-gradient(circle at 10% 20%, rgba(76, 201, 240, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 90% 80%, rgba(114, 9, 183, 0.1) 0%, transparent 25%),
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%234cc9f0' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Страница входа */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: rgba(26, 43, 60, 0.85);
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(76, 201, 240, 0.2);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--ice), var(--primary), var(--secondary));
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-logo i {
+            font-size: 3rem;
+            color: var(--ice);
+            animation: pulse 2s infinite alternate;
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        }
+
+        .login-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--ice), var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3rem;
+            background-color: rgba(44, 62, 80, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--ice);
+            box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2), 0 0 15px rgba(76, 201, 240, 0.2);
+            background-color: rgba(44, 62, 80, 0.9);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 2.6rem;
+            color: var(--ice);
+            font-size: 1.1rem;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.3);
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 201, 240, 0.4), 0 0 20px rgba(76, 201, 240, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ff8a8a;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Основной контент (скрыт по умолчанию) */
+        .main-content {
+            display: none;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(26, 43, 60, 0.7);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .logout-btn:hover {
+            color: var(--ice);
+            border-color: var(--ice);
+            box-shadow: 0 0 10px rgba(76, 201, 240, 0.2);
+        }
+
+        /* Снежинки */
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: var(--snow);
+            font-size: 1em;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            opacity: 0.8;
+            animation-name: fall;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        /* Анимации */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px var(--primary); }
+            50% { box-shadow: 0 0 20px var(--primary), 0 0 30px var(--secondary); }
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Стили для сканера логов */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--ice);
+            animation: pulse 2s infinite alternate;
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--ice), var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(26, 43, 60, 0.85);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid rgba(76, 201, 240, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 201, 240, 0.2);
+            border-color: rgba(76, 201, 240, 0.4);
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--ice), var(--primary), var(--secondary));
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        .panel-title i {
+            color: var(--ice);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            border: 2px dashed rgba(76, 201, 240, 0.4);
+            border-radius: 12px;
+            padding: 2rem 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background-color: rgba(26, 43, 60, 0.5);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .file-input-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(76, 201, 240, 0.1), transparent);
+            transition: left 0.7s;
+        }
+
+        .file-input-wrapper:hover::before {
+            left: 100%;
+        }
+
+        .file-input-wrapper:hover, .file-input-wrapper.dragover {
+            border-color: var(--ice);
+            background-color: rgba(76, 201, 240, 0.1);
+            box-shadow: 0 0 15px rgba(76, 201, 240, 0.2);
+        }
+
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-icon {
+            font-size: 3rem;
+            color: var(--ice);
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 5px rgba(76, 201, 240, 0.5));
+        }
+
+        .file-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .file-name {
+            color: var(--ice);
+            font-weight: 600;
+            word-break: break-all;
+            text-shadow: 0 0 5px rgba(76, 201, 240, 0.5);
+        }
+
+        .file-size-info {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background-color: rgba(44, 62, 80, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--ice);
+            box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2), 0 0 15px rgba(76, 201, 240, 0.2);
+            background-color: rgba(44, 62, 80, 0.9);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+        }
+
+        .button:hover::before {
+            left: 100%;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 201, 240, 0.4), 0 0 20px rgba(76, 201, 240, 0.3);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button i {
+            font-size: 1.2rem;
+        }
+
+        .results-panel {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 768px) {
+            .results-panel {
+                grid-column: span 1;
+            }
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .results-count span {
+            color: var(--text);
+            font-weight: 600;
+            background: rgba(76, 201, 240, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        .clear-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            color: var(--ice);
+            border-color: var(--ice);
+            box-shadow: 0 0 10px rgba(76, 201, 240, 0.2);
+        }
+
+        .results-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 12px;
+            background-color: rgba(44, 62, 80, 0.5);
+            border: 1px solid var(--border);
+        }
+
+        .result-item {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(76, 201, 240, 0.1);
+            transition: background-color 0.2s ease;
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+        }
+
+        .result-item:hover {
+            background-color: rgba(76, 201, 240, 0.05);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-line {
+            color: var(--text);
+            line-height: 1.6;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+        }
+
+        .highlight {
+            background-color: rgba(76, 201, 240, 0.3);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #a8e6ff;
+            text-shadow: 0 0 5px rgba(76, 201, 240, 0.5);
+        }
+
+        .cheat-highlight {
+            background-color: rgba(239, 68, 68, 0.3);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #ff8a8a;
+            text-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--border);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--ice);
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(76, 201, 240, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--ice);
+            animation: spin 1s linear infinite;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .cheat-example {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: 'Consolas', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ff8a8a;
+        }
+
+        .cheat-example:hover {
+            background: rgba(239, 68, 68, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.2);
+        }
+
+        /* Новые стили для прогресса и больших файлов */
+        .progress-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 26, 45, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .progress-container {
+            background: rgba(26, 43, 60, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            animation: glow 2s infinite alternate;
+        }
+
+        .progress-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--ice);
+            background: linear-gradient(90deg, var(--ice), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .progress-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: scan 1.5s infinite linear;
+        }
+
+        .progress-text {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .progress-details {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+
+        .scan-stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .scan-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .scan-stat-value {
+            color: var(--ice);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .scan-stat-label {
+            font-size: 0.8rem;
+        }
+
+        .large-file-warning {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: var(--warning);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .large-file-warning.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .large-file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-size-limit {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .optimized-scan {
+            background: rgba(76, 201, 240, 0.1);
+            border: 1px solid rgba(76, 201, 240, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            color: var(--ice);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .optimized-scan.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Полоса прокрутки */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-light);
+            border-radius: 5px;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Снежинки -->
+    <div class="snowflakes" id="snowflakes"></div>
+    
+    <!-- Оверлей прогресса -->
+    <div class="progress-overlay" id="progressOverlay">
+        <div class="progress-container">
+            <div class="progress-title">
+                <i class="fas fa-search"></i>
+                Идет анализ файла
+            </div>
+            
+            <div class="progress-subtitle" id="progressSubtitle">
+                Загрузка файла и поиск совпадений...
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="progress-text" id="progressText">
+                Подготовка к сканированию...
+            </div>
+            
+            <div class="scan-stats">
+                <div class="scan-stat">
+                    <div class="scan-stat-value" id="processedLines">0</div>
+                    <div class="scan-stat-label">Строк обработано</div>
+                </div>
+                <div class="scan-stat">
+                    <div class="scan-stat-value" id="foundMatches">0</div>
+                    <div class="scan-stat-label">Совпадений найдено</div>
+                </div>
+                <div class="scan-stat">
+                    <div class="scan-stat-value" id="scanSpeed">0</div>
+                    <div class="scan-stat-label">строк/сек</div>
+                </div>
+            </div>
+            
+            <div class="progress-details">
+                <span id="fileProgress">0%</span>
+                <span id="timeRemaining">Осталось: ~</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Страница входа (показывается по умолчанию) -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h1 class="login-title">Authorization</h1>
+                <p class="login-subtitle">Авторизуйтесь для использования сканера логов</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                Неверный логин или пароль. Попробуйте снова.
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">Логин</label>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        class="form-input" 
+                        placeholder="Введите ваш логин"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Пароль</label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="form-input" 
+                        placeholder="Введите ваш пароль"
+                        required
+                    >
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Войти в систему
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>© 2025 Blax Search</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Основной контент (скрыт до входа) -->
+    <div class="container main-content" id="mainContent">
+        <button class="logout-btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            Выйти
+        </button>
+        
+        <header>
+            <div class="logo">
+                <i class="fas fa-search-logo logo-icon"></i>
+            </div>
+            <h1>Blax Search</h1>
+            <p class="subtitle">Прочекай логи-тхт</p>
+        </header>
+
+        <div class="content-grid">
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-file-upload"></i>
+                    <span>Загрузка файла</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fileInput">Выберите файл логов для анализа</label>
+                    <div class="file-input-wrapper" id="fileDropArea">
+                        <div class="file-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <p>Перетащите файл сюда или нажмите для выбора</p>
+                        <p class="file-info">Поддерживаются текстовые файлы: .log, .txt, .json, .csv, .xml</p>
+                        <p class="file-size-limit">Поддержка файлов до <strong>10 ГБ</strong> (оптимизированная загрузка)</p>
+                        <input type="file" id="fileInput" class="file-input" accept=".log,.txt,.json,.csv,.xml">
+                        <p id="fileName" class="file-name"></p>
+                        <p id="fileSize" class="file-size-info"></p>
+                    </div>
+                    
+                    <div class="large-file-warning" id="largeFileWarning">
+                        <div class="large-file-info">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Внимание: большой файл</strong>
+                        </div>
+                        <p>Файл превышает 100 МБ. Включен оптимизированный режим сканирования для быстрой обработки.</p>
+                    </div>
+                    
+                    <div class="optimized-scan" id="optimizedScan">
+                        <div class="large-file-info">
+                            <i class="fas fa-bolt"></i>
+                            <strong>Оптимизированный режим</strong>
+                        </div>
+                        <p>Файл будет обрабатываться частями для экономии памяти и ускорения работы.</p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="searchWord">Слово или ссылка для поиска</label>
+                    <input 
+                        type="text" 
+                        id="searchWord" 
+                        class="search-input" 
+                        placeholder="Введите ключевое слово или URL для поиска..."
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="searchMode">Режим поиска:</label>
+                    <select id="searchMode" class="search-input">
+                        <option value="exact">Точное совпадение</option>
+                        <option value="partial">Частичное совпадение</option>
+                        <option value="caseSensitive">С учетом регистра</option>
+                        <option value="regex">Регулярное выражение</option>
+                    </select>
+                </div>
+                
+                <button id="scanButton" class="button">
+                    <i class="fas fa-search"></i>
+                    <span>Просканировать лог-файл</span>
+                </button>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Информация о сканере</span>
+                </div>
+                
+                <div class="form-group">
+                    <h3>Как использовать сканер:</h3>
+                    <ul style="padding-left: 1.5rem; color: var(--text-secondary); line-height: 1.8; margin-top: 0.5rem;">
+                        <li>Загрузите файл логов (логи игр, системные логи и т.д.)</li>
+                        <li>Введите слово или URL для поиска (или выберите пример ниже)</li>
+                        <li>Выберите режим поиска</li>
+                        <li>Нажмите "Просканировать лог-файл"</li>
+                        <li>Все найденные совпадения будут отображены с подсветкой</li>
+                    </ul>
+                </div>
+                
+                <div class="form-group">
+                    <h3>Возможности сканера:</h3>
+                    <ul style="padding-left: 1.5rem; color: var(--text-secondary); line-height: 1.8; margin-top: 0.5rem;">
+                        <li>Поиск с учетом регистра</li>
+                        <li>Подсветка найденных совпадений</li>
+                        <li>Отображение строк с контекстом</li>
+                        <li>Быстрая обработка больших файлов (до 10 ГБ)</li>
+                        <li>Оптимизированная загрузка по частям</li>
+                        <li>Поиск по нескольким ключевым словам</li>
+                    </ul>
+                </div>
+                
+                <div class="form-group">
+                    <h3>Примеры для поиска читов:</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                        <span class="cheat-example" onclick="setSearchWord('0xcheat.net')">0xcheat.net</span>
+                        <span class="cheat-example" onclick="setSearchWord('vanish-cheat.net')">vanish-cheat.net</span>
+                        <span class="cheat-example" onclick="setSearchWord('nixware.cc')">nixware.cc</span>
+                        <span class="cheat-example" onclick="setSearchWord('neverlose.cc')">neverlose.cc</span>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                        Нажмите на любой пример, чтобы вставить его в поле поиска
+                    </p>
+                </div>
+            </div>
+            
+            <div class="panel results-panel">
+                <div class="results-header">
+                    <div class="panel-title">
+                        <i class="fas fa-search-result"></i>
+                        <span>Результаты поиска</span>
+                    </div>
+                    
+                    <div class="results-count">
+                        <i class="fas fa-snowflake"></i>
+                        Найдено совпадений: <span id="resultsCount">0</span>
+                    </div>
+                </div>
+                
+                <div id="resultsContainer" class="results-container">
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Результаты появятся здесь</h3>
+                        <p>Загрузите файл логов и введите слово для поиска, чтобы увидеть результаты</p>
+                    </div>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="loading" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <span>Анализ файла...</span>
+                    </div>
+                    <div id="statusText">Готов к работе. Выберите файл для анализа.</div>
+                    <button id="clearResults" class="clear-btn">
+                        <i class="fas fa-trash-alt"></i>
+                        Очистить результаты
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Blax Search &copy; 2025 | Оптимизированный сканер логов для больших файлов</p>
+        </footer>
+    </div>
+
+    <script>
+        // Глобальная функция для установки слова поиска
+        function setSearchWord(word) {
+            if (document.getElementById('searchWord')) {
+                document.getElementById('searchWord').value = word;
+                document.getElementById('searchWord').focus();
+            }
+        }
+
+        // Данные для входа
+        const VALID_USERNAME = 'blax';
+        const VALID_PASSWORD = 'blqx';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Создаем снежинки
+            function createSnowflakes() {
+                const snowflakesContainer = document.getElementById('snowflakes');
+                const snowflakeCount = 40;
+                
+                for (let i = 0; i < snowflakeCount; i++) {
+                    const snowflake = document.createElement('div');
+                    snowflake.classList.add('snowflake');
+                    snowflake.innerHTML = '❄';
+                    
+                    // Случайные параметры для снежинок
+                    const size = Math.random() * 1.5 + 0.5;
+                    const startPosition = Math.random() * 100;
+                    const fallDuration = Math.random() * 10 + 10;
+                    const fallDelay = Math.random() * 5;
+                    const opacity = Math.random() * 0.7 + 0.3;
+                    
+                    snowflake.style.left = `${startPosition}%`;
+                    snowflake.style.fontSize = `${size}em`;
+                    snowflake.style.animationDuration = `${fallDuration}s`;
+                    snowflake.style.animationDelay = `${fallDelay}s`;
+                    snowflake.style.opacity = opacity;
+                    
+                    snowflakesContainer.appendChild(snowflake);
+                }
+            }
+            
+            // Элементы для страницы входа
+            const loginPage = document.getElementById('loginPage');
+            const mainContent = document.getElementById('mainContent');
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            // Элементы для сканера логов
+            const fileInput = document.getElementById('fileInput');
+            const fileDropArea = document.getElementById('fileDropArea');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const largeFileWarning = document.getElementById('largeFileWarning');
+            const optimizedScan = document.getElementById('optimizedScan');
+            const searchWordInput = document.getElementById('searchWord');
+            const searchMode = document.getElementById('searchMode');
+            const scanButton = document.getElementById('scanButton');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsCount = document.getElementById('resultsCount');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const statusText = document.getElementById('statusText');
+            const clearResultsButton = document.getElementById('clearResults');
+            
+            // Элементы прогресса
+            const progressOverlay = document.getElementById('progressOverlay');
+            const progressSubtitle = document.getElementById('progressSubtitle');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const fileProgress = document.getElementById('fileProgress');
+            const timeRemaining = document.getElementById('timeRemaining');
+            const processedLines = document.getElementById('processedLines');
+            const foundMatches = document.getElementById('foundMatches');
+            const scanSpeed = document.getElementById('scanSpeed');
+            
+            let selectedFile = null;
+            let searchResults = [];
+            let scanStartTime = null;
+            let isLargeFile = false;
+            const LARGE_FILE_THRESHOLD = 100 * 1024 * 1024; // 100 MB
+            const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024; // 10 GB
+            
+            // Проверяем, авторизован ли пользователь (всегда false при загрузке)
+            const sessionActive = sessionStorage.getItem('scannerSessionActive') === 'true';
+            
+            if (sessionActive) {
+                // Если есть активная сессия, показываем основной контент
+                showMainContent();
+            } else {
+                // Иначе показываем страницу входа
+                showLoginPage();
+            }
+            
+            // Создаем снежинки при загрузке
+            createSnowflakes();
+            
+            // Устанавливаем пример по умолчанию
+            if (searchWordInput) {
+                searchWordInput.value = '0xcheat.net';
+            }
+            
+            // Обработка формы входа
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                    // Успешный вход - создаем сессию
+                    sessionStorage.setItem('scannerSessionActive', 'true');
+                    showMainContent();
+                } else {
+                    // Неверные учетные данные
+                    errorMessage.style.display = 'block';
+                    document.getElementById('username').style.borderColor = 'var(--error)';
+                    document.getElementById('password').style.borderColor = 'var(--error)';
+                    
+                    setTimeout(() => {
+                        document.getElementById('username').style.borderColor = '';
+                        document.getElementById('password').style.borderColor = '';
+                    }, 2000);
+                }
+            });
+            
+            // Обработка выхода
+            logoutBtn.addEventListener('click', function() {
+                // Удаляем сессию
+                sessionStorage.removeItem('scannerSessionActive');
+                showLoginPage();
+            });
+            
+            // Функции для переключения между страницами
+            function showMainContent() {
+                loginPage.style.display = 'none';
+                mainContent.style.display = 'block';
+                
+                // Инициализируем сканер логов
+                initScanner();
+            }
+            
+            function showLoginPage() {
+                loginPage.style.display = 'flex';
+                mainContent.style.display = 'none';
+                errorMessage.style.display = 'none';
+                loginForm.reset();
+            }
+            
+            // Инициализация сканера логов
+            function initScanner() {
+                // Обработка выбора файла
+                if (fileInput) {
+                    fileInput.addEventListener('change', function(e) {
+                        if (e.target.files.length > 0) {
+                            selectedFile = e.target.files[0];
+                            
+                            // Проверяем размер файла
+                            if (selectedFile.size > MAX_FILE_SIZE) {
+                                showStatus(`Файл слишком большой (${formatFileSize(selectedFile.size)}). Максимальный размер: 10 ГБ.`, 'error');
+                                fileInput.value = '';
+                                selectedFile = null;
+                                fileName.textContent = '';
+                                fileSize.textContent = '';
+                                return;
+                            }
+                            
+                            fileName.textContent = `Выбран файл: ${selectedFile.name}`;
+                            fileSize.textContent = `Размер: ${formatFileSize(selectedFile.size)}`;
+                            
+                            // Проверяем, является ли файл большим
+                            isLargeFile = selectedFile.size > LARGE_FILE_THRESHOLD;
+                            
+                            if (isLargeFile) {
+                                largeFileWarning.classList.add('active');
+                                optimizedScan.classList.add('active');
+                                showStatus(`Загружен большой файл (${formatFileSize(selectedFile.size)}). Используется оптимизированный режим.`, 'warning');
+                            } else {
+                                largeFileWarning.classList.remove('active');
+                                optimizedScan.classList.remove('active');
+                                showStatus(`Файл "${selectedFile.name}" загружен. Готов к анализу.`, 'success');
+                            }
+                            
+                            // Анимация для области загрузки файла
+                            fileDropArea.style.borderColor = 'var(--success)';
+                            setTimeout(() => {
+                                fileDropArea.style.borderColor = '';
+                            }, 2000);
+                        }
+                    });
+                }
+                
+                // Обработка drag & drop
+                if (fileDropArea) {
+                    fileDropArea.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        fileDropArea.classList.add('dragover');
+                    });
+                    
+                    fileDropArea.addEventListener('dragleave', function() {
+                        fileDropArea.classList.remove('dragover');
+                    });
+                    
+                    fileDropArea.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        fileDropArea.classList.remove('dragover');
+                        
+                        if (e.dataTransfer.files.length > 0) {
+                            selectedFile = e.dataTransfer.files[0];
+                            
+                            // Проверяем размер файла
+                            if (selectedFile.size > MAX_FILE_SIZE) {
+                                showStatus(`Файл слишком большой (${formatFileSize(selectedFile.size)}). Максимальный размер: 10 ГБ.`, 'error');
+                                selectedFile = null;
+                                fileName.textContent = '';
+                                fileSize.textContent = '';
+                                return;
+                            }
+                            
+                            fileInput.files = e.dataTransfer.files;
+                            fileName.textContent = `Выбран файл: ${selectedFile.name}`;
+                            fileSize.textContent = `Размер: ${formatFileSize(selectedFile.size)}`;
+                            
+                            // Проверяем, является ли файл большим
+                            isLargeFile = selectedFile.size > LARGE_FILE_THRESHOLD;
+                            
+                            if (isLargeFile) {
+                                largeFileWarning.classList.add('active');
+                                optimizedScan.classList.add('active');
+                                showStatus(`Загружен большой файл (${formatFileSize(selectedFile.size)}). Используется оптимизированный режим.`, 'warning');
+                            } else {
+                                largeFileWarning.classList.remove('active');
+                                optimizedScan.classList.remove('active');
+                                showStatus(`Файл "${selectedFile.name}" загружен. Готов к анализу.`, 'success');
+                            }
+                            
+                            // Анимация для области загрузки файла
+                            fileDropArea.style.borderColor = 'var(--success)';
+                            setTimeout(() => {
+                                fileDropArea.style.borderColor = '';
+                            }, 2000);
+                        }
+                    });
+                }
+                
+                // Обработка нажатия кнопки сканирования
+                if (scanButton) {
+                    scanButton.addEventListener('click', function() {
+                        if (!selectedFile) {
+                            showStatus('Пожалуйста, выберите файл логов для анализа', 'error');
+                            fileDropArea.style.borderColor = 'var(--error)';
+                            setTimeout(() => {
+                                fileDropArea.style.borderColor = '';
+                            }, 2000);
+                            return;
+                        }
+                        
+                        const searchWord = searchWordInput.value.trim();
+                        if (!searchWord) {
+                            showStatus('Введите слово или ссылку для поиска', 'error');
+                            searchWordInput.focus();
+                            return;
+                        }
+                        
+                        // Показываем индикатор прогресса
+                        showProgressOverlay('Подготовка к сканированию...');
+                        
+                        // Инициализируем статистику
+                        scanStartTime = Date.now();
+                        let linesProcessed = 0;
+                        let matchesFound = 0;
+                        let lastUpdateTime = Date.now();
+                        
+                        // Функция обновления статистики
+                        function updateStats(lines, matches) {
+                            linesProcessed = lines;
+                            matchesFound = matches;
+                            
+                            const currentTime = Date.now();
+                            const timeDiff = currentTime - lastUpdateTime;
+                            
+                            if (timeDiff > 1000) { // Обновляем раз в секунду
+                                const speed = Math.round(linesProcessed / ((currentTime - scanStartTime) / 1000));
+                                scanSpeed.textContent = speed.toLocaleString();
+                                
+                                // Обновляем прогресс
+                                const fileSizeMB = selectedFile.size / (1024 * 1024);
+                                const progressPercent = Math.min(100, Math.round((linesProcessed / (fileSizeMB * 500)) * 100)); // Примерная оценка
+                                
+                                updateProgress(
+                                    progressPercent,
+                                    `Обработано: ${linesProcessed.toLocaleString()} строк | Найдено: ${matchesFound} совпадений`,
+                                    `Скорость: ${speed.toLocaleString()} строк/сек`
+                                );
+                                
+                                processedLines.textContent = linesProcessed.toLocaleString();
+                                foundMatches.textContent = matchesFound;
+                                
+                                lastUpdateTime = currentTime;
+                            }
+                        }
+                        
+                        // Запускаем сканирование в зависимости от размера файла
+                        if (isLargeFile) {
+                            // Для больших файлов используем оптимизированное сканирование по частям
+                            scanLargeFile(selectedFile, searchWord, searchMode.value, updateStats);
+                        } else {
+                            // Для маленьких файлов используем обычное сканирование
+                            scanSmallFile(selectedFile, searchWord, searchMode.value, updateStats);
+                        }
+                    });
+                }
+                
+                // Обработка очистки результатов
+                if (clearResultsButton) {
+                    clearResultsButton.addEventListener('click', function() {
+                        clearResults();
+                        showStatus('Результаты очищены', 'info');
+                    });
+                }
+                
+                // Автозаполнение примера для демонстрации
+                const demoLogContent = generateDemoLogContent(1000);
+                
+                // Создаем демонстрационный файл
+                selectedFile = new File([demoLogContent], 'security_logs.log', { type: 'text/plain' });
+                if (fileName) {
+                    fileName.textContent = `Демонстрационный файл: security_logs.log`;
+                }
+                if (fileSize) {
+                    fileSize.textContent = `Размер: ${formatFileSize(demoLogContent.length)}`;
+                }
+                if (statusText) {
+                    statusText.textContent = 'Демонстрационный файл загружен. Нажмите "Просканировать лог-файл" для анализа.';
+                }
+                
+                // Анимация для области загрузки файла
+                if (fileDropArea) {
+                    fileDropArea.style.borderColor = 'var(--ice)';
+                    setTimeout(() => {
+                        fileDropArea.style.borderColor = '';
+                    }, 1000);
+                }
+            }
+            
+            // Функция сканирования небольших файлов
+            function scanSmallFile(file, searchWord, mode, updateStatsCallback) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const fileContent = e.target.result;
+                    const lines = fileContent.split('\n');
+                    
+                    // Объявляем searchResults в правильной области видимости
+                    const localSearchResults = [];
+                    const cheatDomains = ['0xcheat.net', 'vanish-cheat.net', 'nixware.cc', 'neverlose.cc'];
+                    const isCheatDomain = cheatDomains.some(domain => searchWord.toLowerCase().includes(domain));
+                    
+                    progressSubtitle.textContent = 'Поиск совпадений в файле...';
+                    
+                    // Имитация прогресса для маленьких файлов
+                    let progress = 0;
+                    const totalLines = lines.length;
+                    const progressInterval = setInterval(() => {
+                        progress += 100 / (totalLines / 100);
+                        if (progress > 100) progress = 100;
+                        updateProgress(progress, `Обработка строк: ${Math.round(progress)}%`);
+                    }, 50);
+                    
+                    setTimeout(() => {
+                        lines.forEach((line, index) => {
+                            if (checkMatch(line, searchWord, mode)) {
+                                localSearchResults.push({
+                                    lineNumber: index + 1,
+                                    content: line,
+                                    matches: findAllMatches(line, searchWord, mode),
+                                    isCheat: isCheatDomain
+                                });
+                            }
+                            
+                            // Обновляем статистику каждые 100 строк
+                            if (index % 100 === 0) {
+                                updateStatsCallback(index + 1, localSearchResults.length);
+                            }
+                        });
+                        
+                        clearInterval(progressInterval);
+                        updateProgress(100, 'Анализ завершен!');
+                        
+                        // Обновляем глобальный массив результатов
+                        searchResults = localSearchResults;
+                        
+                        // Задержка для отображения 100% прогресса
+                        setTimeout(() => {
+                            // Отображение результатов
+                            displayResults(searchWord, mode);
+                            
+                            // Скрываем индикатор прогресса
+                            hideProgressOverlay();
+                            
+                            // Обновляем статус
+                            if (searchResults.length > 0) {
+                                const cheatCount = searchResults.filter(r => r.isCheat).length;
+                                if (cheatCount > 0) {
+                                    showStatus(`Обнаружено ${searchResults.length} совпадений (${cheatCount} потенциально опасных)`, 'warning');
+                                } else {
+                                    showStatus(`Найдено ${searchResults.length} совпадений`, 'success');
+                                }
+                            } else {
+                                showStatus('Совпадений не найдено', 'info');
+                            }
+                        }, 500);
+                    }, 500);
+                };
+                
+                reader.onerror = function() {
+                    hideProgressOverlay();
+                    showStatus('Ошибка чтения файла', 'error');
+                };
+                
+                reader.readAsText(file);
+            }
+            
+            // Функция сканирования больших файлов (оптимизированная)
+            function scanLargeFile(file, searchWord, mode, updateStatsCallback) {
+                progressSubtitle.textContent = 'Оптимизированная обработка большого файла...';
+                
+                const chunkSize = 10 * 1024 * 1024; // 10 MB chunks
+                const fileSize = file.size;
+                let offset = 0;
+                const localSearchResults = []; // Локальный массив для результатов
+                let allLines = [];
+                let linesProcessed = 0;
+                let matchesFound = 0;
+                
+                const cheatDomains = ['0xcheat.net', 'vanish-cheat.net', 'nixware.cc', 'neverlose.cc'];
+                const isCheatDomain = cheatDomains.some(domain => searchWord.toLowerCase().includes(domain));
+                
+                // Функция для чтения чанка файла
+                function readNextChunk() {
+                    if (offset >= fileSize) {
+                        // Все чанки прочитаны
+                        // Обновляем глобальный массив результатов
+                        searchResults = localSearchResults;
+                        
+                        setTimeout(() => {
+                            updateProgress(100, 'Анализ завершен!');
+                            
+                            // Задержка для отображения 100% прогресса
+                            setTimeout(() => {
+                                // Отображение результатов
+                                displayResults(searchWord, mode);
+                                
+                                // Скрываем индикатор прогресса
+                                hideProgressOverlay();
+                                
+                                // Обновляем статус
+                                const totalMatches = localSearchResults.length;
+                                const cheatCount = localSearchResults.filter(r => r.isCheat).length;
+                                
+                                if (totalMatches > 0) {
+                                    if (cheatCount > 0) {
+                                        showStatus(`Обнаружено ${totalMatches} совпадений (${cheatCount} потенциально опасных). Обработано ${linesProcessed.toLocaleString()} строк.`, 'warning');
+                                    } else {
+                                        showStatus(`Найдено ${totalMatches} совпадений. Обработано ${linesProcessed.toLocaleString()} строк.`, 'success');
+                                    }
+                                } else {
+                                    showStatus(`Совпадений не найдено. Обработано ${linesProcessed.toLocaleString()} строк.`, 'info');
+                                }
+                            }, 500);
+                        }, 500);
+                        return;
+                    }
+                    
+                    const chunk = file.slice(offset, offset + chunkSize);
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const chunkContent = e.target.result;
+                        
+                        // Обработка чанка
+                        const lines = chunkContent.split('\n');
+                        
+                        // Для первого чанка добавляем все строки
+                        // Для последующих чанков первая строка может быть продолжением предыдущей
+                        if (offset > 0 && allLines.length > 0) {
+                            allLines[allLines.length - 1] += lines[0];
+                            lines.shift(); // Удаляем первую строку, так как она была добавлена к предыдущей
+                        }
+                        
+                        allLines = allLines.concat(lines);
+                        
+                        // Поиск в текущем чанке
+                        lines.forEach((line, index) => {
+                            const absoluteLineNumber = linesProcessed + index + 1;
+                            
+                            if (checkMatch(line, searchWord, mode)) {
+                                localSearchResults.push({
+                                    lineNumber: absoluteLineNumber,
+                                    content: line,
+                                    matches: findAllMatches(line, searchWord, mode),
+                                    isCheat: isCheatDomain
+                                });
+                                matchesFound++;
+                            }
+                        });
+                        
+                        linesProcessed += lines.length;
+                        
+                        // Обновляем прогресс
+                        const progressPercent = Math.round((offset / fileSize) * 100);
+                        updateProgress(
+                            progressPercent,
+                            `Обработано: ${linesProcessed.toLocaleString()} строк | Найдено: ${matchesFound} совпадений`,
+                            `Чанк ${Math.floor(offset / chunkSize) + 1}/${Math.ceil(fileSize / chunkSize)}`
+                        );
+                        
+                        // Обновляем статистику
+                        updateStatsCallback(linesProcessed, matchesFound);
+                        
+                        // Читаем следующий чанк
+                        offset += chunkSize;
+                        setTimeout(readNextChunk, 50); // Небольшая задержка для UI
+                    };
+                    
+                    reader.onerror = function() {
+                        hideProgressOverlay();
+                        showStatus('Ошибка чтения файла', 'error');
+                    };
+                    
+                    reader.readAsText(chunk);
+                }
+                
+                // Начинаем чтение
+                readNextChunk();
+            }
+            
+            // Функция проверки совпадения в зависимости от режима
+            function checkMatch(line, searchWord, mode) {
+                switch(mode) {
+                    case 'exact':
+                        return line.includes(searchWord);
+                    case 'partial':
+                        return line.toLowerCase().includes(searchWord.toLowerCase());
+                    case 'caseSensitive':
+                        return line.includes(searchWord);
+                    case 'regex':
+                        try {
+                            const regex = new RegExp(searchWord);
+                            return regex.test(line);
+                        } catch(e) {
+                            return line.includes(searchWord);
+                        }
+                    default:
+                        return line.includes(searchWord);
+                }
+            }
+            
+            // Функция для поиска всех вхождений слова в строке
+            function findAllMatches(text, searchWord, mode) {
+                const matches = [];
+                
+                switch(mode) {
+                    case 'exact':
+                    case 'caseSensitive':
+                        let index = text.indexOf(searchWord);
+                        while (index !== -1) {
+                            matches.push({
+                                start: index,
+                                end: index + searchWord.length
+                            });
+                            index = text.indexOf(searchWord, index + 1);
+                        }
+                        break;
+                        
+                    case 'partial':
+                        const lowerText = text.toLowerCase();
+                        const lowerSearch = searchWord.toLowerCase();
+                        let idx = lowerText.indexOf(lowerSearch);
+                        while (idx !== -1) {
+                            matches.push({
+                                start: idx,
+                                end: idx + searchWord.length
+                            });
+                            idx = lowerText.indexOf(lowerSearch, idx + 1);
+                        }
+                        break;
+                        
+                    case 'regex':
+                        try {
+                            const regex = new RegExp(searchWord, 'g');
+                            let match;
+                            while ((match = regex.exec(text)) !== null) {
+                                matches.push({
+                                    start: match.index,
+                                    end: match.index + match[0].length
+                                });
+                            }
+                        } catch(e) {
+                            // Если regex невалидный, ищем обычное вхождение
+                            let idx = text.indexOf(searchWord);
+                            while (idx !== -1) {
+                                matches.push({
+                                    start: idx,
+                                    end: idx + searchWord.length
+                                });
+                                idx = text.indexOf(searchWord, idx + 1);
+                            }
+                        }
+                        break;
+                }
+                
+                return matches;
+            }
+            
+            // Функция отображения результатов
+            function displayResults(searchWord, mode) {
+                // Проверяем, что searchResults существует и является массивом
+                if (!searchResults || !Array.isArray(searchResults)) {
+                    searchResults = [];
+                }
+                
+                resultsCount.textContent = searchResults.length;
+                
+                if (searchResults.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search-minus"></i>
+                            <h3>Совпадений не найдено</h3>
+                            <p>Слово или ссылка "${searchWord}" не найдена в выбранном файле</p>
+                            <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary)">
+                                Режим поиска: ${getModeName(mode)}
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let resultsHTML = '';
+                const cheatDomains = ['0xcheat.net', 'vanish-cheat.net', 'nixware.cc', 'neverlose.cc'];
+                
+                searchResults.forEach((result, index) => {
+                    let lineContent = result.content;
+                    
+                    // Подсветка всех совпадений
+                    result.matches.reverse().forEach(match => {
+                        const before = lineContent.substring(0, match.start);
+                        const matchText = lineContent.substring(match.start, match.end);
+                        const after = lineContent.substring(match.end);
+                        
+                        // Используем специальную подсветку для читов
+                        const highlightClass = result.isCheat ? 'cheat-highlight' : 'highlight';
+                        lineContent = `${before}<span class="${highlightClass}">${matchText}</span>${after}`;
+                    });
+                    
+                    // Добавляем предупреждение для потенциально опасных записей
+                    const warningIcon = result.isCheat ? '<i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-right: 8px;"></i>' : '';
+                    const warningText = result.isCheat ? '<span style="color: var(--warning); font-size: 0.9rem; font-weight: 600;">[ПОТЕНЦИАЛЬНО ОПАСНО]</span>' : '';
+                    
+                    resultsHTML += `
+                        <div class="result-item" style="animation-delay: ${index * 0.05}s">
+                            <div class="result-line">
+                                ${warningIcon}
+                                <strong style="color: ${result.isCheat ? 'var(--warning)' : 'var(--ice)'}">Строка ${result.lineNumber}:</strong> 
+                                ${warningText}
+                                ${lineContent}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsContainer.innerHTML = resultsHTML;
+                
+                // Добавляем информацию о режиме поиска
+                const modeInfo = document.createElement('div');
+                modeInfo.style.padding = '1rem';
+                modeInfo.style.borderTop = '1px solid var(--border)';
+                modeInfo.style.color = 'var(--text-secondary)';
+                modeInfo.style.fontSize = '0.9rem';
+                modeInfo.innerHTML = `<i class="fas fa-info-circle"></i> Режим поиска: ${getModeName(mode)} | Найдено совпадений: ${searchResults.length}`;
+                
+                resultsContainer.appendChild(modeInfo);
+            }
+            
+            // Функция получения названия режима
+            function getModeName(mode) {
+                switch(mode) {
+                    case 'exact': return 'Точное совпадение';
+                    case 'partial': return 'Частичное совпадение';
+                    case 'caseSensitive': return 'С учетом регистра';
+                    case 'regex': return 'Регулярное выражение';
+                    default: return 'Точное совпадение';
+                }
+            }
+            
+            // Функция очистки результатов
+            function clearResults() {
+                searchResults = [];
+                resultsCount.textContent = '0';
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Результаты появятся здесь</h3>
+                        <p>Загрузите файл логов и введите слово для поиска, чтобы увидеть результаты</p>
+                    </div>
+                `;
+            }
+            
+            // Функции для управления прогресс-баром
+            function showProgressOverlay(subtitle = 'Загрузка файла...') {
+                progressOverlay.classList.add('active');
+                progressSubtitle.textContent = subtitle;
+                progressFill.style.width = '0%';
+                fileProgress.textContent = '0%';
+                timeRemaining.textContent = 'Осталось: ~';
+                processedLines.textContent = '0';
+                foundMatches.textContent = '0';
+                scanSpeed.textContent = '0';
+            }
+            
+            function hideProgressOverlay() {
+                progressOverlay.classList.remove('active');
+            }
+            
+            function updateProgress(percent, text, subtitle = null) {
+                progressFill.style.width = `${percent}%`;
+                fileProgress.textContent = `${Math.round(percent)}%`;
+                progressText.textContent = text;
+                
+                if (subtitle) {
+                    progressSubtitle.textContent = subtitle;
+                }
+                
+                // Расчет оставшегося времени
+                if (scanStartTime && percent > 0 && percent < 100) {
+                    const elapsed = Date.now() - scanStartTime;
+                    const estimatedTotal = (elapsed / percent) * 100;
+                    const remaining = Math.max(0, estimatedTotal - elapsed);
+                    
+                    if (remaining < 60000) {
+                        timeRemaining.textContent = `Осталось: ~${Math.round(remaining / 1000)} сек`;
+                    } else {
+                        timeRemaining.textContent = `Осталось: ~${Math.round(remaining / 60000)} мин`;
+                    }
+                }
+            }
+            
+            // Функция отображения статуса
+            function showStatus(message, type = 'info') {
+                if (!statusText) return;
+                
+                statusText.textContent = message;
+                
+                // Анимация для статуса
+                statusText.style.opacity = '0.7';
+                statusText.style.transform = 'translateY(-5px)';
+                
+                setTimeout(() => {
+                    statusText.style.opacity = '1';
+                    statusText.style.transform = 'translateY(0)';
+                }, 10);
+                
+                // Цвет в зависимости от типа
+                if (type === 'error') {
+                    statusText.style.color = 'var(--error)';
+                } else if (type === 'success') {
+                    statusText.style.color = 'var(--success)';
+                } else if (type === 'warning') {
+                    statusText.style.color = 'var(--warning)';
+                } else {
+                    statusText.style.color = 'var(--text-secondary)';
+                }
+                
+                // Возвращаем обычный цвет через 3 секунды
+                setTimeout(() => {
+                    if (statusText) {
+                        statusText.style.color = '';
+                    }
+                }, 3000);
+            }
+            
+            // Функция форматирования размера файла
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Функция генерации демо-логов
+            function generateDemoLogContent(lineCount = 1000) {
+                const logLevels = ['INFO', 'WARNING', 'ERROR', 'DEBUG'];
+                const actions = [
+                    'User connected', 'User disconnected', 'Process started', 'Process terminated',
+                    'File accessed', 'Network connection', 'Security check', 'System scan'
+                ];
+                const cheatDomains = ['0xcheat.net', 'vanish-cheat.net', 'nixware.cc', 'neverlose.cc'];
+                
+                let logContent = '';
+                const startDate = new Date();
+                
+                for (let i = 0; i < lineCount; i++) {
+                    const timestamp = new Date(startDate.getTime() + i * 1000).toISOString().replace('T', ' ').substring(0, 19);
+                    const level = logLevels[Math.floor(Math.random() * logLevels.length)];
+                    const action = actions[Math.floor(Math.random() * actions.length)];
+                    
+                    let message = `${action} from IP: 192.168.1.${Math.floor(Math.random() * 255)}`;
+                    
+                    // Иногда добавляем ссылки на читы
+                    if (Math.random() < 0.05) {
+                        const cheatDomain = cheatDomains[Math.floor(Math.random() * cheatDomains.length)];
+                        message += ` | Suspicious domain: ${cheatDomain}`;
+                    }
+                    
+                    // Иногда добавляем обычные URL
+                    if (Math.random() < 0.1) {
+                        message += ` | URL: example${Math.floor(Math.random() * 10)}.com`;
+                    }
+                    
+                    logContent += `${timestamp} ${level} ${message}\n`;
+                }
+                
+                return logContent;
+            }
+            
+            // Закрываем сессию при закрытии вкладки/окна
+            window.addEventListener('beforeunload', function() {
+                sessionStorage.removeItem('scannerSessionActive');
+            });
+        });
+    </script>
+</body>
+</html>
