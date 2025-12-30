@@ -1274,7 +1274,7 @@
             
             <div class="login-footer">
                 <p>© 2025 Blax Search | Защищенное соединение 🔒</p>
-                <p style="margin-top: 0.5rem; font-size: 0.8rem;">сосал</p>
+                <p style="margin-top: 0.5rem; font-size: 0.8rem;">biodiesels</p>
             </div>
         </div>
     </div>
@@ -1638,6 +1638,146 @@
             }
         }
 
+        // Основные функции сканера
+        function checkMatch(line, searchWord, mode) {
+            if (!searchWord || !line) return false;
+            
+            switch(mode) {
+                case 'exact':
+                    return line.includes(searchWord);
+                case 'partial':
+                    return line.toLowerCase().includes(searchWord.toLowerCase());
+                case 'caseSensitive':
+                    return line.includes(searchWord);
+                case 'regex':
+                    try {
+                        const regex = new RegExp(searchWord);
+                        return regex.test(line);
+                    } catch(e) {
+                        return line.includes(searchWord);
+                    }
+                default:
+                    return line.includes(searchWord);
+            }
+        }
+
+        function scanFile(file, searchWord, mode) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const startTime = Date.now();
+                
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        const lines = content.split('\n');
+                        const results = [];
+                        const cheatDomains = [
+                            '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
+                            'wexside.ru', 'nixware.cc', 'neverlose.cc'
+                        ];
+                        
+                        let isCheatDomain = false;
+                        for (const domain of cheatDomains) {
+                            if (searchWord.toLowerCase().includes(domain.toLowerCase())) {
+                                isCheatDomain = true;
+                                break;
+                            }
+                        }
+                        
+                        // Поиск по всем строкам
+                        for (let i = 0; i < lines.length; i++) {
+                            if (checkMatch(lines[i], searchWord, mode)) {
+                                results.push({
+                                    lineNumber: i + 1,
+                                    content: lines[i],
+                                    isCheat: isCheatDomain
+                                });
+                            }
+                        }
+                        
+                        const endTime = Date.now();
+                        resolve({
+                            results: results,
+                            time: endTime - startTime,
+                            totalLines: lines.length
+                        });
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('Ошибка чтения файла'));
+                };
+                
+                reader.readAsText(file);
+            });
+        }
+
+        function displayResults(results, searchWord) {
+            const container = document.getElementById('resultsContainer');
+            const countElement = document.getElementById('resultsCount');
+            
+            countElement.textContent = results.length;
+            
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search-minus"></i>
+                        <h3>Совпадений не найдено</h3>
+                        <p>Слово "${searchWord}" не найдено в выбранном файле</p>
+                        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary)">
+                            Попробуйте изменить поисковый запрос или выбрать другой файл
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            const cheatDomains = [
+                '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
+                'wexside.ru', 'nixware.cc', 'neverlose.cc'
+            ];
+            
+            results.forEach((result, index) => {
+                // Проверяем, является ли результат потенциальной угрозой
+                let isCheatResult = false;
+                for (const domain of cheatDomains) {
+                    if (result.content.toLowerCase().includes(domain)) {
+                        isCheatResult = true;
+                        break;
+                    }
+                }
+                
+                const cheatClass = isCheatResult ? 'cheat-highlight' : 'highlight';
+                const cheatIcon = isCheatResult ? '<i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-right: 8px;"></i>' : '';
+                const warningText = isCheatResult ? '<span style="color: var(--warning); font-size: 0.9rem; font-weight: 600;">[cheat]</span> ' : '';
+                
+                let content = result.content;
+                
+                // Подсветка найденного слова
+                if (searchWord) {
+                    const escapedWord = searchWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(`(${escapedWord})`, 'gi');
+                    content = content.replace(regex, `<span class="${cheatClass}">$1</span>`);
+                }
+                
+                html += `
+                    <div class="result-item" style="animation-delay: ${index * 0.05}s">
+                        <div class="result-line">
+                            ${cheatIcon}
+                            <strong style="color: ${isCheatResult ? 'var(--warning)' : 'var(--ice)'}">Строка ${result.lineNumber}:</strong> 
+                            ${warningText}
+                            ${content}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Инициализация фона и снежинок
             createRealisticSnowflakes();
@@ -1751,13 +1891,74 @@
                 const fileSize = document.getElementById('fileSize');
                 const scanButton = document.getElementById('scanButton');
                 const clearResultsButton = document.getElementById('clearResults');
+                const searchWordInput = document.getElementById('searchWord');
+                const searchModeSelect = document.getElementById('searchMode');
                 
-                // Демонстрационный файл
-                const demoContent = generateDemoLogContent(800);
-                selectedFile = new File([demoContent], 'demo_security_logs.log', { type: 'text/plain' });
+                // Создание демонстрационного файла с реальными данными
+                function createDemoFile() {
+                    const lines = [];
+                    const cheatDomains = [
+                        '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
+                        'wexside.ru', 'nixware.cc', 'neverlose.cc'
+                    ];
+                    const normalDomains = [
+                        'google.com', 'youtube.com', 'github.com',
+                        'stackoverflow.com', 'microsoft.com', 'apple.com'
+                    ];
+                    const logLevels = ['INFO', 'WARNING', 'ERROR', 'DEBUG', 'SECURITY'];
+                    const actions = [
+                        'User login attempt', 'File access', 'Network connection',
+                        'Database query', 'API request', 'System update',
+                        'Security scan', 'Process execution', 'Memory allocation'
+                    ];
+                    
+                    // Создаем 1000 строк логов
+                    for (let i = 0; i < 1000; i++) {
+                        const timestamp = new Date(Date.now() - Math.random() * 86400000)
+                            .toISOString()
+                            .replace('T', ' ')
+                            .substring(0, 19);
+                        
+                        const level = logLevels[Math.floor(Math.random() * logLevels.length)];
+                        const action = actions[Math.floor(Math.random() * actions.length)];
+                        const ip = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+                        
+                        let line = `[${timestamp}] [${level}] ${action} from ${ip}`;
+                        
+                        // В 10% случаев добавляем подозрительные домены
+                        if (Math.random() < 0.1) {
+                            const cheatDomain = cheatDomains[Math.floor(Math.random() * cheatDomains.length)];
+                            line += ` | Domain: ${cheatDomain}`;
+                        }
+                        // В 20% случаев добавляем нормальные домены
+                        else if (Math.random() < 0.2) {
+                            const normalDomain = normalDomains[Math.floor(Math.random() * normalDomains.length)];
+                            line += ` | Domain: ${normalDomain}`;
+                        }
+                        
+                        lines.push(line);
+                    }
+                    
+                    // Добавляем несколько строк с 0xcheats.net для демонстрации
+                    for (let i = 0; i < 5; i++) {
+                        const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+                        const ip = `10.0.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+                        lines.splice(
+                            Math.floor(Math.random() * 900),
+                            0,
+                            `[${timestamp}] [SECURITY] Suspicious connection detected to 0xcheats.net from ${ip}`
+                        );
+                    }
+                    
+                    return lines.join('\n');
+                }
+                
+                // Инициализация демо-файла
+                const demoContent = createDemoFile();
+                selectedFile = new File([demoContent], 'security_logs_2025.log', { type: 'text/plain' });
                 
                 if (fileName && fileSize) {
-                    fileName.textContent = `📁 Демонстрационный файл: demo_security_logs.log`;
+                    fileName.textContent = `📁 Демонстрационный файл: security_logs_2025.log`;
                     fileSize.textContent = `📊 Размер: ${formatFileSize(demoContent.length)}`;
                 }
                 
@@ -1827,48 +2028,51 @@
                 
                 // Кнопка сканирования
                 if (scanButton) {
-                    scanButton.addEventListener('click', function() {
+                    scanButton.addEventListener('click', async function() {
                         if (!selectedFile) {
                             showStatus('Пожалуйста, выберите файл для анализа', 'error');
                             return;
                         }
                         
-                        const searchWord = document.getElementById('searchWord').value.trim();
+                        const searchWord = searchWordInput.value.trim();
                         if (!searchWord) {
                             showStatus('Введите слово для поиска', 'error');
+                            searchWordInput.focus();
                             return;
                         }
                         
-                        // Имитация сканирования
-                        const startTime = Date.now();
+                        const mode = searchModeSelect.value;
                         const loadingIndicator = document.getElementById('loadingIndicator');
                         const statusText = document.getElementById('statusText');
                         
+                        // Показываем индикатор загрузки
                         loadingIndicator.classList.add('active');
                         statusText.textContent = 'Сканирование файла...';
+                        scanButton.disabled = true;
                         
-                        // Генерация демо-результатов
-                        setTimeout(() => {
-                            const demoResults = generateDemoResults(searchWord, 150);
-                            searchResults = demoResults;
-                            
-                            // Обновление интерфейса
-                            document.getElementById('resultsCount').textContent = demoResults.length;
-                            displayResults();
-                            
-                            // Статистика
+                        try {
+                            // Запускаем сканирование
+                            const startTime = Date.now();
+                            const scanResult = await scanFile(selectedFile, searchWord, mode);
                             const endTime = Date.now();
+                            
+                            // Обновляем результаты
+                            searchResults = scanResult.results;
+                            displayResults(searchResults, searchWord);
+                            
+                            // Обновляем статистику
                             const scanTime = endTime - startTime;
                             totalScanTime += scanTime;
                             totalScans++;
                             
-                            // Сохранение в историю
+                            // Сохраняем в историю
                             scanHistory.push({
                                 timestamp: new Date().toISOString(),
                                 filename: selectedFile.name,
                                 searchWord: searchWord,
-                                results: demoResults.length,
-                                time: scanTime
+                                results: searchResults.length,
+                                time: scanTime,
+                                mode: mode
                             });
                             
                             if (scanHistory.length > 50) {
@@ -1879,11 +2083,28 @@
                             localStorage.setItem('totalScans', totalScans.toString());
                             localStorage.setItem('totalScanTime', totalScanTime.toString());
                             
-                            // Обновление статуса
+                            // Показываем результат
                             loadingIndicator.classList.remove('active');
-                            showStatus(`Сканирование завершено. Найдено ${demoResults.length} совпадений за ${(scanTime/1000).toFixed(2)} сек`, 'success');
+                            scanButton.disabled = false;
+                            
+                            if (searchResults.length > 0) {
+                                const cheatCount = searchResults.filter(r => r.isCheat).length;
+                                if (cheatCount > 0) {
+                                    showStatus(`Найдено ${searchResults.length} совпадений (${cheatCount} потенциально опасных) за ${(scanTime/1000).toFixed(2)} сек`, 'warning');
+                                } else {
+                                    showStatus(`Найдено ${searchResults.length} совпадений за ${(scanTime/1000).toFixed(2)} сек`, 'success');
+                                }
+                            } else {
+                                showStatus(`Совпадений не найдено. Обработано ${scanResult.totalLines} строк за ${(scanTime/1000).toFixed(2)} сек`, 'info');
+                            }
+                            
                             showAdvancedStats();
-                        }, 1500);
+                            
+                        } catch (error) {
+                            loadingIndicator.classList.remove('active');
+                            scanButton.disabled = false;
+                            showStatus(`Ошибка сканирования: ${error.message}`, 'error');
+                        }
                     });
                 }
                 
@@ -1904,7 +2125,7 @@
                 }
                 
                 // Показать начальный статус
-                showStatus('Демонстрационный файл загружен. Нажмите "Запустить сканирование" для теста.', 'info');
+                showStatus('Демонстрационный файл загружен. Введите слово для поиска и нажмите "Запустить сканирование".', 'info');
             }
             
             // Вспомогательные функции
@@ -1943,143 +2164,6 @@
                         statusEl.style.color = '';
                     }, 5000);
                 }
-            }
-            
-            function generateDemoLogContent(lineCount = 500) {
-                const levels = ['INFO', 'WARN', 'ERROR', 'DEBUG', 'SECURITY'];
-                const actions = [
-                    'User authentication', 'File system access', 'Network connection', 
-                    'Database query', 'API request', 'System update', 'Security scan',
-                    'Process execution', 'Memory allocation', 'Disk I/O operation'
-                ];
-                
-                const cheatDomains = [
-                    '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
-                    'wexside.ru', 'nixware.cc', 'neverlose.cc',
-                    'aimware.net', 'gamesense.pub', 'skeet.cc'
-                ];
-                
-                let content = '';
-                const start = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 часа назад
-                
-                for (let i = 0; i < lineCount; i++) {
-                    const time = new Date(start.getTime() + i * 30000); // Каждые 30 секунд
-                    const timestamp = time.toISOString().replace('T', ' ').substr(0, 19);
-                    const level = levels[Math.floor(Math.random() * levels.length)];
-                    const action = actions[Math.floor(Math.random() * actions.length)];
-                    const ip = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-                    
-                    let msg = `${action} from ${ip}`;
-                    
-                    // Добавляем подозрительные домены в 8% случаев
-                    if (Math.random() < 0.08) {
-                        const domain = cheatDomains[Math.floor(Math.random() * cheatDomains.length)];
-                        msg += ` | Detected suspicious domain: ${domain}`;
-                    }
-                    
-                    // Добавляем обычные URL в 15% случаев
-                    if (Math.random() < 0.15) {
-                        msg += ` | Request to: https://service${Math.floor(Math.random() * 20)}.com`;
-                    }
-                    
-                    // Добавляем пользователей
-                    if (Math.random() < 0.2) {
-                        const users = ['admin', 'user1', 'system', 'guest', 'backup'];
-                        const user = users[Math.floor(Math.random() * users.length)];
-                        msg += ` | User: ${user}`;
-                    }
-                    
-                    content += `${timestamp} [${level}] ${msg}\n`;
-                }
-                
-                return content;
-            }
-            
-            function generateDemoResults(searchWord, count) {
-                const results = [];
-                const cheatDomains = [
-                    '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
-                    'wexside.ru', 'nixware.cc', 'neverlose.cc'
-                ];
-                const isCheatDomain = cheatDomains.some(domain => searchWord.toLowerCase().includes(domain));
-                
-                for (let i = 0; i < count; i++) {
-                    const lineNumber = Math.floor(Math.random() * 800) + 1;
-                    const timestamp = new Date(Date.now() - Math.random() * 86400000).toISOString().substr(11, 8);
-                    const levels = ['INFO', 'WARN', 'ERROR'];
-                    const level = levels[Math.floor(Math.random() * levels.length)];
-                    
-                    let content = `[${timestamp}] [${level}] `;
-                    
-                    // Случайный контент
-                    const actions = [
-                        'Network request to', 'User accessed', 'System detected',
-                        'Connection from', 'File downloaded from', 'Process attempted to connect to'
-                    ];
-                    const action = actions[Math.floor(Math.random() * actions.length)];
-                    
-                    if (Math.random() > 0.3) {
-                        // Содержит искомое слово
-                        content += `${action} ${searchWord} from IP 192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-                    } else {
-                        // Не содержит
-                        content += `${action} example${Math.floor(Math.random() * 10)}.com from IP 10.0.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-                    }
-                    
-                    results.push({
-                        lineNumber: lineNumber,
-                        content: content,
-                        isCheat: isCheatDomain && Math.random() > 0.5
-                    });
-                }
-                
-                return results.sort((a, b) => a.lineNumber - b.lineNumber);
-            }
-            
-            function displayResults() {
-                const container = document.getElementById('resultsContainer');
-                if (searchResults.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-search-minus"></i>
-                            <h3>Совпадений не найдено</h3>
-                            <p>Попробуйте изменить поисковый запрос или выберите другой файл</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                let html = '';
-                searchResults.forEach((result, index) => {
-                    const cheatClass = result.isCheat ? 'cheat-highlight' : 'highlight';
-                    const cheatIcon = result.isCheat ? '<i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-right: 8px;"></i>' : '';
-                    const warningText = result.isCheat ? '<span style="color: var(--warning); font-size: 0.9rem; font-weight: 600;">[ПОТЕНЦИАЛЬНАЯ УГРОЗА]</span> ' : '';
-                    
-                    let content = result.content;
-                    const searchWord = document.getElementById('searchWord').value;
-                    
-                    // Подсветка найденного слова
-                    if (content.includes(searchWord)) {
-                        const highlighted = content.replace(
-                            new RegExp(searchWord, 'gi'),
-                            match => `<span class="${cheatClass}">${match}</span>`
-                        );
-                        content = highlighted;
-                    }
-                    
-                    html += `
-                        <div class="result-item" style="animation-delay: ${index * 0.03}s">
-                            <div class="result-line">
-                                ${cheatIcon}
-                                <strong style="color: ${result.isCheat ? 'var(--warning)' : 'var(--ice)'}">Строка ${result.lineNumber}:</strong> 
-                                ${warningText}
-                                ${content}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                container.innerHTML = html;
             }
             
             // Автоматический логаут при неактивности (45 минут)
