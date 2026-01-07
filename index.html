@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <link rel="icon" href="favicon.png?v=202512291719" type="image/png">
     <link rel="shortcut icon" href="favicon.png?v=202512291719">
     <link rel="apple-touch-icon" href="favicon.png?v=202512291719">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blax Search - Advanced Log Scanner</title>
+    <title>Cyrox Search - Advanced Log Scanner</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -44,7 +44,76 @@
             position: relative;
         }
 
-        /* Анимированный космический фон */
+        /* Иконка профиля в правом верхнем углу */
+        .profile-icon {
+            position: fixed;
+            top: 2rem;
+            right: 6rem; /* Отступ от кнопки выхода */
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            z-index: 1000;
+            border: 2px solid rgba(76, 201, 240, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(76, 201, 240, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            background: rgba(26, 35, 50, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-icon:hover {
+            transform: translateY(-3px) scale(1.05);
+            border-color: var(--ice);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(76, 201, 240, 0.4);
+        }
+
+        .profile-icon:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .profile-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-icon .icon-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--ice);
+            background: linear-gradient(135deg, rgba(76, 201, 240, 0.2), rgba(114, 9, 183, 0.2));
+        }
+
+        .profile-icon .badge {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, var(--warning), var(--error));
+            border-radius: 50%;
+            border: 2px solid var(--surface);
+            animation: pulseBadge 2s infinite alternate;
+        }
+
+        @keyframes pulseBadge {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* Анимированный фон космоса */
         .space-background {
             position: fixed;
             top: 0;
@@ -143,7 +212,7 @@
             z-index: 10;
         }
 
-        /* Страница входа */
+        /* Страница логина */
         .login-container {
             display: flex;
             justify-content: center;
@@ -441,7 +510,7 @@
             animation: fadeInContent 0.8s ease forwards;
         }
 
-        /* Админ панель */
+        /* Админ-панель */
         .admin-panel {
             display: none;
             opacity: 0;
@@ -640,7 +709,7 @@
             100% { transform: translateX(100%); }
         }
 
-        /* Стили для сканера */
+        /* Стили сканера */
         header {
             text-align: center;
             margin-bottom: 4rem;
@@ -695,6 +764,27 @@
             .content-grid {
                 grid-template-columns: 1fr;
                 gap: 2rem;
+            }
+            
+            .profile-icon {
+                right: 5.5rem;
+                top: 1.8rem;
+                width: 44px;
+                height: 44px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-icon {
+                right: 5rem;
+                top: 1.5rem;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .logout-btn {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.85rem;
             }
         }
 
@@ -1268,7 +1358,7 @@
             opacity: 0.8;
         }
 
-        /* Стили админ панели */
+        /* Стили админ-панели */
         .admin-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1448,7 +1538,7 @@
             }
         }
 
-        /* Полоса прокрутки */
+        /* Скроллбар */
         ::-webkit-scrollbar {
             width: 14px;
         }
@@ -1470,7 +1560,7 @@
             box-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
         }
         
-        /* Новые стили для выбора загруженных файлов */
+        /* Новые стили для выбора сохраненных файлов */
         .stored-files-container {
             margin-top: 1.5rem;
             max-height: 300px;
@@ -1579,6 +1669,235 @@
         .stored-file-action-btn:hover {
             background: rgba(76, 201, 240, 0.2);
         }
+        
+        /* Стили для пользовательских примеров поиска */
+        .custom-example-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(15, 23, 36, 0.7);
+            border: 1px solid rgba(76, 201, 240, 0.25);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .add-example-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(76, 201, 240, 0.15);
+            border: 1px solid rgba(76, 201, 240, 0.3);
+            border-radius: 10px;
+            color: var(--ice);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .add-example-btn:hover {
+            background: rgba(76, 201, 240, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .remove-example-btn {
+            padding: 0.2rem 0.5rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 4px;
+            color: #ff8a8a;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+        
+        .remove-example-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+        
+        /* Стили для модального окна профиля */
+        .profile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .profile-modal-content {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid var(--primary);
+            box-shadow: 
+                0 25px 60px rgba(0, 0, 0, 0.7),
+                0 0 40px rgba(76, 201, 240, 0.3);
+            transform: translateY(-30px);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .profile-modal.active .profile-modal-content {
+            transform: translateY(0);
+        }
+        
+        .profile-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .profile-modal-title {
+            font-size: 1.8rem;
+            color: var(--ice);
+            font-weight: 600;
+        }
+        
+        .profile-modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-modal-close:hover {
+            color: var(--ice);
+            background: rgba(76, 201, 240, 0.1);
+            transform: rotate(90deg);
+        }
+        
+        .profile-info {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            border: 3px solid var(--primary);
+            box-shadow: 
+                0 0 30px rgba(76, 201, 240, 0.5),
+                inset 0 0 20px rgba(76, 201, 240, 0.2);
+            overflow: hidden;
+        }
+        
+        .profile-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-avatar-large .icon-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--ice);
+            background: linear-gradient(135deg, rgba(76, 201, 240, 0.3), rgba(114, 9, 183, 0.3));
+        }
+        
+        .profile-username {
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .profile-role {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(15, 23, 36, 0.7);
+            border-radius: 12px;
+            border: 1px solid rgba(76, 201, 240, 0.15);
+        }
+        
+        .profile-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ice);
+            margin-bottom: 0.3rem;
+        }
+        
+        .profile-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .profile-action-btn {
+            padding: 1rem;
+            background: rgba(76, 201, 240, 0.1);
+            border: 1px solid rgba(76, 201, 240, 0.2);
+            border-radius: 12px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .profile-action-btn:hover {
+            background: rgba(76, 201, 240, 0.2);
+            transform: translateY(-3px);
+            border-color: rgba(76, 201, 240, 0.4);
+        }
+        
+        .profile-action-btn i {
+            font-size: 1.2rem;
+            color: var(--ice);
+        }
     </style>
 </head>
 <body>
@@ -1592,25 +1911,82 @@
     <!-- Реалистичные снежинки -->
     <div class="snowflakes-container" id="snowflakes"></div>
     
-    <!-- Страница входа -->
+    <!-- Модальное окно профиля -->
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-modal-content">
+            <div class="profile-modal-header">
+                <h3 class="profile-modal-title">👤 User Profile</h3>
+                <button class="profile-modal-close" id="closeProfileModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="profile-info">
+                <div class="profile-avatar-large" id="profileAvatarLarge">
+                    <div class="icon-fallback">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                </div>
+                <h3 class="profile-username" id="profileUsername">Cyrox User</h3>
+                <span class="profile-role">Premium Scanner</span>
+                <p style="color: var(--text-secondary); margin-top: 1rem;">Advanced log scanner with AI-powered analysis</p>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="profileTotalScans">0</div>
+                    <div class="profile-stat-label">Total Scans</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="profileFilesProcessed">0</div>
+                    <div class="profile-stat-label">Files Processed</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="profileAvgTime">0.00</div>
+                    <div class="profile-stat-label">Avg Time (s)</div>
+                </div>
+            </div>
+            
+            <div class="profile-actions">
+                <button class="profile-action-btn" onclick="showAdvancedStats()">
+                    <i class="fas fa-chart-line"></i>
+                    View Statistics
+                </button>
+                <button class="profile-action-btn" onclick="saveResults()">
+                    <i class="fas fa-download"></i>
+                    Export Results
+                </button>
+                <button class="profile-action-btn" onclick="showNotification('Profile settings updated', 'info')">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </button>
+                <button class="profile-action-btn" onclick="showNotification('History cleared', 'success')">
+                    <i class="fas fa-history"></i>
+                    Clear History
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Страница логина -->
     <div class="login-container" id="loginPage">
         <div class="login-box">
             <div class="login-header">
                 <div class="login-logo">
                     <i class="fas fa-shield-alt"></i>
                 </div>
-                <h1 class="login-title">🔐 Blax Search</h1>
-                <p class="login-subtitle">Профессиональный сканер логов с продвинутым анализом</p>
+                <h1 class="login-title">🔐 Cyrox Search</h1>
+                <p class="login-subtitle">Professional log scanner with advanced analysis</p>
             </div>
             
             <div class="error-message" id="errorMessage">
                 <i class="fas fa-exclamation-circle"></i>
-                Неверный логин или пароль
+                Invalid username or password
             </div>
             
             <form id="loginForm">
                 <div class="form-group">
-                    <label class="form-label" for="username">Имя пользователя</label>
+                    <label class="form-label" for="username">Username</label>
                     <div class="input-icon">
                         <i class="fas fa-user"></i>
                     </div>
@@ -1618,14 +1994,14 @@
                         type="text" 
                         id="username" 
                         class="form-input" 
-                        placeholder="Введите ваш логин"
+                        placeholder="Enter your username"
                         required
                         autocomplete="username"
                     >
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label" for="password">Пароль</label>
+                    <label class="form-label" for="password">Password</label>
                     <div class="input-icon">
                         <i class="fas fa-lock"></i>
                     </div>
@@ -1633,7 +2009,7 @@
                         type="password" 
                         id="password" 
                         class="form-input" 
-                        placeholder="Введите ваш пароль"
+                        placeholder="Enter your password"
                         required
                         autocomplete="current-password"
                     >
@@ -1641,17 +2017,17 @@
                 
                 <button type="submit" class="login-btn">
                     <i class="fas fa-sign-in-alt"></i>
-                    Войти в систему
+                    Sign In
                 </button>
 
                 <button type="button" class="admin-btn" id="adminLoginBtn">
                     <i class="fas fa-user-shield"></i>
-                    Админ панель (SCN)
+                    Admin Panel (SCN)
                 </button>
             </form>
             
             <div class="login-footer">
-                <p>© 2025 Blax Search | Защищенное соединение 🔒</p>
+                <p>© 2025 Cyrox Search | Secure Connection 🔒</p>
                 <p style="margin-top: 0.5rem; font-size: 0.8rem;">biodiesels</p>
             </div>
         </div>
@@ -1659,114 +2035,123 @@
     
     <!-- Основной контент -->
     <div class="container main-content" id="mainContent">
+        <!-- Иконка профиля в правом верхнем углу -->
+        <div class="profile-icon" id="profileIcon">
+            <div class="icon-fallback">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="badge"></div>
+        </div>
+        
+        <!-- Кнопка выхода -->
         <button class="logout-btn" id="logoutBtn">
             <i class="fas fa-sign-out-alt"></i>
-            Выйти из системы
+            Logout
         </button>
         
         <header>
             <div class="logo">
                 <i class="fas fa-search-logo logo-icon"></i>
             </div>
-            <h1>🔍 Blax Search Pro</h1>
-            <p class="subtitle">Мощный инструмент для анализа логов с поддержкой больших файлов, интеллектуальным поиском и продвинутой аналитикой безопасности</p>
+            <h1>🔍 Cyrox Search Pro</h1>
+            <p class="subtitle">Powerful log analysis tool with large file support, intelligent search and advanced security analytics</p>
         </header>
 
         <div class="content-grid">
             <div class="panel">
                 <div class="panel-title">
                     <i class="fas fa-file-upload"></i>
-                    <span>Загрузка и настройка</span>
+                    <span>Upload and Configuration</span>
                 </div>
                 
                 <div class="form-group">
-                    <label for="fileInput">Выберите файл для анализа</label>
+                    <label for="fileInput">Select file for analysis</label>
                     <div class="file-input-wrapper" id="fileDropArea">
                         <div class="file-icon">
                             <i class="fas fa-cloud-upload-alt"></i>
                         </div>
-                        <p>Перетащите файл сюда или нажмите для выбора</p>
-                        <p class="file-info">Поддерживаются текстовые файлы: .log, .txt, .json, .csv, .xml, .yaml</p>
-                        <p class="file-size-limit">Максимальный размер: <strong>10 ГБ</strong></p>
+                        <p>Drag and drop file here or click to select</p>
+                        <p class="file-info">Supported text files: .log, .txt, .json, .csv, .xml, .yaml</p>
+                        <p class="file-size-limit">Maximum size: <strong>10 GB</strong></p>
                         <input type="file" id="fileInput" class="file-input" accept=".log,.txt,.json,.csv,.xml,.yaml">
                         <p id="fileName" class="file-name"></p>
                         <p id="fileSize" class="file-size-info"></p>
                     </div>
                 </div>
                 
-                <!-- Блок с загруженными файлами -->
+                <!-- Блок сохраненных файлов -->
                 <div class="form-group">
                     <div class="stored-files-container" id="storedFilesContainer">
                         <div class="stored-files-header">
-                            <span>📁 Загруженные файлы</span>
+                            <span>📁 Stored Files</span>
                             <button class="refresh-files-btn" onclick="refreshStoredFiles()">
-                                <i class="fas fa-sync-alt"></i> Обновить
+                                <i class="fas fa-sync-alt"></i> Refresh
                             </button>
                         </div>
                         <div id="storedFilesList">
                             <div class="no-files-message">
                                 <i class="fas fa-folder-open"></i>
-                                <p>Нет загруженных файлов</p>
-                                <p style="font-size: 0.8rem; margin-top: 0.5rem;">Загрузите файлы через админ-панель</p>
+                                <p>No stored files</p>
+                                <p style="font-size: 0.8rem; margin-top: 0.5rem;">Upload files through admin panel</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="searchWord">Ключевое слово или URL</label>
+                    <label for="searchWord">Keyword or URL</label>
                     <input 
                         type="text" 
                         id="searchWord" 
                         class="search-input" 
-                        placeholder="Введите текст для поиска..."
-                        value="0xcheats.net"
+                        placeholder="Enter text to search..."
+                        value="example.com"
                     >
                 </div>
                 
                 <div class="form-group">
-                    <label for="searchMode">Режим поиска:</label>
+                    <label for="searchMode">Search Mode:</label>
                     <select id="searchMode" class="search-input">
-                        <option value="exact">Точное совпадение</option>
-                        <option value="partial">Частичное совпадение</option>
-                        <option value="caseSensitive">С учетом регистра</option>
-                        <option value="regex">Регулярное выражение</option>
-                        <option value="multi">Множественный поиск</option>
+                        <option value="exact">Exact match</option>
+                        <option value="partial">Partial match</option>
+                        <option value="caseSensitive">Case sensitive</option>
+                        <option value="regex">Regular expression</option>
+                        <option value="multi">Multi search</option>
                     </select>
                 </div>
                 
                 <div class="quick-actions">
                     <div class="quick-action" onclick="startQuickScan()">
                         <i class="fas fa-bolt"></i>
-                        Быстрый анализ
+                        Quick Analysis
                     </div>
                     <div class="quick-action" onclick="saveResults()">
                         <i class="fas fa-download"></i>
-                        Экспорт
+                        Export
                     </div>
                     <div class="quick-action" onclick="showAdvancedStats()">
                         <i class="fas fa-chart-line"></i>
-                        Статистика
+                        Statistics
                     </div>
                     <div class="quick-action" onclick="toggleDarkMode()">
                         <i class="fas fa-moon"></i>
-                        Тема
+                        Theme
                     </div>
                 </div>
                 
                 <button id="scanButton" class="button">
                     <i class="fas fa-search"></i>
-                    <span>Запустить сканирование</span>
+                    <span>Start Scanning</span>
                 </button>
                 
                 <div class="compact-info">
-                    <h4><i class="fas fa-rocket"></i> Возможности сканера:</h4>
+                    <h4><i class="fas fa-rocket"></i> Scanner Features:</h4>
                     <ul>
-                        <li>Обработка файлов до 10 ГБ</li>
-                        <li>Интеллектуальный поиск с контекстом</li>
-                        <li>Автоопределение форматов логов</li>
-                        <li>Экспорт в PDF/CSV/TXT</li>
-                        <li>История поисковых запросов</li>
+                        <li>File processing up to 10 GB</li>
+                        <li>Intelligent search with context</li>
+                        <li>Auto log format detection</li>
+                        <li>Export to PDF/CSV/TXT</li>
+                        <li>Search history</li>
                     </ul>
                 </div>
             </div>
@@ -1774,55 +2159,58 @@
             <div class="panel">
                 <div class="panel-title">
                     <i class="fas fa-info-circle"></i>
-                    <span>Информация и примеры</span>
+                    <span>Information and Examples</span>
                 </div>
                 
                 <div class="compact-info">
-                    <h4><i class="fas fa-lightbulb"></i> Как использовать:</h4>
+                    <h4><i class="fas fa-lightbulb"></i> How to use:</h4>
                     <ol style="padding-left: 1.5rem; margin-bottom: 1.2rem;">
-                        <li>Выберите файл (загрузите новый или выберите из хранилища)</li>
-                        <li>Введите ключевые слова для поиска</li>
-                        <li>Выберите подходящий режим</li>
-                        <li>Запустите сканирование</li>
-                        <li>Анализируйте результаты</li>
+                        <li>Select a file (upload new or choose from storage)</li>
+                        <li>Enter keywords to search</li>
+                        <li>Select appropriate mode</li>
+                        <li>Start scanning</li>
+                        <li>Analyze results</li>
                     </ol>
                     
-                    <h4><i class="fas fa-shield-alt"></i> Безопасность:</h4>
+                    <h4><i class="fas fa-shield-alt"></i> Security:</h4>
                     <ul>
-                        <li>Локальная обработка файлов</li>
-                        <li>Защищенное соединение</li>
-                        <li>Автоматическое шифрование</li>
-                        <li>Сессионная аутентификация</li>
+                        <li>Local file processing</li>
+                        <li>Secure connection</li>
+                        <li>Automatic encryption</li>
+                        <li>Session authentication</li>
                     </ul>
                 </div>
                 
                 <div class="form-group">
-                    <h4>Примеры для поиска:</h4>
-                    <div class="cheat-examples">
-                        <span class="cheat-example" onclick="setSearchWord('0xcheats.net')">0xcheats.net</span>
-                        <span class="cheat-example" onclick="setSearchWord('nursultan.fun')">nursultan.fun</span>
-                        <span class="cheat-example" onclick="setSearchWord('deltaclient.xyz')">deltaclient.xyz</span>
-                        <span class="cheat-example" onclick="setSearchWord('wexside.ru')">wexside.ru</span>
-                        <span class="cheat-example" onclick="setSearchWord('nixware.cc')">nixware.cc</span>
-                        <span class="cheat-example" onclick="setSearchWord('neverlose.cc')">neverlose.cc</span>
+                    <h4>Search Examples:</h4>
+                    <div class="cheat-examples" id="searchExamples">
+                        <!-- Примеры будут загружены здесь из localStorage -->
                     </div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <input type="text" id="newExampleInput" class="custom-example-input" placeholder="Add new search example...">
+                        <button class="add-example-btn" onclick="addCustomExample()">
+                            <i class="fas fa-plus"></i> Add Example
+                        </button>
+                    </div>
+                    
                     <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 1rem; opacity: 0.8;">
-                        Нажмите на пример для автоматической вставки в поле поиска
+                        Click on example to automatically insert into search field
                     </p>
                 </div>
                 
                 <div class="stats-panel" id="statsPanel">
                     <div class="stat-item">
                         <div class="stat-value" id="totalScans">0</div>
-                        <div class="stat-label">Всего сканирований</div>
+                        <div class="stat-label">Total Scans</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="filesProcessed">0</div>
-                        <div class="stat-label">Файлов обработано</div>
+                        <div class="stat-label">Files Processed</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value" id="avgTime">0.00</div>
-                        <div class="stat-label">Ср. время (сек)</div>
+                        <div class="stat-label">Avg Time (sec)</div>
                     </div>
                 </div>
             </div>
@@ -1831,74 +2219,74 @@
                 <div class="results-header">
                     <div class="panel-title">
                         <i class="fas fa-search-result"></i>
-                        <span>Результаты поиска</span>
+                        <span>Search Results</span>
                     </div>
                     
                     <div class="results-count">
                         <i class="fas fa-snowflake"></i>
-                        Найдено совпадений: <span id="resultsCount">0</span>
+                        Matches found: <span id="resultsCount">0</span>
                     </div>
                 </div>
                 
                 <div id="resultsContainer" class="results-container">
                     <div class="empty-state">
                         <i class="fas fa-search"></i>
-                        <h3>Результаты появятся здесь</h3>
-                        <p>Выберите файл и введите слово для поиска, чтобы увидеть результаты</p>
+                        <h3>Results will appear here</h3>
+                        <p>Select file and enter word to search to see results</p>
                     </div>
                 </div>
                 
                 <div class="status-bar">
                     <div class="loading" id="loadingIndicator">
                         <div class="spinner"></div>
-                        <span>Анализ файла...</span>
+                        <span>Analyzing file...</span>
                     </div>
-                    <div id="statusText">Готов к работе. Выберите файл для анализа.</div>
+                    <div id="statusText">Ready to work. Select file for analysis.</div>
                     <button id="clearResults" class="clear-btn">
                         <i class="fas fa-trash-alt"></i>
-                        Очистить результаты
+                        Clear Results
                     </button>
                 </div>
             </div>
         </div>
         
         <footer>
-            <p>Blax Search Pro &copy; 2025 | Продвинутый инструмент для анализа логов с искусственным интеллектом</p>
-            <p style="margin-top: 0.5rem; font-size: 0.85rem;">Версия 2.0.1 | Все права защищены</p>
+            <p>Cyrox Search Pro &copy; 2025 | Advanced log analysis tool with artificial intelligence</p>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem;">Version 2.0.1 | All rights reserved</p>
         </footer>
     </div>
 
-    <!-- Админ панель -->
+    <!-- Админ-панель -->
     <div class="container admin-panel" id="adminPanel">
         <button class="back-btn" id="backToLoginBtn">
             <i class="fas fa-arrow-left"></i>
-            Назад к входу
+            Back to Login
         </button>
         
         <header>
             <div class="logo">
                 <i class="fas fa-user-shield logo-icon"></i>
             </div>
-            <h1 style="background: linear-gradient(90deg, #ff6b6b, #ff8e53); -webkit-background-clip: text; background-clip: text;">🛡️ Административная панель</h1>
-            <p class="subtitle">Управление файлами, загрузка и хранение данных для сканера логов</p>
+            <h1 style="background: linear-gradient(90deg, #ff6b6b, #ff8e53); -webkit-background-clip: text; background-clip: text;">🛡️ Administrative Panel</h1>
+            <p class="subtitle">File management, upload and data storage for log scanner</p>
         </header>
 
         <div class="admin-stats">
             <div class="admin-stat">
                 <div class="admin-stat-value" id="totalFilesCount">0</div>
-                <div class="admin-stat-label">Загружено файлов</div>
+                <div class="admin-stat-label">Files Uploaded</div>
             </div>
             <div class="admin-stat">
-                <div class="admin-stat-value" id="totalStorageUsed">0 Б</div>
-                <div class="admin-stat-label">Использовано памяти</div>
+                <div class="admin-stat-value" id="totalStorageUsed">0 B</div>
+                <div class="admin-stat-label">Storage Used</div>
             </div>
             <div class="admin-stat">
-                <div class="admin-stat-value" id="maxFileSize">10 ГБ</div>
-                <div class="admin-stat-label">Макс. размер файла</div>
+                <div class="admin-stat-value" id="maxFileSize">10 GB</div>
+                <div class="admin-stat-label">Max File Size</div>
             </div>
             <div class="admin-stat">
                 <div class="admin-stat-value" id="supportedFormats">6</div>
-                <div class="admin-stat-label">Форматов файлов</div>
+                <div class="admin-stat-label">File Formats</div>
             </div>
         </div>
 
@@ -1906,17 +2294,17 @@
             <div class="panel">
                 <div class="panel-title">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <span>Загрузка файлов</span>
+                    <span>File Upload</span>
                 </div>
                 
                 <div class="form-group">
-                    <label>Загрузка файлов в систему</label>
+                    <label>Upload files to system</label>
                     <div class="file-input-wrapper" id="adminFileDropArea">
                         <div class="file-icon">
                             <i class="fas fa-database"></i>
                         </div>
-                        <p>Перетащите файлы сюда или нажмите для выбора</p>
-                        <p class="file-info">Поддерживаются текстовые файлы до 10 ГБ: .log, .txt, .json, .csv, .xml, .yaml</p>
+                        <p>Drag and drop files here or click to select</p>
+                        <p class="file-info">Supported text files up to 10 GB: .log, .txt, .json, .csv, .xml, .yaml</p>
                         <input type="file" id="adminFileInput" class="file-input" accept=".log,.txt,.json,.csv,.xml,.yaml" multiple>
                     </div>
                 </div>
@@ -1927,18 +2315,18 @@
                     </div>
                     <div class="progress-text">
                         <span id="progressPercent">0%</span>
-                        <span id="fileProgressInfo">Загрузка...</span>
+                        <span id="fileProgressInfo">Uploading...</span>
                     </div>
                 </div>
                 
                 <div class="compact-info">
-                    <h4><i class="fas fa-info-circle"></i> Информация о загрузке:</h4>
+                    <h4><i class="fas fa-info-circle"></i> Upload Information:</h4>
                     <ul>
-                        <li>Файлы хранятся в браузерной базе данных (IndexedDB)</li>
-                        <li>Загруженные файлы доступны всем пользователям системы</li>
-                        <li>Максимальный общий объем хранилища: до 50% свободного места на диске</li>
-                        <li>Автоматическая проверка на дубликаты</li>
-                        <li>Поддержка пакетной загрузки (несколько файлов сразу)</li>
+                        <li>Files stored in browser database (IndexedDB)</li>
+                        <li>Uploaded files available to all system users</li>
+                        <li>Maximum total storage: up to 50% free disk space</li>
+                        <li>Automatic duplicate check</li>
+                        <li>Batch upload support (multiple files at once)</li>
                     </ul>
                 </div>
             </div>
@@ -1946,40 +2334,40 @@
             <div class="panel">
                 <div class="panel-title">
                     <i class="fas fa-folder-open"></i>
-                    <span>Управление файлами</span>
+                    <span>File Management</span>
                 </div>
                 
                 <div class="admin-file-list" id="adminFileList">
                     <div class="empty-state">
                         <i class="fas fa-folder-open"></i>
-                        <h3>Файлы не загружены</h3>
-                        <p>Загрузите файлы для отображения в этом списке</p>
+                        <h3>No files uploaded</h3>
+                        <p>Upload files to display in this list</p>
                     </div>
                 </div>
                 
                 <div class="compact-info">
-                    <h4><i class="fas fa-cog"></i> Управление хранилищем:</h4>
+                    <h4><i class="fas fa-cog"></i> Storage Management:</h4>
                     <ul>
-                        <li>Все файлы хранятся локально в браузере</li>
-                        <li>Данные не отправляются на сервер</li>
-                        <li>Файлы доступны в обычном режиме работы</li>
-                        <li>Автоматическое резервное копирование</li>
-                        <li>Возможность очистки хранилища</li>
+                        <li>All files stored locally in browser</li>
+                        <li>Data not sent to server</li>
+                        <li>Files available in normal mode</li>
+                        <li>Automatic backup</li>
+                        <li>Storage clearing capability</li>
                     </ul>
                 </div>
             </div>
         </div>
         
         <footer>
-            <p>Административная панель &copy; 2025 | Blax Search Pro | Только для авторизованных администраторов</p>
-            <p style="margin-top: 0.5rem; font-size: 0.85rem;">Учетные данные: admin/admin</p>
+            <p>Administrative Panel &copy; 2025 | Cyrox Search Pro | For authorized administrators only</p>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem;">Credentials: admin/admin</p>
         </footer>
     </div>
 
     <script>
         // Глобальные переменные
         let selectedFile = null;
-        let selectedFileFromStorage = null; // Для хранения выбранного файла из хранилища
+        let selectedFileFromStorage = null;
         let searchResults = [];
         let sessionToken = null;
         let isAdminSession = false;
@@ -1989,9 +2377,12 @@
         let totalScanTime = parseInt(localStorage.getItem('totalScanTime') || '0');
         let isDarkMode = true;
         
+        // Пользовательские примеры поиска
+        let searchExamples = JSON.parse(localStorage.getItem('cyroxSearchExamples') || '["example.com", "test.com", "admin", "error", "warning"]');
+        
         // IndexedDB для хранения файлов
         let db;
-        const DB_NAME = 'BlaxFileStorage';
+        const DB_NAME = 'CyroxFileStorage';
         const DB_VERSION = 1;
         const STORE_NAME = 'files';
         const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024; // 10 ГБ
@@ -2017,7 +2408,7 @@
             const scanButton = document.getElementById('scanButton');
             
             if (!selectedFile && !selectedFileFromStorage) {
-                showStatus('Сначала выберите файл для анализа', 'warning');
+                showStatus('Please select file for analysis first', 'warning');
                 
                 const dropArea = document.getElementById('fileDropArea');
                 dropArea.style.borderColor = 'var(--warning)';
@@ -2030,7 +2421,7 @@
             }
             
             if (!searchInput.value.trim()) {
-                setSearchWord('0xcheats.net');
+                setSearchWord('example.com');
             }
             
             document.getElementById('searchMode').value = 'partial';
@@ -2039,25 +2430,25 @@
 
         function saveResults() {
             if (searchResults.length === 0) {
-                showStatus('Нет результатов для сохранения', 'warning');
+                showStatus('No results to save', 'warning');
                 return;
             }
             
             const content = searchResults.map(r => 
-                `Строка ${r.lineNumber}: ${r.content}`
+                `Line ${r.lineNumber}: ${r.content}`
             ).join('\n\n');
             
             const blob = new Blob([content], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `blax_search_results_${Date.now()}.txt`;
+            a.download = `cyrox_search_results_${Date.now()}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            showStatus('Результаты сохранены в файл', 'success');
+            showStatus('Results saved to file', 'success');
         }
 
         function showAdvancedStats() {
@@ -2066,6 +2457,11 @@
             document.getElementById('totalScans').textContent = totalScans;
             document.getElementById('filesProcessed').textContent = totalFiles;
             document.getElementById('avgTime').textContent = avgTime;
+            
+            // Также обновляем статистику в модальном окне профиля
+            document.getElementById('profileTotalScans').textContent = totalScans;
+            document.getElementById('profileFilesProcessed').textContent = totalFiles;
+            document.getElementById('profileAvgTime').textContent = avgTime;
             
             const statsPanel = document.getElementById('statsPanel');
             statsPanel.style.opacity = '0';
@@ -2077,13 +2473,69 @@
                 statsPanel.style.transform = 'translateY(0)';
             }, 10);
             
-            showStatus('Статистика обновлена', 'info');
+            showStatus('Statistics updated', 'info');
         }
 
         function toggleDarkMode() {
             isDarkMode = !isDarkMode;
             document.body.style.filter = isDarkMode ? 'none' : 'invert(1) hue-rotate(180deg)';
-            showStatus(isDarkMode ? 'Темная тема включена' : 'Светлая тема включена', 'info');
+            showStatus(isDarkMode ? 'Dark theme enabled' : 'Light theme enabled', 'info');
+        }
+
+        // Функции для пользовательских примеров поиска
+        function loadSearchExamples() {
+            const container = document.getElementById('searchExamples');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            searchExamples.forEach((example, index) => {
+                const exampleElement = document.createElement('span');
+                exampleElement.className = 'cheat-example';
+                exampleElement.innerHTML = `
+                    ${example}
+                    <button class="remove-example-btn" onclick="removeExample(${index})" title="Remove example">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                exampleElement.onclick = (e) => {
+                    if (!e.target.closest('.remove-example-btn')) {
+                        setSearchWord(example);
+                    }
+                };
+                container.appendChild(exampleElement);
+            });
+        }
+
+        function addCustomExample() {
+            const input = document.getElementById('newExampleInput');
+            const example = input.value.trim();
+            
+            if (!example) {
+                showNotification('Please enter example text', 'error');
+                return;
+            }
+            
+            if (searchExamples.includes(example)) {
+                showNotification('Example already exists', 'warning');
+                return;
+            }
+            
+            searchExamples.push(example);
+            localStorage.setItem('cyroxSearchExamples', JSON.stringify(searchExamples));
+            loadSearchExamples();
+            
+            input.value = '';
+            showNotification('Example added successfully', 'success');
+        }
+
+        function removeExample(index) {
+            if (index >= 0 && index < searchExamples.length) {
+                searchExamples.splice(index, 1);
+                localStorage.setItem('cyroxSearchExamples', JSON.stringify(searchExamples));
+                loadSearchExamples();
+                showNotification('Example removed', 'success');
+            }
         }
 
         // Уведомления
@@ -2106,7 +2558,7 @@
             }, 5000);
         }
 
-        // IndexedDB функции
+        // Функции IndexedDB
         function initIndexedDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -2134,16 +2586,16 @@
             });
         }
 
-        // Сохранение файла в IndexedDB
+        // Сохранить файл в IndexedDB
         async function saveFileToIndexedDB(file) {
             return new Promise((resolve, reject) => {
                 if (!db) {
-                    reject(new Error('База данных не инициализирована'));
+                    reject(new Error('Database not initialized'));
                     return;
                 }
                 
                 if (file.size > MAX_FILE_SIZE) {
-                    reject(new Error(`Файл слишком большой. Максимальный размер: ${formatFileSize(MAX_FILE_SIZE)}`));
+                    reject(new Error(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`));
                     return;
                 }
                 
@@ -2178,18 +2630,18 @@
                 };
                 
                 reader.onerror = () => {
-                    reject(new Error('Ошибка чтения файла'));
+                    reject(new Error('Error reading file'));
                 };
                 
                 reader.readAsArrayBuffer(file);
             });
         }
 
-        // Получение списка файлов
+        // Получить список файлов
         async function getStoredFiles() {
             return new Promise((resolve, reject) => {
                 if (!db) {
-                    reject(new Error('База данных не инициализирована'));
+                    reject(new Error('Database not initialized'));
                     return;
                 }
                 
@@ -2207,11 +2659,11 @@
             });
         }
 
-        // Удаление файла
+        // Удалить файл
         async function deleteStoredFile(fileId) {
             return new Promise((resolve, reject) => {
                 if (!db) {
-                    reject(new Error('База данных не инициализирована'));
+                    reject(new Error('Database not initialized'));
                     return;
                 }
                 
@@ -2229,11 +2681,11 @@
             });
         }
 
-        // Получение файла по ID
+        // Получить файл по ID
         async function getStoredFile(fileId) {
             return new Promise((resolve, reject) => {
                 if (!db) {
-                    reject(new Error('База данных не инициализирована'));
+                    reject(new Error('Database not initialized'));
                     return;
                 }
                 
@@ -2264,7 +2716,7 @@
             };
         }
 
-        // Обновление админ статистики
+        // Обновить статистику админ-панели
         async function updateAdminStats() {
             try {
                 const stats = await getStorageStats();
@@ -2274,12 +2726,12 @@
                 
                 return stats;
             } catch (error) {
-                console.error('Ошибка обновления статистики:', error);
+                console.error('Error updating statistics:', error);
                 return { fileCount: 0, totalSize: 0, files: [] };
             }
         }
 
-        // Отображение списка файлов в админке
+        // Отобразить файлы в админ-панели
         async function displayAdminFiles() {
             const fileList = document.getElementById('adminFileList');
             const stats = await getStorageStats();
@@ -2288,8 +2740,8 @@
                 fileList.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-folder-open"></i>
-                        <h3>Файлы не загружены</h3>
-                        <p>Загрузите файлы для отображения в этом списке</p>
+                        <h3>No files uploaded</h3>
+                        <p>Upload files to display in this list</p>
                     </div>
                 `;
                 return;
@@ -2312,10 +2764,10 @@
                         </div>
                         <div class="admin-file-actions">
                             <button class="admin-action-btn" onclick="downloadAdminFile(${file.id}, '${file.name}')">
-                                <i class="fas fa-download"></i> Скачать
+                                <i class="fas fa-download"></i> Download
                             </button>
                             <button class="admin-action-btn delete" onclick="deleteAdminFile(${file.id})">
-                                <i class="fas fa-trash"></i> Удалить
+                                <i class="fas fa-trash"></i> Delete
                             </button>
                         </div>
                     </div>
@@ -2325,7 +2777,7 @@
             fileList.innerHTML = html;
         }
 
-        // Отображение загруженных файлов в обычном режиме
+        // Отобразить сохраненные файлы в обычном режиме
         async function displayStoredFiles() {
             const fileList = document.getElementById('storedFilesList');
             
@@ -2336,8 +2788,8 @@
                     fileList.innerHTML = `
                         <div class="no-files-message">
                             <i class="fas fa-folder-open"></i>
-                            <p>Нет загруженных файлов</p>
-                            <p style="font-size: 0.8rem; margin-top: 0.5rem;">Загрузите файлы через админ-панель</p>
+                            <p>No stored files</p>
+                            <p style="font-size: 0.8rem; margin-top: 0.5rem;">Upload files through admin panel</p>
                         </div>
                     `;
                     return;
@@ -2358,10 +2810,10 @@
                                 <div class="stored-file-date">${uploadDate}</div>
                             </div>
                             <div class="stored-file-actions">
-                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); previewStoredFile(${file.id})" title="Предпросмотр">
+                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); previewStoredFile(${file.id})" title="Preview">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); downloadStoredFile(${file.id}, '${file.name}')" title="Скачать">
+                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); downloadStoredFile(${file.id}, '${file.name}')" title="Download">
                                     <i class="fas fa-download"></i>
                                 </button>
                             </div>
@@ -2371,27 +2823,27 @@
                 
                 fileList.innerHTML = html;
             } catch (error) {
-                console.error('Ошибка отображения файлов:', error);
+                console.error('Error displaying files:', error);
                 fileList.innerHTML = `
                     <div class="no-files-message">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>Ошибка загрузки списка файлов</p>
+                        <p>Error loading file list</p>
                     </div>
                 `;
             }
         }
 
-        // Выбор файла из хранилища
+        // Выбрать файл из хранилища
         async function selectStoredFile(fileId) {
             try {
                 const fileData = await getStoredFile(fileId);
                 
                 if (!fileData) {
-                    showNotification('Файл не найден', 'error');
+                    showNotification('File not found', 'error');
                     return;
                 }
                 
-                // Создаем File объект из данных
+                // Создать объект File из данных
                 const blob = new Blob([fileData.data], { type: fileData.type });
                 selectedFileFromStorage = {
                     id: fileId,
@@ -2401,7 +2853,7 @@
                     lastAccessed: new Date().toISOString()
                 };
                 
-                // Обновляем дату последнего доступа
+                // Обновить дату последнего доступа
                 if (db) {
                     const transaction = db.transaction([STORE_NAME], 'readwrite');
                     const store = transaction.objectStore(STORE_NAME);
@@ -2409,26 +2861,26 @@
                     store.put(fileData);
                 }
                 
-                // Обновляем интерфейс
-                document.getElementById('fileName').textContent = `📁 ${fileData.name} (из хранилища)`;
+                // Обновить интерфейс
+                document.getElementById('fileName').textContent = `📁 ${fileData.name} (from storage)`;
                 document.getElementById('fileSize').textContent = `📊 ${formatFileSize(fileData.size)}`;
                 
-                // Сбрасываем выбранный файл из input
+                // Сбросить выбранный файл из input
                 selectedFile = null;
                 document.getElementById('fileInput').value = '';
                 
-                // Показываем уведомление
-                showNotification(`Выбран файл: ${fileData.name}`, 'success');
+                // Показать уведомление
+                showNotification(`Selected file: ${fileData.name}`, 'success');
                 
-                // Обновляем отображение файлов
+                // Обновить отображение файлов
                 await displayStoredFiles();
                 
-                // Обновляем статус
-                showStatus(`Файл "${fileData.name}" выбран из хранилища`, 'success');
+                // Обновить статус
+                showStatus(`File "${fileData.name}" selected from storage`, 'success');
                 
             } catch (error) {
-                console.error('Ошибка выбора файла:', error);
-                showNotification(`Ошибка выбора файла: ${error.message}`, 'error');
+                console.error('Error selecting file:', error);
+                showNotification(`Error selecting file: ${error.message}`, 'error');
             }
         }
 
@@ -2438,20 +2890,20 @@
                 const fileData = await getStoredFile(fileId);
                 
                 if (!fileData) {
-                    showNotification('Файл не найден', 'error');
+                    showNotification('File not found', 'error');
                     return;
                 }
                 
-                // Преобразуем ArrayBuffer в текст
+                // Преобразовать ArrayBuffer в текст
                 const textDecoder = new TextDecoder('utf-8');
                 const content = textDecoder.decode(fileData.data);
                 
-                // Показываем первые 1000 символов
+                // Показать первые 1000 символов
                 const previewContent = content.length > 1000 
                     ? content.substring(0, 1000) + '...' 
                     : content;
                 
-                // Создаем модальное окно для предпросмотра
+                // Создать модальное окно для предпросмотра
                 const modal = document.createElement('div');
                 modal.style.cssText = `
                     position: fixed;
@@ -2488,7 +2940,7 @@
                             border-bottom: 1px solid var(--border);
                         ">
                             <h3 style="color: var(--ice);">
-                                <i class="fas fa-file-alt"></i> Предпросмотр: ${fileData.name}
+                                <i class="fas fa-file-alt"></i> Preview: ${fileData.name}
                             </h3>
                             <button onclick="this.parentElement.parentElement.parentElement.remove()" 
                                     style="
@@ -2528,8 +2980,8 @@
                             font-size: 0.9rem;
                         ">
                             <div>
-                                <i class="fas fa-info-circle"></i> Размер: ${formatFileSize(fileData.size)} | 
-                                Строк: ${previewContent.split('\\n').length}
+                                <i class="fas fa-info-circle"></i> Size: ${formatFileSize(fileData.size)} | 
+                                Lines: ${previewContent.split('\\n').length}
                             </div>
                             <button onclick="selectStoredFile(${fileId})" 
                                     style="
@@ -2541,7 +2993,7 @@
                                         cursor: pointer;
                                         font-weight: 600;
                                     ">
-                                <i class="fas fa-check"></i> Выбрать этот файл
+                                <i class="fas fa-check"></i> Select this file
                             </button>
                         </div>
                     </div>
@@ -2549,7 +3001,7 @@
                 
                 document.body.appendChild(modal);
                 
-                // Закрытие по клику на фон
+                // Закрыть при клике на фон
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
                         modal.remove();
@@ -2557,18 +3009,18 @@
                 });
                 
             } catch (error) {
-                console.error('Ошибка предпросмотра файла:', error);
-                showNotification(`Ошибка предпросмотра: ${error.message}`, 'error');
+                console.error('Error previewing file:', error);
+                showNotification(`Preview error: ${error.message}`, 'error');
             }
         }
 
-        // Скачивание файла из обычного режима
+        // Скачать файл из обычного режима
         async function downloadStoredFile(fileId, fileName) {
             try {
                 const fileData = await getStoredFile(fileId);
                 
                 if (!fileData) {
-                    showNotification('Файл не найден', 'error');
+                    showNotification('File not found', 'error');
                     return;
                 }
                 
@@ -2582,21 +3034,21 @@
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                showNotification(`Файл "${fileName}" скачан`, 'success');
+                showNotification(`File "${fileName}" downloaded`, 'success');
                 
             } catch (error) {
-                showNotification(`Ошибка скачивания: ${error.message}`, 'error');
+                showNotification(`Download error: ${error.message}`, 'error');
             }
         }
 
-        // Скачивание файла из админки
+        // Скачать файл из админ-панели
         async function downloadAdminFile(fileId, fileName) {
             await downloadStoredFile(fileId, fileName);
         }
 
-        // Удаление файла из админки
+        // Удалить файл из админ-панели
         async function deleteAdminFile(fileId) {
-            if (!confirm('Вы уверены, что хотите удалить этот файл?')) {
+            if (!confirm('Are you sure you want to delete this file?')) {
                 return;
             }
             
@@ -2604,35 +3056,35 @@
                 await deleteStoredFile(fileId);
                 await updateAdminStats();
                 await displayAdminFiles();
-                await displayStoredFiles(); // Обновляем список в обычном режиме
+                await displayStoredFiles(); // Обновить список в обычном режиме
                 
-                // Если удаленный файл был выбран, сбрасываем выбор
+                // Если удаленный файл был выбран, сбросить выбор
                 if (selectedFileFromStorage && selectedFileFromStorage.id === fileId) {
                     selectedFileFromStorage = null;
                     document.getElementById('fileName').textContent = '';
                     document.getElementById('fileSize').textContent = '';
-                    showStatus('Выбранный файл был удален', 'warning');
+                    showStatus('Selected file was deleted', 'warning');
                 }
                 
-                showNotification('Файл удален', 'success');
+                showNotification('File deleted', 'success');
             } catch (error) {
-                showNotification(`Ошибка удаления: ${error.message}`, 'error');
+                showNotification(`Delete error: ${error.message}`, 'error');
             }
         }
 
-        // Обновление списка файлов
+        // Обновить список файлов
         async function refreshStoredFiles() {
             const refreshBtn = document.querySelector('.refresh-files-btn');
             const originalContent = refreshBtn.innerHTML;
             
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обновление...';
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
             refreshBtn.disabled = true;
             
             try {
                 await displayStoredFiles();
-                showNotification('Список файлов обновлен', 'success');
+                showNotification('File list updated', 'success');
             } catch (error) {
-                showNotification('Ошибка обновления списка файлов', 'error');
+                showNotification('Error refreshing file list', 'error');
             } finally {
                 setTimeout(() => {
                     refreshBtn.innerHTML = originalContent;
@@ -2641,7 +3093,7 @@
             }
         }
 
-        // Обновление прогресса загрузки
+        // Обновить прогресс загрузки
         function updateUploadProgress(percent, fileName) {
             const progressFill = document.getElementById('progressFill');
             const progressPercent = document.getElementById('progressPercent');
@@ -2661,7 +3113,7 @@
             }
             
             if (fileProgressInfo) {
-                fileProgressInfo.textContent = fileName || 'Загрузка...';
+                fileProgressInfo.textContent = fileName || 'Uploading...';
             }
             
             if (percent >= 100) {
@@ -2673,7 +3125,7 @@
             }
         }
 
-        // Создание реалистичных снежинок
+        // Создать реалистичные снежинки
         function createRealisticSnowflakes() {
             const container = document.getElementById('snowflakes');
             const snowflakeCount = 100;
@@ -2705,7 +3157,7 @@
             }
         }
 
-        // Создание частиц для фона
+        // Создать частицы фона
         function createParticles() {
             const container = document.getElementById('particles');
             const particleCount = 20;
@@ -2731,7 +3183,7 @@
             }
         }
 
-        // Основные функции сканера
+        // Функции сканера
         function checkMatch(line, searchWord, mode) {
             if (!searchWord || !line) return false;
             
@@ -2764,15 +3216,15 @@
                         const content = e.target.result;
                         const lines = content.split('\n');
                         const results = [];
-                        const cheatDomains = [
+                        const suspiciousDomains = [
                             '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
                             'wexside.ru', 'nixware.cc', 'neverlose.cc'
                         ];
                         
-                        let isCheatDomain = false;
-                        for (const domain of cheatDomains) {
+                        let isSuspiciousDomain = false;
+                        for (const domain of suspiciousDomains) {
                             if (searchWord.toLowerCase().includes(domain.toLowerCase())) {
-                                isCheatDomain = true;
+                                isSuspiciousDomain = true;
                                 break;
                             }
                         }
@@ -2782,7 +3234,7 @@
                                 results.push({
                                     lineNumber: i + 1,
                                     content: lines[i],
-                                    isCheat: isCheatDomain
+                                    isSuspicious: isSuspiciousDomain
                                 });
                             }
                         }
@@ -2799,7 +3251,7 @@
                 };
                 
                 reader.onerror = function() {
-                    reject(new Error('Ошибка чтения файла'));
+                    reject(new Error('Error reading file'));
                 };
                 
                 reader.readAsText(file);
@@ -2811,20 +3263,20 @@
                 const startTime = Date.now();
                 
                 try {
-                    // Преобразуем ArrayBuffer в текст
+                    // Преобразовать ArrayBuffer в текст
                     const textDecoder = new TextDecoder('utf-8');
                     const content = textDecoder.decode(fileData.data);
                     const lines = content.split('\n');
                     const results = [];
-                    const cheatDomains = [
+                    const suspiciousDomains = [
                         '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
                         'wexside.ru', 'nixware.cc', 'neverlose.cc'
                     ];
                     
-                    let isCheatDomain = false;
-                    for (const domain of cheatDomains) {
+                    let isSuspiciousDomain = false;
+                    for (const domain of suspiciousDomains) {
                         if (searchWord.toLowerCase().includes(domain.toLowerCase())) {
-                            isCheatDomain = true;
+                            isSuspiciousDomain = true;
                             break;
                         }
                     }
@@ -2834,7 +3286,7 @@
                             results.push({
                                 lineNumber: i + 1,
                                 content: lines[i],
-                                isCheat: isCheatDomain
+                                isSuspicious: isSuspiciousDomain
                             });
                         }
                     }
@@ -2861,31 +3313,31 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-search-minus"></i>
-                        <h3>Совпадений не найдено</h3>
-                        <p>Слово "${searchWord}" не найдено в выбранном файле</p>
+                        <h3>No matches found</h3>
+                        <p>Word "${searchWord}" not found in selected file</p>
                     </div>
                 `;
                 return;
             }
             
             let html = '';
-            const cheatDomains = [
+            const suspiciousDomains = [
                 '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
                 'wexside.ru', 'nixware.cc', 'neverlose.cc'
             ];
             
             results.forEach((result, index) => {
-                let isCheatResult = false;
-                for (const domain of cheatDomains) {
+                let isSuspiciousResult = false;
+                for (const domain of suspiciousDomains) {
                     if (result.content.toLowerCase().includes(domain)) {
-                        isCheatResult = true;
+                        isSuspiciousResult = true;
                         break;
                     }
                 }
                 
-                const cheatClass = isCheatResult ? 'cheat-highlight' : 'highlight';
-                const cheatIcon = isCheatResult ? '<i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-right: 8px;"></i>' : '';
-                const warningText = isCheatResult ? '<span style="color: var(--warning); font-size: 0.9rem; font-weight: 600;">[cheat]</span> ' : '';
+                const cheatClass = isSuspiciousResult ? 'cheat-highlight' : 'highlight';
+                const cheatIcon = isSuspiciousResult ? '<i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-right: 8px;"></i>' : '';
+                const warningText = isSuspiciousResult ? '<span style="color: var(--warning); font-size: 0.9rem; font-weight: 600;">[suspicious]</span> ' : '';
                 
                 let content = result.content;
                 
@@ -2899,7 +3351,7 @@
                     <div class="result-item" style="animation-delay: ${index * 0.05}s">
                         <div class="result-line">
                             ${cheatIcon}
-                            <strong style="color: ${isCheatResult ? 'var(--warning)' : 'var(--ice)'}">Строка ${result.lineNumber}:</strong> 
+                            <strong style="color: ${isSuspiciousResult ? 'var(--warning)' : 'var(--ice)'}">Line ${result.lineNumber}:</strong> 
                             ${warningText}
                             ${content}
                         </div>
@@ -2910,24 +3362,85 @@
             container.innerHTML = html;
         }
 
-        // Форматирование размера файла
+        // Форматировать размер файла
         function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Б';
+            if (bytes === 0) return '0 B';
             const k = 1024;
-            const sizes = ['Б', 'КБ', 'МБ', 'ГБ', 'ТБ'];
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
+        // Функции для иконки профиля
+        function showProfileModal() {
+            const modal = document.getElementById('profileModal');
+            modal.classList.add('active');
+            
+            // Обновить статистику в модальном окне
+            showAdvancedStats();
+        }
+
+        function closeProfileModal() {
+            const modal = document.getElementById('profileModal');
+            modal.classList.remove('active');
+        }
+
+        // Загрузить пользовательский аватар
+        function loadCustomAvatar() {
+            const avatarUrl = 'https://your-username.github.io/avatar.png';
+            const profileIcon = document.getElementById('profileIcon');
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            
+            // Проверить, доступно ли изображение
+            const img = new Image();
+            img.src = avatarUrl;
+            img.onload = function() {
+                // Заменить иконки на пользовательский аватар
+                const iconImg = document.createElement('img');
+                iconImg.src = avatarUrl;
+                iconImg.alt = 'User Avatar';
+                
+                const largeImg = document.createElement('img');
+                largeImg.src = avatarUrl;
+                largeImg.alt = 'User Avatar';
+                
+                // Заменить содержимое иконки профиля
+                const iconFallback = profileIcon.querySelector('.icon-fallback');
+                if (iconFallback) {
+                    iconFallback.style.display = 'none';
+                    profileIcon.insertBefore(iconImg, iconFallback);
+                }
+                
+                // Заменить содержимое большого аватара
+                const largeFallback = profileAvatarLarge.querySelector('.icon-fallback');
+                if (largeFallback) {
+                    largeFallback.style.display = 'none';
+                    profileAvatarLarge.insertBefore(largeImg, largeFallback);
+                }
+                
+                console.log('Custom avatar loaded successfully');
+            };
+            
+            img.onerror = function() {
+                console.log('Custom avatar not found, using default icon');
+            };
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
-            // Инициализация IndexedDB
+            // Инициализировать IndexedDB
             try {
                 await initIndexedDB();
             } catch (error) {
-                console.error('Ошибка инициализации базы данных:', error);
+                console.error('Database initialization error:', error);
             }
             
-            // Создание фона
+            // Загрузить пользовательский аватар
+            setTimeout(loadCustomAvatar, 1000);
+            
+            // Загрузить пользовательские примеры поиска
+            loadSearchExamples();
+            
+            // Создать фон
             createRealisticSnowflakes();
             createParticles();
             
@@ -2940,8 +3453,10 @@
             const logoutBtn = document.getElementById('logoutBtn');
             const adminLoginBtn = document.getElementById('adminLoginBtn');
             const backToLoginBtn = document.getElementById('backToLoginBtn');
+            const profileIcon = document.getElementById('profileIcon');
+            const closeProfileModalBtn = document.getElementById('closeProfileModal');
             
-            // Проверка активной сессии
+            // Проверить активную сессию
             const storedToken = sessionStorage.getItem('sessionToken');
             const tokenTime = parseInt(sessionStorage.getItem('tokenTime') || '0');
             const now = Date.now();
@@ -2961,14 +3476,33 @@
                 showLoginPage();
             }
             
-            // Обычный вход (blax/blqx)
+            // Обработчики событий для иконки профиля
+            if (profileIcon) {
+                profileIcon.addEventListener('click', showProfileModal);
+            }
+            
+            if (closeProfileModalBtn) {
+                closeProfileModalBtn.addEventListener('click', closeProfileModal);
+            }
+            
+            // Закрыть модальное окно профиля при клике на фон
+            const profileModal = document.getElementById('profileModal');
+            if (profileModal) {
+                profileModal.addEventListener('click', function(e) {
+                    if (e.target === profileModal) {
+                        closeProfileModal();
+                    }
+                });
+            }
+            
+            // Обычный вход (Cyrox/blqx)
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value.trim();
                 
-                if (username === 'blax' && password === 'blqx') {
+                if (username === 'Cyrox' && password === 'blqx') {
                     sessionToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
                         .map(b => b.toString(16).padStart(2, '0'))
                         .join('');
@@ -2993,7 +3527,7 @@
                 }
             });
             
-            // Вход в админ панель (без дополнительных запросов)
+            // Вход в админ-панель
             adminLoginBtn.addEventListener('click', function() {
                 const username = 'admin';
                 const password = 'admin';
@@ -3011,11 +3545,11 @@
                     showAdminPanel();
                     errorMessage.style.display = 'none';
                 } else {
-                    showNotification('Неверные учетные данные администратора', 'error');
+                    showNotification('Invalid administrator credentials', 'error');
                 }
             });
             
-            // Назад к входу из админки
+            // Назад к логину из админ-панели
             backToLoginBtn.addEventListener('click', function() {
                 sessionStorage.clear();
                 sessionToken = null;
@@ -3028,7 +3562,7 @@
                 }, 500);
             });
             
-            // Выход из системы
+            // Выход
             logoutBtn.addEventListener('click', function() {
                 sessionStorage.clear();
                 sessionToken = null;
@@ -3085,9 +3619,9 @@
                 }, 10);
             }
             
-            // Инициализация админ-панели
+            // Инициализировать админ-панель
             async function initAdminPanel() {
-                // Обновление статистики
+                // Обновить статистику
                 await updateAdminStats();
                 await displayAdminFiles();
                 
@@ -3102,21 +3636,21 @@
                                 const file = e.target.files[i];
                                 
                                 try {
-                                    // Показываем прогресс
-                                    updateUploadProgress(30, `Обработка: ${file.name}`);
+                                    // Показать прогресс
+                                    updateUploadProgress(30, `Processing: ${file.name}`);
                                     
-                                    showNotification(`Начата загрузка: ${file.name}`, 'info');
+                                    showNotification(`Started upload: ${file.name}`, 'info');
                                     await saveFileToIndexedDB(file);
                                     
-                                    updateUploadProgress(100, `Завершено: ${file.name}`);
-                                    showNotification(`Файл "${file.name}" успешно загружен`, 'success');
+                                    updateUploadProgress(100, `Completed: ${file.name}`);
+                                    showNotification(`File "${file.name}" uploaded successfully`, 'success');
                                     
                                 } catch (error) {
-                                    showNotification(`Ошибка загрузки "${file.name}": ${error.message}`, 'error');
+                                    showNotification(`Upload error "${file.name}": ${error.message}`, 'error');
                                 }
                             }
                             
-                            // Обновляем список файлов и статистику
+                            // Обновить список файлов и статистику
                             await updateAdminStats();
                             await displayAdminFiles();
                             adminFileInput.value = '';
@@ -3124,7 +3658,7 @@
                     });
                 }
                 
-                // Drag & Drop для админки
+                // Drag & Drop для админ-панели
                 if (adminFileDropArea) {
                     adminFileDropArea.addEventListener('dragover', function(e) {
                         e.preventDefault();
@@ -3144,15 +3678,15 @@
                                 const file = e.dataTransfer.files[i];
                                 
                                 try {
-                                    updateUploadProgress(30, `Обработка: ${file.name}`);
-                                    showNotification(`Начата загрузка: ${file.name}`, 'info');
+                                    updateUploadProgress(30, `Processing: ${file.name}`);
+                                    showNotification(`Started upload: ${file.name}`, 'info');
                                     await saveFileToIndexedDB(file);
                                     
-                                    updateUploadProgress(100, `Завершено: ${file.name}`);
-                                    showNotification(`Файл "${file.name}" успешно загружен`, 'success');
+                                    updateUploadProgress(100, `Completed: ${file.name}`);
+                                    showNotification(`File "${file.name}" uploaded successfully`, 'success');
                                     
                                 } catch (error) {
-                                    showNotification(`Ошибка загрузки "${file.name}": ${error.message}`, 'error');
+                                    showNotification(`Upload error "${file.name}": ${error.message}`, 'error');
                                 }
                             }
                             
@@ -3163,7 +3697,7 @@
                 }
             }
             
-            // Инициализация пользовательского сканера
+            // Инициализировать сканер пользователя
             async function initUserScanner() {
                 // Элементы сканера
                 const fileInput = document.getElementById('fileInput');
@@ -3175,7 +3709,7 @@
                 const searchWordInput = document.getElementById('searchWord');
                 const searchModeSelect = document.getElementById('searchMode');
                 
-                // Загружаем список файлов из хранилища
+                // Загрузить список файлов из хранилища
                 await displayStoredFiles();
                 
                 // Демо-файл (только если нет файлов в хранилище)
@@ -3183,13 +3717,9 @@
                     try {
                         const stats = await getStorageStats();
                         if (stats.fileCount === 0) {
-                            // Создаем демо-файл только если нет других файлов
+                            // Создать демо-файл только если нет других файлов
                             function createDemoFile() {
                                 const lines = [];
-                                const cheatDomains = [
-                                    '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
-                                    'wexside.ru', 'nixware.cc', 'neverlose.cc'
-                                ];
                                 const normalDomains = [
                                     'google.com', 'youtube.com', 'github.com',
                                     'stackoverflow.com', 'microsoft.com', 'apple.com'
@@ -3213,26 +3743,12 @@
                                     
                                     let line = `[${timestamp}] [${level}] ${action} from ${ip}`;
                                     
-                                    if (Math.random() < 0.1) {
-                                        const cheatDomain = cheatDomains[Math.floor(Math.random() * cheatDomains.length)];
-                                        line += ` | Domain: ${cheatDomain}`;
-                                    }
-                                    else if (Math.random() < 0.2) {
+                                    if (Math.random() < 0.2) {
                                         const normalDomain = normalDomains[Math.floor(Math.random() * normalDomains.length)];
                                         line += ` | Domain: ${normalDomain}`;
                                     }
                                     
                                     lines.push(line);
-                                }
-                                
-                                for (let i = 0; i < 5; i++) {
-                                    const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-                                    const ip = `10.0.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-                                    lines.splice(
-                                        Math.floor(Math.random() * 900),
-                                        0,
-                                        `[${timestamp}] [SECURITY] Suspicious connection detected to 0xcheats.net from ${ip}`
-                                    );
                                 }
                                 
                                 return lines.join('\n');
@@ -3242,12 +3758,12 @@
                             selectedFile = new File([demoContent], 'security_logs_2025.log', { type: 'text/plain' });
                             
                             if (fileName && fileSize) {
-                                fileName.textContent = `📁 Демонстрационный файл: security_logs_2025.log`;
-                                fileSize.textContent = `📊 Размер: ${formatFileSize(demoContent.length)}`;
+                                fileName.textContent = `📁 Demo file: security_logs_2025.log`;
+                                fileSize.textContent = `📊 Size: ${formatFileSize(demoContent.length)}`;
                             }
                         }
                     } catch (error) {
-                        console.error('Ошибка создания демо-файла:', error);
+                        console.error('Demo file creation error:', error);
                     }
                 }
                 
@@ -3258,10 +3774,10 @@
                     fileInput.addEventListener('change', function(e) {
                         if (e.target.files.length > 0) {
                             selectedFile = e.target.files[0];
-                            selectedFileFromStorage = null; // Сбрасываем выбор из хранилища
+                            selectedFileFromStorage = null; // Сбросить выбор из хранилища
                             
                             if (selectedFile.size > MAX_FILE_SIZE) {
-                                showNotification(`Файл слишком большой. Максимальный размер: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
+                                showNotification(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
                                 fileInput.value = '';
                                 return;
                             }
@@ -3269,7 +3785,7 @@
                             fileName.textContent = `📁 ${selectedFile.name}`;
                             fileSize.textContent = `📊 ${formatFileSize(selectedFile.size)}`;
                             
-                            // Снимаем выделение с файлов в хранилище
+                            // Отменить выбор файлов в хранилище
                             const storedItems = document.querySelectorAll('.stored-file-item');
                             storedItems.forEach(item => item.classList.remove('selected'));
                             
@@ -3280,7 +3796,7 @@
                                 fileDropArea.style.boxShadow = '';
                             }, 2000);
                             
-                            showStatus(`Файл "${selectedFile.name}" успешно загружен`, 'success');
+                            showStatus(`File "${selectedFile.name}" uploaded successfully`, 'success');
                             totalFiles++;
                             localStorage.setItem('totalFiles', totalFiles);
                             showAdvancedStats();
@@ -3305,10 +3821,10 @@
                         
                         if (e.dataTransfer.files.length > 0) {
                             selectedFile = e.dataTransfer.files[0];
-                            selectedFileFromStorage = null; // Сбрасываем выбор из хранилища
+                            selectedFileFromStorage = null; // Сбросить выбор из хранилища
                             
                             if (selectedFile.size > MAX_FILE_SIZE) {
-                                showNotification(`Файл слишком большой. Максимальный размер: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
+                                showNotification(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
                                 return;
                             }
                             
@@ -3316,7 +3832,7 @@
                             fileName.textContent = `📁 ${selectedFile.name}`;
                             fileSize.textContent = `📊 ${formatFileSize(selectedFile.size)}`;
                             
-                            // Снимаем выделение с файлов в хранилище
+                            // Отменить выбор файлов в хранилище
                             const storedItems = document.querySelectorAll('.stored-file-item');
                             storedItems.forEach(item => item.classList.remove('selected'));
                             
@@ -3327,7 +3843,7 @@
                                 fileDropArea.style.boxShadow = '';
                             }, 2000);
                             
-                            showStatus(`Файл "${selectedFile.name}" загружен через Drag & Drop`, 'success');
+                            showStatus(`File "${selectedFile.name}" uploaded via Drag & Drop`, 'success');
                             totalFiles++;
                             localStorage.setItem('totalFiles', totalFiles);
                             showAdvancedStats();
@@ -3341,32 +3857,32 @@
                         let currentFile = null;
                         let isFromStorage = false;
                         
-                        // Определяем, какой файл использовать
+                        // Определить, какой файл использовать
                         if (selectedFileFromStorage) {
-                            // Используем файл из хранилища
+                            // Использовать файл из хранилища
                             try {
                                 const fileData = await getStoredFile(selectedFileFromStorage.id);
                                 if (!fileData) {
-                                    showStatus('Выбранный файл из хранилища не найден', 'error');
+                                    showStatus('Selected file from storage not found', 'error');
                                     return;
                                 }
                                 currentFile = fileData;
                                 isFromStorage = true;
                             } catch (error) {
-                                showStatus(`Ошибка загрузки файла из хранилища: ${error.message}`, 'error');
+                                showStatus(`Error loading file from storage: ${error.message}`, 'error');
                                 return;
                             }
                         } else if (selectedFile) {
-                            // Используем загруженный файл
+                            // Использовать загруженный файл
                             currentFile = selectedFile;
                         } else {
-                            showStatus('Пожалуйста, выберите файл для анализа', 'error');
+                            showStatus('Please select file for analysis', 'error');
                             return;
                         }
                         
                         const searchWord = searchWordInput.value.trim();
                         if (!searchWord) {
-                            showStatus('Введите слово для поиска', 'error');
+                            showStatus('Enter word to search', 'error');
                             searchWordInput.focus();
                             return;
                         }
@@ -3376,7 +3892,7 @@
                         const statusText = document.getElementById('statusText');
                         
                         loadingIndicator.classList.add('active');
-                        statusText.textContent = 'Сканирование файла...';
+                        statusText.textContent = 'Scanning file...';
                         scanButton.disabled = true;
                         
                         try {
@@ -3384,10 +3900,10 @@
                             let scanResult;
                             
                             if (isFromStorage) {
-                                // Сканирование файла из хранилища
+                                // Сканировать файл из хранилища
                                 scanResult = await scanStoredFile(currentFile, searchWord, mode);
                             } else {
-                                // Сканирование обычного файла
+                                // Сканировать обычный файл
                                 scanResult = await scanFile(currentFile, searchWord, mode);
                             }
                             
@@ -3423,14 +3939,14 @@
                             scanButton.disabled = false;
                             
                             if (searchResults.length > 0) {
-                                const cheatCount = searchResults.filter(r => r.isCheat).length;
-                                if (cheatCount > 0) {
-                                    showStatus(`Найдено ${searchResults.length} совпадений (${cheatCount} потенциально опасных) за ${(scanTime/1000).toFixed(2)} сек`, 'warning');
+                                const suspiciousCount = searchResults.filter(r => r.isSuspicious).length;
+                                if (suspiciousCount > 0) {
+                                    showStatus(`Found ${searchResults.length} matches (${suspiciousCount} potentially suspicious) in ${(scanTime/1000).toFixed(2)} sec`, 'warning');
                                 } else {
-                                    showStatus(`Найдено ${searchResults.length} совпадений за ${(scanTime/1000).toFixed(2)} сек`, 'success');
+                                    showStatus(`Found ${searchResults.length} matches in ${(scanTime/1000).toFixed(2)} sec`, 'success');
                                 }
                             } else {
-                                showStatus(`Совпадений не найдено. Обработано ${scanResult.totalLines} строк за ${(scanTime/1000).toFixed(2)} сек`, 'info');
+                                showStatus(`No matches found. Processed ${scanResult.totalLines} lines in ${(scanTime/1000).toFixed(2)} sec`, 'info');
                             }
                             
                             showAdvancedStats();
@@ -3438,12 +3954,12 @@
                         } catch (error) {
                             loadingIndicator.classList.remove('active');
                             scanButton.disabled = false;
-                            showStatus(`Ошибка сканирования: ${error.message}`, 'error');
+                            showStatus(`Scanning error: ${error.message}`, 'error');
                         }
                     });
                 }
                 
-                // Очистка результатов
+                // Очистить результаты
                 if (clearResultsButton) {
                     clearResultsButton.addEventListener('click', function() {
                         searchResults = [];
@@ -3451,15 +3967,15 @@
                         document.getElementById('resultsContainer').innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-search"></i>
-                                <h3>Результаты появятся здесь</h3>
-                                <p>Выберите файл и введите слово для поиска, чтобы увидеть результаты</p>
+                                <h3>Results will appear here</h3>
+                                <p>Select file and enter word to search to see results</p>
                             </div>
                         `;
-                        showStatus('Результаты очищены', 'info');
+                        showStatus('Results cleared', 'info');
                     });
                 }
                 
-                showStatus('Выберите файл для анализа (загрузите новый или выберите из хранилища).', 'info');
+                showStatus('Select file for analysis (upload new or choose from storage).', 'info');
             }
             
             // Вспомогательные функции
@@ -3490,7 +4006,7 @@
                 }
             }
             
-            // Автоматический логаут при неактивности
+            // Автоматический выход при бездействии
             let inactivityTimer;
             function resetInactivityTimer() {
                 clearTimeout(inactivityTimer);
@@ -3498,7 +4014,7 @@
                     if (sessionToken) {
                         sessionStorage.clear();
                         showLoginPage();
-                        showNotification('Сессия завершена из-за неактивности', 'warning');
+                        showNotification('Session ended due to inactivity', 'warning');
                     }
                 }, 45 * 60 * 1000);
             }
