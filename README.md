@@ -1,40 +1,35 @@
-🛡️ Сканер логов с защищенным доступом
-https://img.shields.io/badge/%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F-2.0-blue
-https://img.shields.io/badge/%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F-MIT-green
-https://img.shields.io/badge/%D1%81%D1%82%D0%B0%D1%82%D1%83%D1%81-%D1%80%D0%B0%D0%B1%D0%BE%D1%87%D0%B8%D0%B9-success
+A modern web-based tool for analyzing log files with an authorization system and winter design. The application allows you to scan text files for keywords and links to suspicious resources.
 
-Современный веб-инструмент для анализа лог-файлов с системой авторизации и зимним дизайном. Приложение позволяет сканировать текстовые файлы на наличие ключевых слов и ссылок на подозрительные ресурсы.
+✨ Features
+🔐 Security
+Secure access - login and password login
 
-✨ Особенности
-🔐 Безопасность
-Защищенный доступ - вход по логину и паролю
+Session authorization is an automatic exit when the browser is closed.
 
-Сессионная авторизация - автоматический выход при закрытии браузера
+Client validation - secure verification of credentials
 
-Клиентская валидация - безопасная проверка учетных данных
+🎨 Design
+The winter theme is an elegant blue-blue gradient
 
-🎨 Дизайн
-Зимняя тема - элегантный сине-голубой градиент
+Animated snowflakes - dynamic background effect
 
-Анимированные снежинки - динамический фоновый эффект
+Minimalistic interface - clean and modern UI
 
-Минималистичный интерфейс - чистый и современный UI
+Smooth animation transitions and hover effects
 
-Плавные анимации - переходы и hover-эффекты
+⚡ Functionality
+Drag & Drop - easy file upload
 
-⚡ Функциональность
-Drag & Drop - удобная загрузка файлов
+Quick Search - instant log scanning
 
-Быстрый поиск - мгновенное сканирование логов
+Highlighting of results - color highlighting of found matches
 
-Подсветка результатов - цветовое выделение найденных совпадений
+Multiple formats - support for .log, .txt, .json, .csv, .xml
 
-Множественные форматы - поддержка .log, .txt, .json, .csv, .xml
-
-📁 Поддерживаемые форматы файлов
-Формат	Описание
-.log	Стандартные лог-файлы
-.txt	Текстовые файлы
-.json	JSON-логи
-.csv	CSV-файлы
-.xml	XML-документы
+, Supported file formats
+Format Description
+.log Standard log files
+.txt Text files
+.json JSON logs
+.csv csv files
+.xml XML documents
