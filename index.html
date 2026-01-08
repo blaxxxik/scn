@@ -6,8 +6,14 @@
     <link rel="apple-touch-icon" href="favicon.png?v=202512291719">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyrox Search</title>
+    <title>Cyrox Searchr</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -2663,6 +2669,139 @@
     </div>
 
     <script>
+        // ========== Firebase конфигурация ==========
+        const firebaseConfig = {
+            // ВАШИ ДАННЫЕ ОТ FIREBASE
+            apiKey: "AIzaSyDeGIDOzA8F8Kg-33rbB7JtFv8IWJMzAGM",
+            authDomain: "cyrox-d6090.firebaseapp.com",
+            projectId: "cyrox-d6090",
+            storageBucket: "cyrox-d6090.firebasestorage.app",
+            messagingSenderId: "470952445422",
+            appId: "1:470952445422:web:66df50496086fd38463aff"
+        };
+        
+        let firebaseApp;
+        let db;
+        let firebaseAuth;
+        
+        async function initializeFirebase() {
+            try {
+                // Проверяем, не инициализирован ли Firebase уже
+                if (!firebase.apps.length) {
+                    firebaseApp = firebase.initializeApp(firebaseConfig);
+                } else {
+                    firebaseApp = firebase.app();
+                }
+                
+                db = firebase.firestore();
+                firebaseAuth = firebase.auth();
+                
+                console.log('✅ Firebase подключен');
+                return true;
+            } catch (error) {
+                console.error('❌ Ошибка Firebase:', error);
+                showNotification('Ошибка подключения к Firebase', 'error');
+                return false;
+            }
+        }
+        
+        // Firebase функции для пользователей
+        async function addUserToFirebase(userData) {
+            try {
+                const userRef = db.collection('users').doc(userData.username);
+                await userRef.set({
+                    username: userData.username,
+                    password: userData.password, // В реальном проекте нужно хешировать пароль
+                    role: userData.role,
+                    created: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastLogin: null,
+                    email: `${userData.username}@cyrox.com` // Можно добавить email
+                });
+                return true;
+            } catch (error) {
+                console.error('Ошибка добавления пользователя:', error);
+                return false;
+            }
+        }
+        
+        async function getUsersFromFirebase() {
+            try {
+                const snapshot = await db.collection('users').get();
+                const users = [];
+                snapshot.forEach(doc => {
+                    users.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                return users;
+            } catch (error) {
+                console.error('Ошибка получения пользователей:', error);
+                return [];
+            }
+        }
+        
+        async function deleteUserFromFirebase(username) {
+            try {
+                await db.collection('users').doc(username).delete();
+                return true;
+            } catch (error) {
+                console.error('Ошибка удаления пользователя:', error);
+                return false;
+            }
+        }
+        
+        async function updateUserInFirebase(username, updateData) {
+            try {
+                const userRef = db.collection('users').doc(username);
+                await userRef.update(updateData);
+                return true;
+            } catch (error) {
+                console.error('Ошибка обновления пользователя:', error);
+                return false;
+            }
+        }
+        
+        // Проверка логина через Firebase
+        async function checkLoginFirebase(username, password) {
+            try {
+                const userRef = db.collection('users').doc(username);
+                const doc = await userRef.get();
+                
+                if (doc.exists) {
+                    const userData = doc.data();
+                    if (userData.password === password) {
+                        // Обновляем время последнего входа
+                        await userRef.update({
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        return {
+                            success: true,
+                            user: {
+                                username: userData.username,
+                                role: userData.role,
+                                created: userData.created?.toDate()?.toISOString() || new Date().toISOString(),
+                                lastLogin: new Date().toISOString()
+                            }
+                        };
+                    }
+                }
+                
+                return {
+                    success: false,
+                    message: 'Invalid username or password'
+                };
+            } catch (error) {
+                console.error('Ошибка проверки логина:', error);
+                return {
+                    success: false,
+                    message: 'Login error'
+                };
+            }
+        }
+        // ========== КОНЕЦ Firebase конфигурации ==========
+        
         // Глобальные переменные
         let selectedFile = null;
         let selectedFileFromStorage = null;
@@ -2679,7 +2818,7 @@
         // Пользовательские примеры поиска
         let searchExamples = JSON.parse(localStorage.getItem('cyroxSearchExamples') || '["example.com", "test.com", "admin", "error", "warning"]');
         
-        // База данных пользователей
+        // База данных пользователей (локальная как fallback)
         let usersDB = JSON.parse(localStorage.getItem('cyroxUsers') || '[]');
         
         // Добавить дефолтного пользователя Cyrox/blqx если его нет
@@ -2707,7 +2846,7 @@
         }
         
         // IndexedDB для хранения файлов
-        let db;
+        let indexedDB;
         const DB_NAME = 'CyroxFileStorage';
         const DB_VERSION = 1;
         const STORE_NAME = 'files';
@@ -2864,14 +3003,25 @@
             }
         }
 
-        // Функции управления пользователями
-        function loadUsers() {
+        // Функции управления пользователями (с поддержкой Firebase)
+        async function loadUsers() {
             const usersList = document.getElementById('usersList');
             if (!usersList) return;
             
-            usersDB = JSON.parse(localStorage.getItem('cyroxUsers') || '[]');
+            let users = [];
             
-            if (usersDB.length === 0) {
+            // Пробуем загрузить из Firebase
+            if (db) {
+                users = await getUsersFromFirebase();
+                // Если Firebase не работает, используем локальные данные
+                if (users.length === 0) {
+                    users = usersDB;
+                }
+            } else {
+                users = usersDB;
+            }
+            
+            if (users.length === 0) {
                 usersList.innerHTML = `
                     <div class="no-files-message">
                         <i class="fas fa-users-slash"></i>
@@ -2882,9 +3032,13 @@
             }
             
             let html = '';
-            usersDB.forEach((user, index) => {
-                const createdDate = new Date(user.created).toLocaleDateString();
-                const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
+            users.forEach((user, index) => {
+                const createdDate = user.created ? 
+                    (user.created.toDate ? user.created.toDate().toLocaleDateString() : new Date(user.created).toLocaleDateString()) : 
+                    'Unknown';
+                const lastLogin = user.lastLogin ? 
+                    (user.lastLogin.toDate ? user.lastLogin.toDate().toLocaleDateString() : new Date(user.lastLogin).toLocaleDateString()) : 
+                    'Never';
                 const isCurrentUser = currentUser && currentUser.username === user.username;
                 
                 html += `
@@ -2904,7 +3058,7 @@
                             <button class="user-action-btn" onclick="resetUserPassword('${user.username}')" title="Reset Password">
                                 <i class="fas fa-key"></i>
                             </button>
-                            <button class="user-action-btn delete" onclick="deleteUser(${index})" title="Delete User" ${user.role === 'admin' ? 'disabled style="opacity: 0.5;"' : ''}>
+                            <button class="user-action-btn delete" onclick="deleteUser(${index}, '${user.username}')" title="Delete User" ${user.role === 'admin' ? 'disabled style="opacity: 0.5;"' : ''}>
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -2929,14 +3083,14 @@
             modal.classList.remove('active');
         }
 
-        function addNewUser(username, password, role) {
-            // Проверить, существует ли пользователь
+        async function addNewUser(username, password, role) {
+            // Проверить, существует ли пользователь в локальной БД
             if (usersDB.find(u => u.username === username)) {
                 showNotification(`User "${username}" already exists`, 'error');
                 return false;
             }
             
-            // Добавить нового пользователя
+            // Создать объект пользователя
             const newUser = {
                 username: username,
                 password: password,
@@ -2945,15 +3099,25 @@
                 lastLogin: null
             };
             
+            // Добавить в Firebase если подключен
+            if (db) {
+                const firebaseSuccess = await addUserToFirebase(newUser);
+                if (!firebaseSuccess) {
+                    showNotification('Error adding user to Firebase', 'error');
+                    // Продолжаем с локальным сохранением
+                }
+            }
+            
+            // Добавить в локальную БД
             usersDB.push(newUser);
             localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
             
             showNotification(`User "${username}" created successfully`, 'success');
-            loadUsers();
+            await loadUsers();
             return true;
         }
 
-        function deleteUser(userIndex) {
+        async function deleteUser(userIndex, username) {
             if (userIndex < 0 || userIndex >= usersDB.length) {
                 showNotification('Invalid user index', 'error');
                 return;
@@ -2966,20 +3130,29 @@
                 return;
             }
             
-            if (!confirm(`Are you sure you want to delete user "${user.username}"?`)) {
+            if (!confirm(`Are you sure you want to delete user "${username}"?`)) {
                 return;
             }
             
+            // Удалить из Firebase если подключен
+            if (db) {
+                const firebaseSuccess = await deleteUserFromFirebase(username);
+                if (!firebaseSuccess) {
+                    showNotification('Error deleting user from Firebase', 'error');
+                }
+            }
+            
+            // Удалить из локальной БД
             usersDB.splice(userIndex, 1);
             localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
             
-            showNotification(`User "${user.username}" deleted`, 'success');
-            loadUsers();
+            showNotification(`User "${username}" deleted`, 'success');
+            await loadUsers();
         }
 
-        function resetUserPassword(username) {
-            const user = usersDB.find(u => u.username === username);
-            if (!user) {
+        async function resetUserPassword(username) {
+            const userIndex = usersDB.findIndex(u => u.username === username);
+            if (userIndex === -1) {
                 showNotification('User not found', 'error');
                 return;
             }
@@ -2995,14 +3168,32 @@
                 return;
             }
             
-            user.password = newPassword;
+            // Обновить в Firebase если подключен
+            if (db) {
+                const firebaseSuccess = await updateUserInFirebase(username, { password: newPassword });
+                if (!firebaseSuccess) {
+                    showNotification('Error updating password in Firebase', 'error');
+                }
+            }
+            
+            // Обновить локально
+            usersDB[userIndex].password = newPassword;
             localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
             
             showNotification(`Password for "${username}" has been reset`, 'success');
         }
 
-        // Функция проверки логина
-        function checkLogin(username, password) {
+        // Функция проверки логина (с поддержкой Firebase)
+        async function checkLogin(username, password) {
+            // Пробуем Firebase
+            if (db) {
+                const firebaseResult = await checkLoginFirebase(username, password);
+                if (firebaseResult.success) {
+                    return firebaseResult;
+                }
+            }
+            
+            // Fallback на локальную БД
             usersDB = JSON.parse(localStorage.getItem('cyroxUsers') || '[]');
             const user = usersDB.find(u => u.username === username && u.password === password);
             
@@ -3054,8 +3245,8 @@
                 };
                 
                 request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
+                    indexedDB = request.result;
+                    resolve(indexedDB);
                 };
                 
                 request.onupgradeneeded = (event) => {
@@ -3074,7 +3265,7 @@
         // Сохранить файл в IndexedDB
         async function saveFileToIndexedDB(file) {
             return new Promise((resolve, reject) => {
-                if (!db) {
+                if (!indexedDB) {
                     reject(new Error('Database not initialized'));
                     return;
                 }
@@ -3087,7 +3278,7 @@
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
-                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const transaction = indexedDB.transaction([STORE_NAME], 'readwrite');
                     const store = transaction.objectStore(STORE_NAME);
                     
                     const fileData = {
@@ -3125,12 +3316,12 @@
         // Получить список файлов
         async function getStoredFiles() {
             return new Promise((resolve, reject) => {
-                if (!db) {
+                if (!indexedDB) {
                     reject(new Error('Database not initialized'));
                     return;
                 }
                 
-                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const transaction = indexedDB.transaction([STORE_NAME], 'readonly');
                 const store = transaction.objectStore(STORE_NAME);
                 const request = store.getAll();
                 
@@ -3147,12 +3338,12 @@
         // Удалить файл
         async function deleteStoredFile(fileId) {
             return new Promise((resolve, reject) => {
-                if (!db) {
+                if (!indexedDB) {
                     reject(new Error('Database not initialized'));
                     return;
                 }
                 
-                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const transaction = indexedDB.transaction([STORE_NAME], 'readwrite');
                 const store = transaction.objectStore(STORE_NAME);
                 const request = store.delete(fileId);
                 
@@ -3169,12 +3360,12 @@
         // Получить файл по ID
         async function getStoredFile(fileId) {
             return new Promise((resolve, reject) => {
-                if (!db) {
+                if (!indexedDB) {
                     reject(new Error('Database not initialized'));
                     return;
                 }
                 
-                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const transaction = indexedDB.transaction([STORE_NAME], 'readonly');
                 const store = transaction.objectStore(STORE_NAME);
                 const request = store.get(fileId);
                 
@@ -3339,8 +3530,8 @@
                 };
                 
                 // Обновить дату последнего доступа
-                if (db) {
-                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                if (indexedDB) {
+                    const transaction = indexedDB.transaction([STORE_NAME], 'readwrite');
                     const store = transaction.objectStore(STORE_NAME);
                     fileData.lastAccessed = new Date().toISOString();
                     store.put(fileData);
@@ -3879,7 +4070,7 @@
 
         // Загрузить пользовательский аватар
         function loadCustomAvatar() {
-            const avatarUrl = 'https://your-username.github.io/avatar.png';
+            const avatarUrl = 'https://blaxxxik.github.io/favicon.png';
             const profileIcon = document.getElementById('profileIcon');
             const profileAvatarLarge = document.getElementById('profileAvatarLarge');
             
@@ -3919,6 +4110,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
+            // Инициализировать Firebase
+            await initializeFirebase();
+            
             // Инициализировать IndexedDB
             try {
                 await initIndexedDB();
@@ -4040,20 +4234,22 @@
                         return;
                     }
                     
-                    if (addNewUser(username, password, role)) {
-                        closeUserModal();
-                    }
+                    addNewUser(username, password, role).then(success => {
+                        if (success) {
+                            closeUserModal();
+                        }
+                    });
                 });
             }
             
             // Обычный вход
-            loginForm.addEventListener('submit', function(e) {
+            loginForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value.trim();
                 
-                const loginResult = checkLogin(username, password);
+                const loginResult = await checkLogin(username, password);
                 
                 if (loginResult.success) {
                     currentUser = loginResult.user;
@@ -4092,7 +4288,7 @@
             // Вход в админ-панель (специальная кнопка)
             adminLoginBtn.addEventListener('click', function() {
                 document.getElementById('username').value = 'admin';
-                document.getElementById('password').value = 'admin';
+                document.getElementById('password').value = 'blax';
                 loginForm.dispatchEvent(new Event('submit'));
             });
             
@@ -4246,7 +4442,7 @@
                 }
                 
                 // Загрузить список пользователей
-                loadUsers();
+                await loadUsers();
             }
             
             // Инициализировать сканер пользователя
@@ -4264,7 +4460,7 @@
                 // Загрузить список файлов из хранилища
                 await displayStoredFiles();
                 
-                // Демо-файл (только если нет файлов в хранилище)
+                // Демо-файл (только если нет файлов в хранилища)
                 async function checkAndCreateDemoFile() {
                     try {
                         const stats = await getStorageStats();
