@@ -3922,6 +3922,7 @@ function loadCustomAvatar() {
     };
 }
 
+// Основная инициализация
 document.addEventListener('DOMContentLoaded', async function() {
     // Загрузить пользователей с GitHub
     await loadUsersFromGitHub();
@@ -4047,82 +4048,97 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     // Обычный вход
-    loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-        
-        const loginResult = await checkLogin(username, password);
-        
-        if (loginResult.success) {
-            currentUser = loginResult.user;
-            sessionToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Предотвращаем перезагрузку страницы
             
-            sessionStorage.setItem('sessionToken', sessionToken);
-            sessionStorage.setItem('tokenTime', Date.now().toString());
-            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-            sessionStorage.setItem('isAdmin', (currentUser.role === 'admin').toString());
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
             
-            isAdminSession = currentUser.role === 'admin';
+            const loginResult = await checkLogin(username, password);
             
-            if (isAdminSession) {
-                showAdminPanel();
+            if (loginResult.success) {
+                currentUser = loginResult.user;
+                sessionToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
+                
+                sessionStorage.setItem('sessionToken', sessionToken);
+                sessionStorage.setItem('tokenTime', Date.now().toString());
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                sessionStorage.setItem('isAdmin', (currentUser.role === 'admin').toString());
+                
+                isAdminSession = currentUser.role === 'admin';
+                
+                if (isAdminSession) {
+                    showAdminPanel();
+                } else {
+                    showMainContent();
+                }
+                
+                errorMessage.style.display = 'none';
             } else {
-                showMainContent();
-            }
-            
-            errorMessage.style.display = 'none';
-        } else {
-            errorMessage.style.display = 'block';
-            loginForm.style.transform = 'translateX(8px)';
-            setTimeout(() => {
-                loginForm.style.transform = 'translateX(-8px)';
+                errorMessage.style.display = 'block';
+                loginForm.style.transform = 'translateX(8px)';
                 setTimeout(() => {
-                    loginForm.style.transform = 'translateX(0)';
+                    loginForm.style.transform = 'translateX(-8px)';
+                    setTimeout(() => {
+                        loginForm.style.transform = 'translateX(0)';
+                    }, 100);
                 }, 100);
-            }, 100);
-            
-            document.getElementById('password').value = '';
-        }
-    });
+                
+                document.getElementById('password').value = '';
+            }
+        });
+    }
     
     // Вход в админ-панель (специальная кнопка)
-    adminLoginBtn.addEventListener('click', function() {
-        document.getElementById('username').value = 'admin';
-        document.getElementById('password').value = 'blax';
-        loginForm.dispatchEvent(new Event('submit'));
-    });
+    if (adminLoginBtn) {
+        adminLoginBtn.addEventListener('click', function(e) {
+            e.preventDefault(); // Предотвращаем действие по умолчанию
+            
+            // Устанавливаем значения для админа
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'blax';
+            
+            // Имитируем отправку формы
+            if (loginForm) {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    }
     
     // Назад к логину из админ-панели
-    backToLoginBtn.addEventListener('click', function() {
-        sessionStorage.clear();
-        sessionToken = null;
-        currentUser = null;
-        isAdminSession = false;
-        
-        adminPanel.style.opacity = '0';
-        adminPanel.style.transform = 'translateY(30px)';
-        setTimeout(() => {
-            showLoginPage();
-        }, 500);
-    });
+    if (backToLoginBtn) {
+        backToLoginBtn.addEventListener('click', function() {
+            sessionStorage.clear();
+            sessionToken = null;
+            currentUser = null;
+            isAdminSession = false;
+            
+            adminPanel.style.opacity = '0';
+            adminPanel.style.transform = 'translateY(30px)';
+            setTimeout(() => {
+                showLoginPage();
+            }, 500);
+        });
+    }
     
     // Выход
-    logoutBtn.addEventListener('click', function() {
-        sessionStorage.clear();
-        sessionToken = null;
-        currentUser = null;
-        isAdminSession = false;
-        
-        mainContent.style.opacity = '0';
-        mainContent.style.transform = 'translateY(30px)';
-        setTimeout(() => {
-            showLoginPage();
-        }, 500);
-    });
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            sessionStorage.clear();
+            sessionToken = null;
+            currentUser = null;
+            isAdminSession = false;
+            
+            mainContent.style.opacity = '0';
+            mainContent.style.transform = 'translateY(30px)';
+            setTimeout(() => {
+                showLoginPage();
+            }, 500);
+        });
+    }
     
     // Функции переключения страниц
     function showLoginPage() {
@@ -4524,3 +4540,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.addEventListener('click', resetInactivityTimer);
     resetInactivityTimer();
 });
+    </script>
+</body>
+</html>
