@@ -6,7 +6,7 @@
     <link rel="apple-touch-icon" href="favicon.png?v=202512291719">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyrox Search</title>
+    <title>Cyrox Searchr</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -1898,6 +1898,243 @@
             font-size: 1.2rem;
             color: var(--ice);
         }
+
+        /* Новые стили для управления пользователями */
+        .user-management-section {
+            margin-top: 2.5rem;
+            background: rgba(26, 35, 50, 0.85);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        .user-management-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-management-title {
+            font-size: 1.5rem;
+            color: #ff8e53;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .add-user-btn {
+            padding: 0.7rem 1.2rem;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .add-user-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .users-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 12px;
+            background: rgba(15, 23, 36, 0.7);
+            padding: 1rem;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(26, 35, 50, 0.7);
+            border-radius: 10px;
+            margin-bottom: 0.8rem;
+            border: 1px solid rgba(255, 107, 107, 0.15);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-username {
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .user-created {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .user-action-btn {
+            padding: 0.5rem 0.8rem;
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .user-action-btn:hover {
+            background: rgba(255, 107, 107, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .user-action-btn.delete {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .user-action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Модальное окно добавления пользователя */
+        .user-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10002;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .user-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .user-modal-content {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            border: 2px solid #ff8e53;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.7),
+                0 0 30px rgba(255, 107, 107, 0.3);
+            transform: translateY(-30px);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .user-modal.active .user-modal-content {
+            transform: translateY(0);
+        }
+
+        .user-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-modal-title {
+            font-size: 1.5rem;
+            color: #ff8e53;
+            font-weight: 600;
+        }
+
+        .user-modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.3rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .user-modal-close:hover {
+            color: #ff8e53;
+            background: rgba(255, 107, 107, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .user-form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .user-form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .user-form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(15, 23, 36, 0.7);
+            border: 1px solid rgba(255, 107, 107, 0.25);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .user-form-input:focus {
+            outline: none;
+            border-color: #ff8e53;
+            box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+        }
+
+        .user-modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .user-modal-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .user-modal-btn.primary {
+            background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+            color: white;
+        }
+
+        .user-modal-btn.secondary {
+            background: rgba(76, 201, 240, 0.15);
+            color: var(--text);
+            border: 1px solid rgba(76, 201, 240, 0.3);
+        }
+
+        .user-modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -1929,7 +2166,7 @@
                 </div>
                 <h3 class="profile-username" id="profileUsername">Cyrox User</h3>
                 <span class="profile-role">Premium Scanner</span>
-                <p style="color: var(--text-secondary); margin-top: 1rem;">Advanced log scanner with AI-powered analysis</p>
+                <p style="color: var(--text-secondary); margin-top: 1rem;">Advanced log scanner</p>
             </div>
             
             <div class="profile-stats">
@@ -1965,6 +2202,49 @@
                     Clear History
                 </button>
             </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно добавления пользователя -->
+    <div class="user-modal" id="userModal">
+        <div class="user-modal-content">
+            <div class="user-modal-header">
+                <h3 class="user-modal-title">👤 Add New User</h3>
+                <button class="user-modal-close" id="closeUserModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="userForm">
+                <div class="user-form-group">
+                    <label class="user-form-label" for="newUsername">Username</label>
+                    <input type="text" id="newUsername" class="user-form-input" placeholder="Enter username" required>
+                </div>
+                
+                <div class="user-form-group">
+                    <label class="user-form-label" for="newPassword">Password</label>
+                    <input type="password" id="newPassword" class="user-form-input" placeholder="Enter password" required>
+                </div>
+                
+                <div class="user-form-group">
+                    <label class="user-form-label" for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="user-form-input" placeholder="Confirm password" required>
+                </div>
+                
+                <div class="user-form-group">
+                    <label class="user-form-label" for="userRole">Role</label>
+                    <select id="userRole" class="user-form-input">
+                        <option value="user">Regular User</option>
+                        <option value="premium">Premium User</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+                
+                <div class="user-modal-actions">
+                    <button type="button" class="user-modal-btn secondary" id="cancelUserBtn">Cancel</button>
+                    <button type="submit" class="user-modal-btn primary">Create User</button>
+                </div>
+            </form>
         </div>
     </div>
     
@@ -2053,7 +2333,7 @@
             <div class="logo">
                 <i class="fas fa-search-logo logo-icon"></i>
             </div>
-            <h1>🔍 Cyrox Search Pro</h1>
+            <h1>🔍 Cyrox Search</h1>
             <p class="subtitle">Powerful log analysis tool with large file support, intelligent search and advanced security analytics</p>
         </header>
 
@@ -2251,7 +2531,7 @@
         </div>
         
         <footer>
-            <p>Cyrox Search Pro &copy; 2025 | Advanced log analysis tool with artificial intelligence</p>
+            <p>Cyrox Search &copy; 2025 | Advanced log analysis tool with artificial intelligence</p>
             <p style="margin-top: 0.5rem; font-size: 0.85rem;">Version 2.0.1 | All rights reserved</p>
         </footer>
     </div>
@@ -2358,8 +2638,26 @@
             </div>
         </div>
         
+        <!-- Управление пользователями -->
+        <div class="user-management-section">
+            <div class="user-management-header">
+                <h3 class="user-management-title">
+                    <i class="fas fa-users"></i>
+                    User Management
+                </h3>
+                <button class="add-user-btn" id="addUserBtn">
+                    <i class="fas fa-user-plus"></i>
+                    Add User
+                </button>
+            </div>
+            
+            <div class="users-list" id="usersList">
+                <!-- Список пользователей будет загружен здесь -->
+            </div>
+        </div>
+        
         <footer>
-            <p>Administrative Panel &copy; 2025 | Cyrox Search Pro | For authorized administrators only</p>
+            <p>Administrative Panel &copy; 2025 | Cyrox Search | For authorized administrators only</p>
             <p style="margin-top: 0.5rem; font-size: 0.85rem;">Credentials: admin/admin</p>
         </footer>
     </div>
@@ -2371,6 +2669,7 @@
         let searchResults = [];
         let sessionToken = null;
         let isAdminSession = false;
+        let currentUser = null;
         let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
         let totalScans = parseInt(localStorage.getItem('totalScans') || '0');
         let totalFiles = parseInt(localStorage.getItem('totalFiles') || '0');
@@ -2379,6 +2678,33 @@
         
         // Пользовательские примеры поиска
         let searchExamples = JSON.parse(localStorage.getItem('cyroxSearchExamples') || '["example.com", "test.com", "admin", "error", "warning"]');
+        
+        // База данных пользователей
+        let usersDB = JSON.parse(localStorage.getItem('cyroxUsers') || '[]');
+        
+        // Добавить дефолтного пользователя Cyrox/blqx если его нет
+        if (!usersDB.find(u => u.username === 'Cyrox')) {
+            usersDB.push({
+                username: 'Cyrox',
+                password: 'blqx',
+                role: 'premium',
+                created: new Date().toISOString(),
+                lastLogin: null
+            });
+            localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
+        }
+        
+        // Добавить дефолтного админа admin/admin если его нет
+        if (!usersDB.find(u => u.username === 'admin')) {
+            usersDB.push({
+                username: 'admin',
+                password: 'admin',
+                role: 'admin',
+                created: new Date().toISOString(),
+                lastLogin: null
+            });
+            localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
+        }
         
         // IndexedDB для хранения файлов
         let db;
@@ -2536,6 +2862,165 @@
                 loadSearchExamples();
                 showNotification('Example removed', 'success');
             }
+        }
+
+        // Функции управления пользователями
+        function loadUsers() {
+            const usersList = document.getElementById('usersList');
+            if (!usersList) return;
+            
+            usersDB = JSON.parse(localStorage.getItem('cyroxUsers') || '[]');
+            
+            if (usersDB.length === 0) {
+                usersList.innerHTML = `
+                    <div class="no-files-message">
+                        <i class="fas fa-users-slash"></i>
+                        <p>No users created</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            usersDB.forEach((user, index) => {
+                const createdDate = new Date(user.created).toLocaleDateString();
+                const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
+                const isCurrentUser = currentUser && currentUser.username === user.username;
+                
+                html += `
+                    <div class="user-item ${isCurrentUser ? 'current-user' : ''}">
+                        <div class="user-info">
+                            <div class="user-username">
+                                ${user.username}
+                                <span style="color: ${user.role === 'admin' ? '#ff8e53' : user.role === 'premium' ? '#4cc9f0' : '#b0c4de'}; font-size: 0.8rem; margin-left: 0.5rem;">
+                                    (${user.role})
+                                </span>
+                            </div>
+                            <div class="user-created">
+                                Created: ${createdDate} | Last login: ${lastLogin}
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="user-action-btn" onclick="resetUserPassword('${user.username}')" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            <button class="user-action-btn delete" onclick="deleteUser(${index})" title="Delete User" ${user.role === 'admin' ? 'disabled style="opacity: 0.5;"' : ''}>
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            usersList.innerHTML = html;
+        }
+
+        function showAddUserModal() {
+            const modal = document.getElementById('userModal');
+            modal.classList.add('active');
+            
+            // Сбросить форму
+            document.getElementById('userForm').reset();
+            document.getElementById('userRole').value = 'user';
+        }
+
+        function closeUserModal() {
+            const modal = document.getElementById('userModal');
+            modal.classList.remove('active');
+        }
+
+        function addNewUser(username, password, role) {
+            // Проверить, существует ли пользователь
+            if (usersDB.find(u => u.username === username)) {
+                showNotification(`User "${username}" already exists`, 'error');
+                return false;
+            }
+            
+            // Добавить нового пользователя
+            const newUser = {
+                username: username,
+                password: password,
+                role: role,
+                created: new Date().toISOString(),
+                lastLogin: null
+            };
+            
+            usersDB.push(newUser);
+            localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
+            
+            showNotification(`User "${username}" created successfully`, 'success');
+            loadUsers();
+            return true;
+        }
+
+        function deleteUser(userIndex) {
+            if (userIndex < 0 || userIndex >= usersDB.length) {
+                showNotification('Invalid user index', 'error');
+                return;
+            }
+            
+            const user = usersDB[userIndex];
+            
+            if (user.role === 'admin') {
+                showNotification('Cannot delete administrator account', 'error');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete user "${user.username}"?`)) {
+                return;
+            }
+            
+            usersDB.splice(userIndex, 1);
+            localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
+            
+            showNotification(`User "${user.username}" deleted`, 'success');
+            loadUsers();
+        }
+
+        function resetUserPassword(username) {
+            const user = usersDB.find(u => u.username === username);
+            if (!user) {
+                showNotification('User not found', 'error');
+                return;
+            }
+            
+            const newPassword = prompt(`Enter new password for user "${username}":`);
+            if (!newPassword || newPassword.trim() === '') {
+                showNotification('Password cannot be empty', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 3) {
+                showNotification('Password must be at least 3 characters', 'error');
+                return;
+            }
+            
+            user.password = newPassword;
+            localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
+            
+            showNotification(`Password for "${username}" has been reset`, 'success');
+        }
+
+        // Функция проверки логина
+        function checkLogin(username, password) {
+            usersDB = JSON.parse(localStorage.getItem('cyroxUsers') || '[]');
+            const user = usersDB.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                // Обновить время последнего входа
+                user.lastLogin = new Date().toISOString();
+                localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
+                
+                return {
+                    success: true,
+                    user: user
+                };
+            }
+            
+            return {
+                success: false,
+                message: 'Invalid username or password'
+            };
         }
 
         // Уведомления
@@ -3378,6 +3863,13 @@
             
             // Обновить статистику в модальном окне
             showAdvancedStats();
+            
+            // Обновить имя пользователя
+            if (currentUser) {
+                document.getElementById('profileUsername').textContent = currentUser.username;
+                document.getElementById('profileRole').textContent = currentUser.role === 'admin' ? 'Administrator' : 
+                                                                   currentUser.role === 'premium' ? 'Premium User' : 'Regular User';
+            }
         }
 
         function closeProfileModal() {
@@ -3387,7 +3879,7 @@
 
         // Загрузить пользовательский аватар
         function loadCustomAvatar() {
-            const avatarUrl = 'https://blaxxxik.github.io/avatar.png';
+            const avatarUrl = 'https://your-username.github.io/avatar.png';
             const profileIcon = document.getElementById('profileIcon');
             const profileAvatarLarge = document.getElementById('profileAvatarLarge');
             
@@ -3455,16 +3947,21 @@
             const backToLoginBtn = document.getElementById('backToLoginBtn');
             const profileIcon = document.getElementById('profileIcon');
             const closeProfileModalBtn = document.getElementById('closeProfileModal');
+            const addUserBtn = document.getElementById('addUserBtn');
+            const closeUserModalBtn = document.getElementById('closeUserModal');
+            const cancelUserBtn = document.getElementById('cancelUserBtn');
+            const userForm = document.getElementById('userForm');
             
             // Проверить активную сессию
             const storedToken = sessionStorage.getItem('sessionToken');
             const tokenTime = parseInt(sessionStorage.getItem('tokenTime') || '0');
             const now = Date.now();
-            const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+            const storedUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
             
-            if (storedToken && tokenTime && (now - tokenTime) < 3600000) {
+            if (storedToken && tokenTime && (now - tokenTime) < 3600000 && storedUser) {
                 sessionToken = storedToken;
-                isAdminSession = isAdmin;
+                currentUser = storedUser;
+                isAdminSession = storedUser.role === 'admin';
                 
                 if (isAdminSession) {
                     showAdminPanel();
@@ -3495,23 +3992,88 @@
                 });
             }
             
-            // Обычный вход (Cyrox/blqx)
+            // Обработчики для модального окна пользователя
+            if (addUserBtn) {
+                addUserBtn.addEventListener('click', showAddUserModal);
+            }
+            
+            if (closeUserModalBtn) {
+                closeUserModalBtn.addEventListener('click', closeUserModal);
+            }
+            
+            if (cancelUserBtn) {
+                cancelUserBtn.addEventListener('click', closeUserModal);
+            }
+            
+            // Закрыть модальное окно пользователя при клике на фон
+            const userModal = document.getElementById('userModal');
+            if (userModal) {
+                userModal.addEventListener('click', function(e) {
+                    if (e.target === userModal) {
+                        closeUserModal();
+                    }
+                });
+            }
+            
+            // Форма добавления пользователя
+            if (userForm) {
+                userForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('newUsername').value.trim();
+                    const password = document.getElementById('newPassword').value.trim();
+                    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+                    const role = document.getElementById('userRole').value;
+                    
+                    if (!username || !password) {
+                        showNotification('Please fill in all fields', 'error');
+                        return;
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        showNotification('Passwords do not match', 'error');
+                        return;
+                    }
+                    
+                    if (password.length < 3) {
+                        showNotification('Password must be at least 3 characters', 'error');
+                        return;
+                    }
+                    
+                    if (addNewUser(username, password, role)) {
+                        closeUserModal();
+                    }
+                });
+            }
+            
+            // Обычный вход
             loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value.trim();
                 
-                if (username === 'Cyrox' && password === 'blqx') {
+                const loginResult = checkLogin(username, password);
+                
+                if (loginResult.success) {
+                    currentUser = loginResult.user;
                     sessionToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
                         .map(b => b.toString(16).padStart(2, '0'))
                         .join('');
                     
                     sessionStorage.setItem('sessionToken', sessionToken);
                     sessionStorage.setItem('tokenTime', Date.now().toString());
-                    sessionStorage.setItem('isAdmin', 'false');
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    sessionStorage.setItem('isAdmin', (currentUser.role === 'admin').toString());
                     
-                    showMainContent();
+                    isAdminSession = currentUser.role === 'admin';
+                    
+                    if (isAdminSession) {
+                        showAdminPanel();
+                    } else {
+                        showMainContent();
+                    }
+                    
                     errorMessage.style.display = 'none';
                 } else {
                     errorMessage.style.display = 'block';
@@ -3527,32 +4089,18 @@
                 }
             });
             
-            // Вход в админ-панель
+            // Вход в админ-панель (специальная кнопка)
             adminLoginBtn.addEventListener('click', function() {
-                const username = 'admin';
-                const password = 'admin';
-                
-                if (username === 'admin' && password === 'admin') {
-                    sessionToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-                        .map(b => b.toString(16).padStart(2, '0'))
-                        .join('');
-                    
-                    sessionStorage.setItem('sessionToken', sessionToken);
-                    sessionStorage.setItem('tokenTime', Date.now().toString());
-                    sessionStorage.setItem('isAdmin', 'true');
-                    isAdminSession = true;
-                    
-                    showAdminPanel();
-                    errorMessage.style.display = 'none';
-                } else {
-                    showNotification('Invalid administrator credentials', 'error');
-                }
+                document.getElementById('username').value = 'admin';
+                document.getElementById('password').value = 'admin';
+                loginForm.dispatchEvent(new Event('submit'));
             });
             
             // Назад к логину из админ-панели
             backToLoginBtn.addEventListener('click', function() {
                 sessionStorage.clear();
                 sessionToken = null;
+                currentUser = null;
                 isAdminSession = false;
                 
                 adminPanel.style.opacity = '0';
@@ -3566,6 +4114,7 @@
             logoutBtn.addEventListener('click', function() {
                 sessionStorage.clear();
                 sessionToken = null;
+                currentUser = null;
                 isAdminSession = false;
                 
                 mainContent.style.opacity = '0';
@@ -3695,6 +4244,9 @@
                         }
                     });
                 }
+                
+                // Загрузить список пользователей
+                loadUsers();
             }
             
             // Инициализировать сканер пользователя
