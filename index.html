@@ -1,19 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-      <link rel="icon" href="favicon.ico" type="image/x-icon">
-      <link rel="shortcut icon" href="favicon.ico">
-      <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="icon" href="favicon.png?v=202512291719" type="image/png">
+    <link rel="shortcut icon" href="favicon.png?v=202512291719">
+    <link rel="apple-touch-icon" href="favicon.png?v=202512291719">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyrox Search</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
-    
+    <!-- Back4App Parse SDK -->
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -54,7 +50,7 @@
         .profile-icon {
             position: fixed;
             top: 2rem;
-            right: 6rem; /* Отступ от кнопки выхода */
+            right: 6rem;
             width: 48px;
             height: 48px;
             border-radius: 50%;
@@ -2329,7 +2325,6 @@
             <div class="badge"></div>
         </div>
         
-      
         
         <header>
             <div class="logo">
@@ -2665,1877 +2660,1930 @@
     </div>
 
     <script>
-// ========== ОБЛАЧНАЯ БАЗА ДАННЫХ (GitHub) ==========
-const GITHUB_USERS_URL = 'https://raw.githubusercontent.com/blaxxxik/scn/main/users.json';
-let usersDB = [];
+        // ================================================
+        // КОНФИГУРАЦИЯ BACK4APP
+        // ЗАМЕНИТЕ ЭТИ КЛЮЧИ НА ВАШИ ИЗ BACK4APP!
+        // ================================================
+        const BACK4APP_CONFIG = {
+            applicationId: "Ud6RkmSIguQgUXt4NdNxlfGLS4ZXYQaSLipNVvXQ",
+            javascriptKey: "fE7OQJZoiGRyLHNUhlb5lGcbRpuWjbcWcyxWJRtn",
+            serverURL: "https://parseapi.back4app.com/"
+        };
 
-// Функция загрузки пользователей с GitHub
-async function loadUsersFromGitHub() {
-    try {
-        const response = await fetch(GITHUB_USERS_URL);
-        if (!response.ok) {
-            throw new Error('Failed to load users');
+        // Инициализация Parse
+        Parse.initialize(
+            BACK4APP_CONFIG.applicationId,
+            BACK4APP_CONFIG.javascriptKey
+        );
+        Parse.serverURL = BACK4APP_CONFIG.serverURL;
+
+        // ================================================
+        // ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+        // ================================================
+        let selectedFile = null;
+        let selectedFileFromStorage = null;
+        let searchResults = [];
+        let sessionToken = null;
+        let isAdminSession = false;
+        let currentUser = null;
+        let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
+        let totalScans = parseInt(localStorage.getItem('totalScans') || '0');
+        let totalFiles = parseInt(localStorage.getItem('totalFiles') || '0');
+        let totalScanTime = parseInt(localStorage.getItem('totalScanTime') || '0');
+        let isDarkMode = true;
+        
+        // Пользовательские примеры поиска
+        let searchExamples = JSON.parse(localStorage.getItem('cyroxSearchExamples') || '["example.com", "test.com", "admin", "error", "warning"]');
+        
+        // IndexedDB для хранения файлов
+        let db;
+        const DB_NAME = 'CyroxFileStorage';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'files';
+        const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024;
+
+        // ================================================
+        // BACK4APP ФУНКЦИИ (РАБОТАЮТ ДЛЯ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ)
+        // ================================================
+
+        // Проверка логина через Back4App
+        async function checkLogin(username, password) {
+            try {
+                const user = await Parse.User.logIn(username, password);
+                
+                return {
+                    success: true,
+                    user: {
+                        id: user.id,
+                        username: user.get("username"),
+                        role: user.get("role") || "user",
+                        email: user.get("email") || "",
+                        created: user.get("createdAt")
+                    }
+                };
+            } catch (error) {
+                console.error("Login error:", error);
+                return { 
+                    success: false, 
+                    message: "Invalid username or password" 
+                };
+            }
         }
-        const data = await response.json();
-        usersDB = data.users || [];
-        
-        // Сохраняем в localStorage как кэш
-        localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
-        
-        console.log('✅ Users loaded from GitHub:', usersDB.length);
-        return usersDB;
-    } catch (error) {
-        console.error('❌ Error loading users from GitHub:', error);
-        
-        // Fallback: загружаем из localStorage
-        const localUsers = JSON.parse(localStorage.getItem('cyroxUsers') || '[]');
-        if (localUsers.length === 0) {
-            // Создаем дефолтных пользователей
-            usersDB = [
-                {
-                    username: 'admin',
-                    password: 'blax',
-                    role: 'admin',
-                    created: new Date().toISOString()
-                },
-                {
-                    username: 'Cyrox',
-                    password: 'blqx',
-                    role: 'premium',
-                    created: new Date().toISOString()
+
+        // Получить всех пользователей
+        async function getUsersFromBack4App() {
+            try {
+                const query = new Parse.Query(Parse.User);
+                query.descending("createdAt");
+                const users = await query.find();
+                
+                return users.map(user => ({
+                    id: user.id,
+                    username: user.get("username"),
+                    email: user.get("email") || "",
+                    role: user.get("role") || "user",
+                    created: user.get("createdAt"),
+                    lastLogin: user.get("updatedAt"),
+                    isActive: true
+                }));
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                return [];
+            }
+        }
+
+        // Добавить нового пользователя
+        async function addNewUserToBack4App(username, password, role) {
+            try {
+                // Проверить существование пользователя
+                const query = new Parse.Query(Parse.User);
+                query.equalTo("username", username);
+                const existingUser = await query.first();
+                
+                if (existingUser) {
+                    return {
+                        success: false,
+                        message: `User "${username}" already exists`
+                    };
                 }
-            ];
-            localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
-        } else {
-            usersDB = localUsers;
-        }
-        
-        return usersDB;
-    }
-}
-
-// Обновить пользователей на GitHub (нужен доступ на запись)
-async function saveUsersToGitHub() {
-    // В реальном проекте здесь был бы запрос к API GitHub
-    // Но для простоты просто сохраняем локально
-    localStorage.setItem('cyroxUsers', JSON.stringify(usersDB));
-    console.log('✅ Users saved locally');
-    return true;
-}
-
-// Функция проверки логина
-async function checkLogin(username, password) {
-    // Загружаем свежие данные с GitHub
-    await loadUsersFromGitHub();
-    
-    const user = usersDB.find(u => u.username === username && u.password === password);
-    
-    if (user) {
-        // Обновить время последнего входа
-        user.lastLogin = new Date().toISOString();
-        await saveUsersToGitHub();
-        
-        return {
-            success: true,
-            user: user
-        };
-    }
-    
-    return {
-        success: false,
-        message: 'Invalid username or password'
-    };
-}
-
-// Функции управления пользователями
-async function addNewUser(username, password, role) {
-    if (usersDB.find(u => u.username === username)) {
-        showNotification(`User "${username}" already exists`, 'error');
-        return false;
-    }
-    
-    const newUser = {
-        username: username,
-        password: password,
-        role: role,
-        created: new Date().toISOString(),
-        lastLogin: null
-    };
-    
-    usersDB.push(newUser);
-    await saveUsersToGitHub();
-    
-    showNotification(`User "${username}" created successfully`, 'success');
-    await loadUsers(); // Обновить список в UI
-    return true;
-}
-
-async function deleteUser(userIndex, username) {
-    if (userIndex < 0 || userIndex >= usersDB.length) return;
-    
-    const user = usersDB[userIndex];
-    if (user.role === 'admin') {
-        showNotification('Cannot delete administrator account', 'error');
-        return;
-    }
-    
-    if (!confirm(`Delete user "${username}"?`)) return;
-    
-    usersDB.splice(userIndex, 1);
-    await saveUsersToGitHub();
-    
-    showNotification(`User "${username}" deleted`, 'success');
-    await loadUsers();
-}
-
-async function resetUserPassword(username) {
-    const userIndex = usersDB.findIndex(u => u.username === username);
-    if (userIndex === -1) return;
-    
-    const newPassword = prompt(`New password for "${username}":`);
-    if (!newPassword || newPassword.length < 3) return;
-    
-    usersDB[userIndex].password = newPassword;
-    await saveUsersToGitHub();
-    
-    showNotification(`Password for "${username}" reset`, 'success');
-}
-
-// Загрузка списка пользователей для UI
-async function loadUsers() {
-    const usersList = document.getElementById('usersList');
-    if (!usersList) return;
-    
-    await loadUsersFromGitHub(); // Загружаем свежие данные
-    
-    if (usersDB.length === 0) {
-        usersList.innerHTML = `
-            <div class="no-files-message">
-                <i class="fas fa-users-slash"></i>
-                <p>No users created</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let html = '';
-    usersDB.forEach((user, index) => {
-        const createdDate = user.created ? 
-            new Date(user.created).toLocaleDateString() : 
-            'Unknown';
-        const lastLogin = user.lastLogin ? 
-            new Date(user.lastLogin).toLocaleDateString() : 
-            'Never';
-        const isCurrentUser = currentUser && currentUser.username === user.username;
-        
-        html += `
-            <div class="user-item ${isCurrentUser ? 'current-user' : ''}">
-                <div class="user-info">
-                    <div class="user-username">
-                        ${user.username}
-                        <span style="color: ${user.role === 'admin' ? '#ff8e53' : user.role === 'premium' ? '#4cc9f0' : '#b0c4de'}; font-size: 0.8rem; margin-left: 0.5rem;">
-                            (${user.role})
-                        </span>
-                    </div>
-                    <div class="user-created">
-                        Created: ${createdDate} | Last login: ${lastLogin}
-                    </div>
-                </div>
-                <div class="user-actions">
-                    <button class="user-action-btn" onclick="resetUserPassword('${user.username}')" title="Reset Password">
-                        <i class="fas fa-key"></i>
-                    </button>
-                    <button class="user-action-btn delete" onclick="deleteUser(${index}, '${user.username}')" title="Delete User" ${user.role === 'admin' ? 'disabled style="opacity: 0.5;"' : ''}>
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-    });
-    
-    usersList.innerHTML = html;
-}
-
-// ========== ОБЩИЕ ПЕРЕМЕННЫЕ ==========
-let selectedFile = null;
-let selectedFileFromStorage = null;
-let searchResults = [];
-let sessionToken = null;
-let isAdminSession = false;
-let currentUser = null;
-let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
-let totalScans = parseInt(localStorage.getItem('totalScans') || '0');
-let totalFiles = parseInt(localStorage.getItem('totalFiles') || '0');
-let totalScanTime = parseInt(localStorage.getItem('totalScanTime') || '0');
-let isDarkMode = true;
-
-// Пользовательские примеры поиска (локальные)
-let searchExamples = JSON.parse(localStorage.getItem('cyroxSearchExamples') || '["example.com", "test.com", "admin", "error", "warning"]');
-
-// IndexedDB для хранения файлов
-let indexedDB;
-const DB_NAME = 'CyroxFileStorage';
-const DB_VERSION = 1;
-const STORE_NAME = 'files';
-const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024; // 10 ГБ
-
-// Глобальные функции
-function setSearchWord(word) {
-    const searchInput = document.getElementById('searchWord');
-    if (searchInput) {
-        searchInput.value = word;
-        searchInput.focus();
-        
-        searchInput.style.transform = 'scale(1.03)';
-        searchInput.style.boxShadow = '0 0 30px rgba(76, 201, 240, 0.4)';
-        setTimeout(() => {
-            searchInput.style.transform = '';
-            searchInput.style.boxShadow = '';
-        }, 500);
-    }
-}
-
-function startQuickScan() {
-    const searchInput = document.getElementById('searchWord');
-    const scanButton = document.getElementById('scanButton');
-    
-    if (!selectedFile && !selectedFileFromStorage) {
-        showStatus('Please select file for analysis first', 'warning');
-        
-        const dropArea = document.getElementById('fileDropArea');
-        dropArea.style.borderColor = 'var(--warning)';
-        dropArea.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.3)';
-        setTimeout(() => {
-            dropArea.style.borderColor = '';
-            dropArea.style.boxShadow = '';
-        }, 2000);
-        return;
-    }
-    
-    if (!searchInput.value.trim()) {
-        setSearchWord('example.com');
-    }
-    
-    document.getElementById('searchMode').value = 'partial';
-    scanButton.click();
-}
-
-function saveResults() {
-    if (searchResults.length === 0) {
-        showStatus('No results to save', 'warning');
-        return;
-    }
-    
-    const content = searchResults.map(r => 
-        `Line ${r.lineNumber}: ${r.content}`
-    ).join('\n\n');
-    
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cyrox_search_results_${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showStatus('Results saved to file', 'success');
-}
-
-function showAdvancedStats() {
-    const avgTime = totalScans > 0 ? (totalScanTime / totalScans / 1000).toFixed(2) : '0.00';
-    
-    document.getElementById('totalScans').textContent = totalScans;
-    document.getElementById('filesProcessed').textContent = totalFiles;
-    document.getElementById('avgTime').textContent = avgTime;
-    
-    document.getElementById('profileTotalScans').textContent = totalScans;
-    document.getElementById('profileFilesProcessed').textContent = totalFiles;
-    document.getElementById('profileAvgTime').textContent = avgTime;
-    
-    const statsPanel = document.getElementById('statsPanel');
-    statsPanel.style.opacity = '0';
-    statsPanel.style.transform = 'translateY(15px)';
-    
-    setTimeout(() => {
-        statsPanel.style.transition = 'all 0.4s ease';
-        statsPanel.style.opacity = '1';
-        statsPanel.style.transform = 'translateY(0)';
-    }, 10);
-    
-    showStatus('Statistics updated', 'info');
-}
-
-function toggleDarkMode() {
-    isDarkMode = !isDarkMode;
-    document.body.style.filter = isDarkMode ? 'none' : 'invert(1) hue-rotate(180deg)';
-    showStatus(isDarkMode ? 'Dark theme enabled' : 'Light theme enabled', 'info');
-}
-
-// Функции для пользовательских примеров поиска
-function loadSearchExamples() {
-    const container = document.getElementById('searchExamples');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    searchExamples.forEach((example, index) => {
-        const exampleElement = document.createElement('span');
-        exampleElement.className = 'cheat-example';
-        exampleElement.innerHTML = `
-            ${example}
-            <button class="remove-example-btn" onclick="removeExample(${index})" title="Remove example">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        exampleElement.onclick = (e) => {
-            if (!e.target.closest('.remove-example-btn')) {
-                setSearchWord(example);
+                
+                // Создать нового пользователя
+                const user = new Parse.User();
+                user.set("username", username);
+                user.set("password", password);
+                user.set("role", role);
+                
+                await user.signUp();
+                
+                return {
+                    success: true,
+                    message: `User "${username}" created successfully`,
+                    userId: user.id
+                };
+            } catch (error) {
+                console.error("Error adding user:", error);
+                return {
+                    success: false,
+                    message: `Error: ${error.message}`
+                };
             }
-        };
-        container.appendChild(exampleElement);
-    });
-}
+        }
 
-function addCustomExample() {
-    const input = document.getElementById('newExampleInput');
-    const example = input.value.trim();
-    
-    if (!example) {
-        showNotification('Please enter example text', 'error');
-        return;
-    }
-    
-    if (searchExamples.includes(example)) {
-        showNotification('Example already exists', 'warning');
-        return;
-    }
-    
-    searchExamples.push(example);
-    localStorage.setItem('cyroxSearchExamples', JSON.stringify(searchExamples));
-    loadSearchExamples();
-    
-    input.value = '';
-    showNotification('Example added successfully', 'success');
-}
-
-function removeExample(index) {
-    if (index >= 0 && index < searchExamples.length) {
-        searchExamples.splice(index, 1);
-        localStorage.setItem('cyroxSearchExamples', JSON.stringify(searchExamples));
-        loadSearchExamples();
-        showNotification('Example removed', 'success');
-    }
-}
-
-// Функции управления пользователями
-function showAddUserModal() {
-    const modal = document.getElementById('userModal');
-    modal.classList.add('active');
-    
-    document.getElementById('userForm').reset();
-    document.getElementById('userRole').value = 'user';
-}
-
-function closeUserModal() {
-    const modal = document.getElementById('userModal');
-    modal.classList.remove('active');
-}
-
-// Уведомления
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-        ${message}
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 5000);
-}
-
-// Функции IndexedDB
-function initIndexedDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        
-        request.onerror = () => {
-            console.error('IndexedDB error:', request.error);
-            reject(request.error);
-        };
-        
-        request.onsuccess = () => {
-            indexedDB = request.result;
-            resolve(indexedDB);
-        };
-        
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                store.createIndex('name', 'name', { unique: false });
-                store.createIndex('size', 'size', { unique: false });
-                store.createIndex('uploadDate', 'uploadDate', { unique: false });
+        // Удалить пользователя
+        async function deleteUserFromBack4App(userId) {
+            try {
+                const query = new Parse.Query(Parse.User);
+                const user = await query.get(userId);
+                
+                if (user.get("role") === "admin") {
+                    return {
+                        success: false,
+                        message: "Cannot delete administrator account"
+                    };
+                }
+                
+                await user.destroy();
+                
+                return {
+                    success: true,
+                    message: "User deleted successfully"
+                };
+            } catch (error) {
+                console.error("Error deleting user:", error);
+                return {
+                    success: false,
+                    message: `Error: ${error.message}`
+                };
             }
-        };
-    });
-}
+        }
 
-// Сохранить файл в IndexedDB
-async function saveFileToIndexedDB(file) {
-    return new Promise((resolve, reject) => {
-        if (!indexedDB) {
-            reject(new Error('Database not initialized'));
-            return;
+        // Сбросить пароль
+        async function resetUserPasswordInBack4App(userId, newPassword) {
+            try {
+                const query = new Parse.Query(Parse.User);
+                const user = await query.get(userId);
+                
+                user.set("password", newPassword);
+                await user.save();
+                
+                return {
+                    success: true,
+                    message: "Password reset successfully"
+                };
+            } catch (error) {
+                console.error("Error resetting password:", error);
+                return {
+                    success: false,
+                    message: `Error: ${error.message}`
+                };
+            }
         }
-        
-        if (file.size > MAX_FILE_SIZE) {
-            reject(new Error(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`));
-            return;
+
+        // ================================================
+        // ФУНКЦИИ ИНТЕРФЕЙСА
+        // ================================================
+
+        function setSearchWord(word) {
+            const searchInput = document.getElementById('searchWord');
+            if (searchInput) {
+                searchInput.value = word;
+                searchInput.focus();
+                
+                searchInput.style.transform = 'scale(1.03)';
+                searchInput.style.boxShadow = '0 0 30px rgba(76, 201, 240, 0.4)';
+                setTimeout(() => {
+                    searchInput.style.transform = '';
+                    searchInput.style.boxShadow = '';
+                }, 500);
+            }
         }
-        
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            const transaction = indexedDB.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
+
+        function startQuickScan() {
+            const searchInput = document.getElementById('searchWord');
+            const scanButton = document.getElementById('scanButton');
             
-            const fileData = {
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                data: e.target.result,
-                uploadDate: new Date().toISOString(),
-                lastAccessed: new Date().toISOString()
-            };
+            if (!selectedFile && !selectedFileFromStorage) {
+                showStatus('Please select file for analysis first', 'warning');
+                
+                const dropArea = document.getElementById('fileDropArea');
+                dropArea.style.borderColor = 'var(--warning)';
+                dropArea.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.3)';
+                setTimeout(() => {
+                    dropArea.style.borderColor = '';
+                    dropArea.style.boxShadow = '';
+                }, 2000);
+                return;
+            }
             
-            const request = store.add(fileData);
+            if (!searchInput.value.trim()) {
+                setSearchWord('example.com');
+            }
             
-            request.onsuccess = () => {
-                resolve({
-                    id: request.result,
-                    name: file.name,
-                    size: file.size
-                });
-            };
+            document.getElementById('searchMode').value = 'partial';
+            scanButton.click();
+        }
+
+        function saveResults() {
+            if (searchResults.length === 0) {
+                showStatus('No results to save', 'warning');
+                return;
+            }
             
-            request.onerror = () => {
-                reject(request.error);
-            };
-        };
-        
-        reader.onerror = () => {
-            reject(new Error('Error reading file'));
-        };
-        
-        reader.readAsArrayBuffer(file);
-    });
-}
-
-// Получить список файлов
-async function getStoredFiles() {
-    return new Promise((resolve, reject) => {
-        if (!indexedDB) {
-            reject(new Error('Database not initialized'));
-            return;
-        }
-        
-        const transaction = indexedDB.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.getAll();
-        
-        request.onsuccess = () => {
-            resolve(request.result || []);
-        };
-        
-        request.onerror = () => {
-            reject(request.error);
-        };
-    });
-}
-
-// Удалить файл
-async function deleteStoredFile(fileId) {
-    return new Promise((resolve, reject) => {
-        if (!indexedDB) {
-            reject(new Error('Database not initialized'));
-            return;
-        }
-        
-        const transaction = indexedDB.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.delete(fileId);
-        
-        request.onsuccess = () => {
-            resolve(true);
-        };
-        
-        request.onerror = () => {
-            reject(request.error);
-        };
-    });
-}
-
-// Получить файл по ID
-async function getStoredFile(fileId) {
-    return new Promise((resolve, reject) => {
-        if (!indexedDB) {
-            reject(new Error('Database not initialized'));
-            return;
-        }
-        
-        const transaction = indexedDB.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.get(fileId);
-        
-        request.onsuccess = () => {
-            resolve(request.result);
-        };
-        
-        request.onerror = () => {
-            reject(request.error);
-        };
-    });
-}
-
-// Статистика хранилища
-async function getStorageStats() {
-    const files = await getStoredFiles();
-    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-    const fileCount = files.length;
-    
-    return {
-        fileCount,
-        totalSize,
-        files
-    };
-}
-
-// Обновить статистику админ-панели
-async function updateAdminStats() {
-    try {
-        const stats = await getStorageStats();
-        
-        document.getElementById('totalFilesCount').textContent = stats.fileCount;
-        document.getElementById('totalStorageUsed').textContent = formatFileSize(stats.totalSize);
-        
-        return stats;
-    } catch (error) {
-        console.error('Error updating statistics:', error);
-        return { fileCount: 0, totalSize: 0, files: [] };
-    }
-}
-
-// Отобразить файлы в админ-панели
-async function displayAdminFiles() {
-    const fileList = document.getElementById('adminFileList');
-    const stats = await getStorageStats();
-    
-    if (stats.fileCount === 0) {
-        fileList.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-folder-open"></i>
-                <h3>No files uploaded</h3>
-                <p>Upload files to display in this list</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let html = '';
-    stats.files.forEach(file => {
-        const uploadDate = new Date(file.uploadDate).toLocaleDateString();
-        const lastAccessed = new Date(file.lastAccessed).toLocaleDateString();
-        
-        html += `
-            <div class="admin-file-item" data-file-id="${file.id}">
-                <div class="admin-file-info">
-                    <div class="admin-file-name">${file.name}</div>
-                    <div class="admin-file-meta">
-                        📊 ${formatFileSize(file.size)} | 
-                        📅 ${uploadDate} | 
-                        🔍 ${lastAccessed}
-                    </div>
-                </div>
-                <div class="admin-file-actions">
-                    <button class="admin-action-btn" onclick="downloadAdminFile(${file.id}, '${file.name}')">
-                        <i class="fas fa-download"></i> Download
-                    </button>
-                    <button class="admin-action-btn delete" onclick="deleteAdminFile(${file.id})">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </div>
-            </div>
-        `;
-    });
-    
-    fileList.innerHTML = html;
-}
-
-// Отобразить сохраненные файлы в обычном режиме
-async function displayStoredFiles() {
-    const fileList = document.getElementById('storedFilesList');
-    
-    try {
-        const stats = await getStorageStats();
-        
-        if (stats.fileCount === 0) {
-            fileList.innerHTML = `
-                <div class="no-files-message">
-                    <i class="fas fa-folder-open"></i>
-                    <p>No stored files</p>
-                    <p style="font-size: 0.8rem; margin-top: 0.5rem;">Upload files through admin panel</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        stats.files.forEach(file => {
-            const uploadDate = new Date(file.uploadDate).toLocaleDateString();
-            const isSelected = selectedFileFromStorage && selectedFileFromStorage.id === file.id;
+            const content = searchResults.map(r => 
+                `Line ${r.lineNumber}: ${r.content}`
+            ).join('\n\n');
             
-            html += `
-                <div class="stored-file-item ${isSelected ? 'selected' : ''}" 
-                     data-file-id="${file.id}"
-                     onclick="selectStoredFile(${file.id})">
-                    <div class="stored-file-info">
-                        <div class="stored-file-name">${file.name}</div>
-                        <div class="stored-file-size">${formatFileSize(file.size)}</div>
-                        <div class="stored-file-date">${uploadDate}</div>
-                    </div>
-                    <div class="stored-file-actions">
-                        <button class="stored-file-action-btn" onclick="event.stopPropagation(); previewStoredFile(${file.id})" title="Preview">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="stored-file-action-btn" onclick="event.stopPropagation(); downloadStoredFile(${file.id}, '${file.name}')" title="Download">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-        
-        fileList.innerHTML = html;
-    } catch (error) {
-        console.error('Error displaying files:', error);
-        fileList.innerHTML = `
-            <div class="no-files-message">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Error loading file list</p>
-            </div>
-        `;
-    }
-}
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cyrox_search_results_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('Results saved to file', 'success');
+        }
 
-// Выбрать файл из хранилища
-async function selectStoredFile(fileId) {
-    try {
-        const fileData = await getStoredFile(fileId);
-        
-        if (!fileData) {
-            showNotification('File not found', 'error');
-            return;
+        function showAdvancedStats() {
+            const avgTime = totalScans > 0 ? (totalScanTime / totalScans / 1000).toFixed(2) : '0.00';
+            
+            document.getElementById('totalScans').textContent = totalScans;
+            document.getElementById('filesProcessed').textContent = totalFiles;
+            document.getElementById('avgTime').textContent = avgTime;
+            
+            document.getElementById('profileTotalScans').textContent = totalScans;
+            document.getElementById('profileFilesProcessed').textContent = totalFiles;
+            document.getElementById('profileAvgTime').textContent = avgTime;
+            
+            const statsPanel = document.getElementById('statsPanel');
+            statsPanel.style.opacity = '0';
+            statsPanel.style.transform = 'translateY(15px)';
+            
+            setTimeout(() => {
+                statsPanel.style.transition = 'all 0.4s ease';
+                statsPanel.style.opacity = '1';
+                statsPanel.style.transform = 'translateY(0)';
+            }, 10);
+            
+            showStatus('Statistics updated', 'info');
         }
-        
-        const blob = new Blob([fileData.data], { type: fileData.type });
-        selectedFileFromStorage = {
-            id: fileId,
-            name: fileData.name,
-            size: fileData.size,
-            blob: blob,
-            lastAccessed: new Date().toISOString()
-        };
-        
-        if (indexedDB) {
-            const transaction = indexedDB.transaction([STORE_NAME], 'readwrite');
-            const store = transaction.objectStore(STORE_NAME);
-            fileData.lastAccessed = new Date().toISOString();
-            store.put(fileData);
-        }
-        
-        document.getElementById('fileName').textContent = `📁 ${fileData.name} (from storage)`;
-        document.getElementById('fileSize').textContent = `📊 ${formatFileSize(fileData.size)}`;
-        
-        selectedFile = null;
-        document.getElementById('fileInput').value = '';
-        
-        showNotification(`Selected file: ${fileData.name}`, 'success');
-        
-        await displayStoredFiles();
-        
-        showStatus(`File "${fileData.name}" selected from storage`, 'success');
-        
-    } catch (error) {
-        console.error('Error selecting file:', error);
-        showNotification(`Error selecting file: ${error.message}`, 'error');
-    }
-}
 
-// Предпросмотр файла
-async function previewStoredFile(fileId) {
-    try {
-        const fileData = await getStoredFile(fileId);
-        
-        if (!fileData) {
-            showNotification('File not found', 'error');
-            return;
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.style.filter = isDarkMode ? 'none' : 'invert(1) hue-rotate(180deg)';
+            showStatus(isDarkMode ? 'Dark theme enabled' : 'Light theme enabled', 'info');
         }
-        
-        const textDecoder = new TextDecoder('utf-8');
-        const content = textDecoder.decode(fileData.data);
-        
-        const previewContent = content.length > 1000 
-            ? content.substring(0, 1000) + '...' 
-            : content;
-        
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            backdrop-filter: blur(10px);
-        `;
-        
-        modal.innerHTML = `
-            <div style="
-                background: var(--surface);
-                border-radius: 20px;
-                padding: 2rem;
-                width: 90%;
-                max-width: 800px;
-                max-height: 80vh;
-                overflow: hidden;
-                border: 2px solid var(--primary);
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-            ">
-                <div style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 1.5rem;
-                    padding-bottom: 1rem;
-                    border-bottom: 1px solid var(--border);
-                ">
-                    <h3 style="color: var(--ice);">
-                        <i class="fas fa-file-alt"></i> Preview: ${fileData.name}
-                    </h3>
-                    <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                            style="
-                                background: transparent;
-                                border: none;
-                                color: var(--text-secondary);
-                                font-size: 1.5rem;
-                                cursor: pointer;
-                                padding: 0.5rem;
-                            ">
+
+        // Функции для пользовательских примеров поиска
+        function loadSearchExamples() {
+            const container = document.getElementById('searchExamples');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            searchExamples.forEach((example, index) => {
+                const exampleElement = document.createElement('span');
+                exampleElement.className = 'cheat-example';
+                exampleElement.innerHTML = `
+                    ${example}
+                    <button class="remove-example-btn" onclick="removeExample(${index})" title="Remove example">
                         <i class="fas fa-times"></i>
                     </button>
-                </div>
-                <div style="
-                    background: rgba(15, 23, 36, 0.7);
-                    border-radius: 12px;
-                    padding: 1.5rem;
-                    max-height: 60vh;
-                    overflow-y: auto;
-                    font-family: 'Consolas', monospace;
-                    font-size: 0.9rem;
-                    line-height: 1.5;
-                    color: var(--text-secondary);
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                ">
-                    ${previewContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                </div>
-                <div style="
-                    margin-top: 1.5rem;
-                    padding-top: 1rem;
-                    border-top: 1px solid var(--border);
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    color: var(--text-secondary);
-                    font-size: 0.9rem;
-                ">
-                    <div>
-                        <i class="fas fa-info-circle"></i> Size: ${formatFileSize(fileData.size)} | 
-                        Lines: ${previewContent.split('\\n').length}
-                    </div>
-                    <button onclick="selectStoredFile(${fileId})" 
-                            style="
-                                background: linear-gradient(90deg, var(--primary), var(--secondary));
-                                color: white;
-                                border: none;
-                                padding: 0.7rem 1.5rem;
-                                border-radius: 10px;
-                                cursor: pointer;
-                                font-weight: 600;
-                            ">
-                        <i class="fas fa-check"></i> Select this file
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
-            }
-        });
-        
-    } catch (error) {
-        console.error('Error previewing file:', error);
-        showNotification(`Preview error: ${error.message}`, 'error');
-    }
-}
-
-// Скачать файл
-async function downloadStoredFile(fileId, fileName) {
-    try {
-        const fileData = await getStoredFile(fileId);
-        
-        if (!fileData) {
-            showNotification('File not found', 'error');
-            return;
-        }
-        
-        const blob = new Blob([fileData.data], { type: fileData.type });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showNotification(`File "${fileName}" downloaded`, 'success');
-        
-    } catch (error) {
-        showNotification(`Download error: ${error.message}`, 'error');
-    }
-}
-
-async function downloadAdminFile(fileId, fileName) {
-    await downloadStoredFile(fileId, fileName);
-}
-
-// Удалить файл из админ-панели
-async function deleteAdminFile(fileId) {
-    if (!confirm('Are you sure you want to delete this file?')) {
-        return;
-    }
-    
-    try {
-        await deleteStoredFile(fileId);
-        await updateAdminStats();
-        await displayAdminFiles();
-        await displayStoredFiles();
-        
-        if (selectedFileFromStorage && selectedFileFromStorage.id === fileId) {
-            selectedFileFromStorage = null;
-            document.getElementById('fileName').textContent = '';
-            document.getElementById('fileSize').textContent = '';
-            showStatus('Selected file was deleted', 'warning');
-        }
-        
-        showNotification('File deleted', 'success');
-    } catch (error) {
-        showNotification(`Delete error: ${error.message}`, 'error');
-    }
-}
-
-// Обновить список файлов
-async function refreshStoredFiles() {
-    const refreshBtn = document.querySelector('.refresh-files-btn');
-    const originalContent = refreshBtn.innerHTML;
-    
-    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-    refreshBtn.disabled = true;
-    
-    try {
-        await displayStoredFiles();
-        showNotification('File list updated', 'success');
-    } catch (error) {
-        showNotification('Error refreshing file list', 'error');
-    } finally {
-        setTimeout(() => {
-            refreshBtn.innerHTML = originalContent;
-            refreshBtn.disabled = false;
-        }, 1000);
-    }
-}
-
-// Обновить прогресс загрузки
-function updateUploadProgress(percent, fileName) {
-    const progressFill = document.getElementById('progressFill');
-    const progressPercent = document.getElementById('progressPercent');
-    const fileProgressInfo = document.getElementById('fileProgressInfo');
-    const uploadProgress = document.getElementById('uploadProgress');
-    
-    if (percent > 0) {
-        uploadProgress.style.display = 'block';
-    }
-    
-    if (progressFill) {
-        progressFill.style.width = `${percent}%`;
-    }
-    
-    if (progressPercent) {
-        progressPercent.textContent = `${percent}%`;
-    }
-    
-    if (fileProgressInfo) {
-        fileProgressInfo.textContent = fileName || 'Uploading...';
-    }
-    
-    if (percent >= 100) {
-        setTimeout(() => {
-            uploadProgress.style.display = 'none';
-            progressFill.style.width = '0%';
-            progressPercent.textContent = '0%';
-        }, 1000);
-    }
-}
-
-// Создать реалистичные снежинки
-function createRealisticSnowflakes() {
-    const container = document.getElementById('snowflakes');
-    const snowflakeCount = 100;
-    
-    for (let i = 0; i < snowflakeCount; i++) {
-        const snowflake = document.createElement('div');
-        
-        const size = Math.random() * 5 + 1;
-        let sizeClass;
-        if (size < 2) sizeClass = 'small';
-        else if (size < 3.5) sizeClass = 'medium';
-        else sizeClass = 'large';
-        
-        const left = Math.random() * 100;
-        const startDelay = Math.random() * 8;
-        const duration = Math.random() * 15 + 20;
-        const opacity = Math.random() * 0.6 + 0.4;
-        const drift = (Math.random() - 0.5) * 100;
-        
-        snowflake.className = `snowflake ${sizeClass}`;
-        snowflake.style.left = `${left}%`;
-        snowflake.style.top = `-${size * 3}px`;
-        snowflake.style.opacity = opacity.toString();
-        snowflake.style.animationDelay = `${startDelay}s`;
-        snowflake.style.animationDuration = `${duration}s`;
-        snowflake.style.setProperty('--drift', `${drift}px`);
-        
-        container.appendChild(snowflake);
-    }
-}
-
-// Создать частицы фона
-function createParticles() {
-    const container = document.getElementById('particles');
-    const particleCount = 20;
-    
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        
-        const size = Math.random() * 4 + 1;
-        const left = Math.random() * 100;
-        const top = Math.random() * 100;
-        const duration = Math.random() * 40 + 60;
-        const delay = Math.random() * 20;
-        
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        particle.style.left = `${left}%`;
-        particle.style.top = `${top}%`;
-        particle.style.animationDuration = `${duration}s`;
-        particle.style.animationDelay = `${delay}s`;
-        
-        container.appendChild(particle);
-    }
-}
-
-// Функции сканера
-function checkMatch(line, searchWord, mode) {
-    if (!searchWord || !line) return false;
-    
-    switch(mode) {
-        case 'exact':
-            return line.includes(searchWord);
-        case 'partial':
-            return line.toLowerCase().includes(searchWord.toLowerCase());
-        case 'caseSensitive':
-            return line.includes(searchWord);
-        case 'regex':
-            try {
-                const regex = new RegExp(searchWord);
-                return regex.test(line);
-            } catch(e) {
-                return line.includes(searchWord);
-            }
-        default:
-            return line.includes(searchWord);
-    }
-}
-
-async function scanFile(file, searchWord, mode) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        const startTime = Date.now();
-        
-        reader.onload = function(e) {
-            try {
-                const content = e.target.result;
-                const lines = content.split('\n');
-                const results = [];
-                const suspiciousDomains = [
-                    '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
-                    'wexside.ru', 'nixware.cc', 'neverlose.cc'
-                ];
-                
-                let isSuspiciousDomain = false;
-                for (const domain of suspiciousDomains) {
-                    if (searchWord.toLowerCase().includes(domain.toLowerCase())) {
-                        isSuspiciousDomain = true;
-                        break;
+                `;
+                exampleElement.onclick = (e) => {
+                    if (!e.target.closest('.remove-example-btn')) {
+                        setSearchWord(example);
                     }
+                };
+                container.appendChild(exampleElement);
+            });
+        }
+
+        function addCustomExample() {
+            const input = document.getElementById('newExampleInput');
+            const example = input.value.trim();
+            
+            if (!example) {
+                showNotification('Please enter example text', 'error');
+                return;
+            }
+            
+            if (searchExamples.includes(example)) {
+                showNotification('Example already exists', 'warning');
+                return;
+            }
+            
+            searchExamples.push(example);
+            localStorage.setItem('cyroxSearchExamples', JSON.stringify(searchExamples));
+            loadSearchExamples();
+            
+            input.value = '';
+            showNotification('Example added successfully', 'success');
+        }
+
+        function removeExample(index) {
+            if (index >= 0 && index < searchExamples.length) {
+                searchExamples.splice(index, 1);
+                localStorage.setItem('cyroxSearchExamples', JSON.stringify(searchExamples));
+                loadSearchExamples();
+                showNotification('Example removed', 'success');
+            }
+        }
+
+        // Функции управления пользователями
+        async function loadUsers() {
+            const usersList = document.getElementById('usersList');
+            if (!usersList) return;
+            
+            try {
+                const users = await getUsersFromBack4App();
+                
+                if (users.length === 0) {
+                    usersList.innerHTML = `
+                        <div class="no-files-message">
+                            <i class="fas fa-users-slash"></i>
+                            <p>No users found</p>
+                            <p style="font-size: 0.8rem; margin-top: 0.5rem;">Add users through admin panel</p>
+                        </div>
+                    `;
+                    return;
                 }
                 
-                for (let i = 0; i < lines.length; i++) {
-                    if (checkMatch(lines[i], searchWord, mode)) {
-                        results.push({
-                            lineNumber: i + 1,
-                            content: lines[i],
-                            isSuspicious: isSuspiciousDomain
-                        });
-                    }
-                }
-                
-                const endTime = Date.now();
-                resolve({
-                    results: results,
-                    time: endTime - startTime,
-                    totalLines: lines.length
+                let html = '';
+                users.forEach((user) => {
+                    const createdDate = new Date(user.created).toLocaleDateString();
+                    const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
+                    const isCurrentUser = currentUser && currentUser.username === user.username;
+                    
+                    html += `
+                        <div class="user-item ${isCurrentUser ? 'current-user' : ''}">
+                            <div class="user-info">
+                                <div class="user-username">
+                                    ${user.username}
+                                    <span style="color: ${user.role === 'admin' ? '#ff8e53' : user.role === 'premium' ? '#4cc9f0' : '#b0c4de'}; font-size: 0.8rem; margin-left: 0.5rem;">
+                                        (${user.role})
+                                    </span>
+                                </div>
+                                <div class="user-created">
+                                    Created: ${createdDate} | Last login: ${lastLogin}
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                <button class="user-action-btn" onclick="resetUserPassword('${user.id}')" title="Reset Password">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                                <button class="user-action-btn delete" onclick="deleteUser('${user.id}')" title="Delete User" ${user.role === 'admin' ? 'disabled style="opacity: 0.5;"' : ''}>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
                 });
+                
+                usersList.innerHTML = html;
             } catch (error) {
-                reject(error);
+                console.error("Error loading users:", error);
+                usersList.innerHTML = `
+                    <div class="no-files-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error loading users</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.5rem;">${error.message}</p>
+                    </div>
+                `;
             }
-        };
-        
-        reader.onerror = function() {
-            reject(new Error('Error reading file'));
-        };
-        
-        reader.readAsText(file);
-    });
-}
+        }
 
-async function scanStoredFile(fileData, searchWord, mode) {
-    return new Promise((resolve, reject) => {
-        const startTime = Date.now();
-        
-        try {
-            const textDecoder = new TextDecoder('utf-8');
-            const content = textDecoder.decode(fileData.data);
-            const lines = content.split('\n');
-            const results = [];
+        async function deleteUser(userId) {
+            if (!confirm('Are you sure you want to delete this user?')) {
+                return;
+            }
+            
+            const result = await deleteUserFromBack4App(userId);
+            showNotification(result.message, result.success ? 'success' : 'error');
+            
+            if (result.success) {
+                await loadUsers();
+            }
+        }
+
+        async function resetUserPassword(userId) {
+            const newPassword = prompt('Enter new password for this user:');
+            if (!newPassword || newPassword.trim() === '') {
+                showNotification('Password cannot be empty', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 3) {
+                showNotification('Password must be at least 3 characters', 'error');
+                return;
+            }
+            
+            const result = await resetUserPasswordInBack4App(userId, newPassword);
+            showNotification(result.message, result.success ? 'success' : 'error');
+        }
+
+        function showAddUserModal() {
+            const modal = document.getElementById('userModal');
+            modal.classList.add('active');
+            
+            document.getElementById('userForm').reset();
+            document.getElementById('userRole').value = 'user';
+        }
+
+        function closeUserModal() {
+            const modal = document.getElementById('userModal');
+            modal.classList.remove('active');
+        }
+
+        async function addNewUser(username, password, role) {
+            const result = await addNewUserToBack4App(username, password, role);
+            showNotification(result.message, result.success ? 'success' : 'error');
+            
+            if (result.success) {
+                closeUserModal();
+                await loadUsers();
+            }
+            
+            return result.success;
+        }
+
+        // Уведомления
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 5000);
+        }
+
+        // ================================================
+        // INDEXEDDB ФУНКЦИИ (остались без изменений)
+        // ================================================
+
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => {
+                    console.error('IndexedDB error:', request.error);
+                    reject(request.error);
+                };
+                
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('name', 'name', { unique: false });
+                        store.createIndex('size', 'size', { unique: false });
+                        store.createIndex('uploadDate', 'uploadDate', { unique: false });
+                    }
+                };
+            });
+        }
+
+        async function saveFileToIndexedDB(file) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                
+                if (file.size > MAX_FILE_SIZE) {
+                    reject(new Error(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`));
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    
+                    const fileData = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        data: e.target.result,
+                        uploadDate: new Date().toISOString(),
+                        lastAccessed: new Date().toISOString()
+                    };
+                    
+                    const request = store.add(fileData);
+                    
+                    request.onsuccess = () => {
+                        resolve({
+                            id: request.result,
+                            name: file.name,
+                            size: file.size
+                        });
+                    };
+                    
+                    request.onerror = () => {
+                        reject(request.error);
+                    };
+                };
+                
+                reader.onerror = () => {
+                    reject(new Error('Error reading file'));
+                };
+                
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function getStoredFiles() {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    resolve(request.result || []);
+                };
+                
+                request.onerror = () => {
+                    reject(request.error);
+                };
+            });
+        }
+
+        async function deleteStoredFile(fileId) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(fileId);
+                
+                request.onsuccess = () => {
+                    resolve(true);
+                };
+                
+                request.onerror = () => {
+                    reject(request.error);
+                };
+            });
+        }
+
+        async function getStoredFile(fileId) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(fileId);
+                
+                request.onsuccess = () => {
+                    resolve(request.result);
+                };
+                
+                request.onerror = () => {
+                    reject(request.error);
+                };
+            });
+        }
+
+        async function getStorageStats() {
+            const files = await getStoredFiles();
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            const fileCount = files.length;
+            
+            return {
+                fileCount,
+                totalSize,
+                files
+            };
+        }
+
+        async function updateAdminStats() {
+            try {
+                const stats = await getStorageStats();
+                
+                document.getElementById('totalFilesCount').textContent = stats.fileCount;
+                document.getElementById('totalStorageUsed').textContent = formatFileSize(stats.totalSize);
+                
+                return stats;
+            } catch (error) {
+                console.error('Error updating statistics:', error);
+                return { fileCount: 0, totalSize: 0, files: [] };
+            }
+        }
+
+        async function displayAdminFiles() {
+            const fileList = document.getElementById('adminFileList');
+            const stats = await getStorageStats();
+            
+            if (stats.fileCount === 0) {
+                fileList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>No files uploaded</h3>
+                        <p>Upload files to display in this list</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            stats.files.forEach(file => {
+                const uploadDate = new Date(file.uploadDate).toLocaleDateString();
+                const lastAccessed = new Date(file.lastAccessed).toLocaleDateString();
+                
+                html += `
+                    <div class="admin-file-item" data-file-id="${file.id}">
+                        <div class="admin-file-info">
+                            <div class="admin-file-name">${file.name}</div>
+                            <div class="admin-file-meta">
+                                📊 ${formatFileSize(file.size)} | 
+                                📅 ${uploadDate} | 
+                                🔍 ${lastAccessed}
+                            </div>
+                        </div>
+                        <div class="admin-file-actions">
+                            <button class="admin-action-btn" onclick="downloadAdminFile(${file.id}, '${file.name}')">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                            <button class="admin-action-btn delete" onclick="deleteAdminFile(${file.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            fileList.innerHTML = html;
+        }
+
+        async function displayStoredFiles() {
+            const fileList = document.getElementById('storedFilesList');
+            
+            try {
+                const stats = await getStorageStats();
+                
+                if (stats.fileCount === 0) {
+                    fileList.innerHTML = `
+                        <div class="no-files-message">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No stored files</p>
+                            <p style="font-size: 0.8rem; margin-top: 0.5rem;">Upload files through admin panel</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                stats.files.forEach(file => {
+                    const uploadDate = new Date(file.uploadDate).toLocaleDateString();
+                    const isSelected = selectedFileFromStorage && selectedFileFromStorage.id === file.id;
+                    
+                    html += `
+                        <div class="stored-file-item ${isSelected ? 'selected' : ''}" 
+                             data-file-id="${file.id}"
+                             onclick="selectStoredFile(${file.id})">
+                            <div class="stored-file-info">
+                                <div class="stored-file-name">${file.name}</div>
+                                <div class="stored-file-size">${formatFileSize(file.size)}</div>
+                                <div class="stored-file-date">${uploadDate}</div>
+                            </div>
+                            <div class="stored-file-actions">
+                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); previewStoredFile(${file.id})" title="Preview">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); downloadStoredFile(${file.id}, '${file.name}')" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                fileList.innerHTML = html;
+            } catch (error) {
+                console.error('Error displaying files:', error);
+                fileList.innerHTML = `
+                    <div class="no-files-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error loading file list</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function selectStoredFile(fileId) {
+            try {
+                const fileData = await getStoredFile(fileId);
+                
+                if (!fileData) {
+                    showNotification('File not found', 'error');
+                    return;
+                }
+                
+                const blob = new Blob([fileData.data], { type: fileData.type });
+                selectedFileFromStorage = {
+                    id: fileId,
+                    name: fileData.name,
+                    size: fileData.size,
+                    blob: blob,
+                    lastAccessed: new Date().toISOString()
+                };
+                
+                if (db) {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    fileData.lastAccessed = new Date().toISOString();
+                    store.put(fileData);
+                }
+                
+                document.getElementById('fileName').textContent = `📁 ${fileData.name} (from storage)`;
+                document.getElementById('fileSize').textContent = `📊 ${formatFileSize(fileData.size)}`;
+                
+                selectedFile = null;
+                document.getElementById('fileInput').value = '';
+                
+                showNotification(`Selected file: ${fileData.name}`, 'success');
+                
+                await displayStoredFiles();
+                
+                showStatus(`File "${fileData.name}" selected from storage`, 'success');
+                
+            } catch (error) {
+                console.error('Error selecting file:', error);
+                showNotification(`Error selecting file: ${error.message}`, 'error');
+            }
+        }
+
+        async function previewStoredFile(fileId) {
+            try {
+                const fileData = await getStoredFile(fileId);
+                
+                if (!fileData) {
+                    showNotification('File not found', 'error');
+                    return;
+                }
+                
+                const textDecoder = new TextDecoder('utf-8');
+                const content = textDecoder.decode(fileData.data);
+                const previewContent = content.length > 1000 
+                    ? content.substring(0, 1000) + '...' 
+                    : content;
+                
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 10000;
+                    backdrop-filter: blur(10px);
+                `;
+                
+                modal.innerHTML = `
+                    <div style="
+                        background: var(--surface);
+                        border-radius: 20px;
+                        padding: 2rem;
+                        width: 90%;
+                        max-width: 800px;
+                        max-height: 80vh;
+                        overflow: hidden;
+                        border: 2px solid var(--primary);
+                        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+                    ">
+                        <div style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 1.5rem;
+                            padding-bottom: 1rem;
+                            border-bottom: 1px solid var(--border);
+                        ">
+                            <h3 style="color: var(--ice);">
+                                <i class="fas fa-file-alt"></i> Preview: ${fileData.name}
+                            </h3>
+                            <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                    style="
+                                        background: transparent;
+                                        border: none;
+                                        color: var(--text-secondary);
+                                        font-size: 1.5rem;
+                                        cursor: pointer;
+                                        padding: 0.5rem;
+                                    ">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div style="
+                            background: rgba(15, 23, 36, 0.7);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            max-height: 60vh;
+                            overflow-y: auto;
+                            font-family: 'Consolas', monospace;
+                            font-size: 0.9rem;
+                            line-height: 1.5;
+                            color: var(--text-secondary);
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                        ">
+                            ${previewContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                        </div>
+                        <div style="
+                            margin-top: 1.5rem;
+                            padding-top: 1rem;
+                            border-top: 1px solid var(--border);
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            color: var(--text-secondary);
+                            font-size: 0.9rem;
+                        ">
+                            <div>
+                                <i class="fas fa-info-circle"></i> Size: ${formatFileSize(fileData.size)} | 
+                                Lines: ${previewContent.split('\\n').length}
+                            </div>
+                            <button onclick="selectStoredFile(${fileId})" 
+                                    style="
+                                        background: linear-gradient(90deg, var(--primary), var(--secondary));
+                                        color: white;
+                                        border: none;
+                                        padding: 0.7rem 1.5rem;
+                                        border-radius: 10px;
+                                        cursor: pointer;
+                                        font-weight: 600;
+                                    ">
+                                <i class="fas fa-check"></i> Select this file
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error previewing file:', error);
+                showNotification(`Preview error: ${error.message}`, 'error');
+            }
+        }
+
+        async function downloadStoredFile(fileId, fileName) {
+            try {
+                const fileData = await getStoredFile(fileId);
+                
+                if (!fileData) {
+                    showNotification('File not found', 'error');
+                    return;
+                }
+                
+                const blob = new Blob([fileData.data], { type: fileData.type });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showNotification(`File "${fileName}" downloaded`, 'success');
+                
+            } catch (error) {
+                showNotification(`Download error: ${error.message}`, 'error');
+            }
+        }
+
+        async function downloadAdminFile(fileId, fileName) {
+            await downloadStoredFile(fileId, fileName);
+        }
+
+        async function deleteAdminFile(fileId) {
+            if (!confirm('Are you sure you want to delete this file?')) {
+                return;
+            }
+            
+            try {
+                await deleteStoredFile(fileId);
+                await updateAdminStats();
+                await displayAdminFiles();
+                await displayStoredFiles();
+                
+                if (selectedFileFromStorage && selectedFileFromStorage.id === fileId) {
+                    selectedFileFromStorage = null;
+                    document.getElementById('fileName').textContent = '';
+                    document.getElementById('fileSize').textContent = '';
+                    showStatus('Selected file was deleted', 'warning');
+                }
+                
+                showNotification('File deleted', 'success');
+            } catch (error) {
+                showNotification(`Delete error: ${error.message}`, 'error');
+            }
+        }
+
+        async function refreshStoredFiles() {
+            const refreshBtn = document.querySelector('.refresh-files-btn');
+            const originalContent = refreshBtn.innerHTML;
+            
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            try {
+                await displayStoredFiles();
+                showNotification('File list updated', 'success');
+            } catch (error) {
+                showNotification('Error refreshing file list', 'error');
+            } finally {
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalContent;
+                    refreshBtn.disabled = false;
+                }, 1000);
+            }
+        }
+
+        function updateUploadProgress(percent, fileName) {
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            const fileProgressInfo = document.getElementById('fileProgressInfo');
+            const uploadProgress = document.getElementById('uploadProgress');
+            
+            if (percent > 0) {
+                uploadProgress.style.display = 'block';
+            }
+            
+            if (progressFill) {
+                progressFill.style.width = `${percent}%`;
+            }
+            
+            if (progressPercent) {
+                progressPercent.textContent = `${percent}%`;
+            }
+            
+            if (fileProgressInfo) {
+                fileProgressInfo.textContent = fileName || 'Uploading...';
+            }
+            
+            if (percent >= 100) {
+                setTimeout(() => {
+                    uploadProgress.style.display = 'none';
+                    progressFill.style.width = '0%';
+                    progressPercent.textContent = '0%';
+                }, 1000);
+            }
+        }
+
+        function createRealisticSnowflakes() {
+            const container = document.getElementById('snowflakes');
+            const snowflakeCount = 100;
+            
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                
+                const size = Math.random() * 5 + 1;
+                let sizeClass;
+                if (size < 2) sizeClass = 'small';
+                else if (size < 3.5) sizeClass = 'medium';
+                else sizeClass = 'large';
+                
+                const left = Math.random() * 100;
+                const startDelay = Math.random() * 8;
+                const duration = Math.random() * 15 + 20;
+                const opacity = Math.random() * 0.6 + 0.4;
+                const drift = (Math.random() - 0.5) * 100;
+                
+                snowflake.className = `snowflake ${sizeClass}`;
+                snowflake.style.left = `${left}%`;
+                snowflake.style.top = `-${size * 3}px`;
+                snowflake.style.opacity = opacity.toString();
+                snowflake.style.animationDelay = `${startDelay}s`;
+                snowflake.style.animationDuration = `${duration}s`;
+                snowflake.style.setProperty('--drift', `${drift}px`);
+                
+                container.appendChild(snowflake);
+            }
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 4 + 1;
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                const duration = Math.random() * 40 + 60;
+                const delay = Math.random() * 20;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}%`;
+                particle.style.top = `${top}%`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+
+        function checkMatch(line, searchWord, mode) {
+            if (!searchWord || !line) return false;
+            
+            switch(mode) {
+                case 'exact':
+                    return line.includes(searchWord);
+                case 'partial':
+                    return line.toLowerCase().includes(searchWord.toLowerCase());
+                case 'caseSensitive':
+                    return line.includes(searchWord);
+                case 'regex':
+                    try {
+                        const regex = new RegExp(searchWord);
+                        return regex.test(line);
+                    } catch(e) {
+                        return line.includes(searchWord);
+                    }
+                default:
+                    return line.includes(searchWord);
+            }
+        }
+
+        async function scanFile(file, searchWord, mode) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const startTime = Date.now();
+                
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        const lines = content.split('\n');
+                        const results = [];
+                        const suspiciousDomains = [
+                            '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
+                            'wexside.ru', 'nixware.cc', 'neverlose.cc'
+                        ];
+                        
+                        let isSuspiciousDomain = false;
+                        for (const domain of suspiciousDomains) {
+                            if (searchWord.toLowerCase().includes(domain.toLowerCase())) {
+                                isSuspiciousDomain = true;
+                                break;
+                            }
+                        }
+                        
+                        for (let i = 0; i < lines.length; i++) {
+                            if (checkMatch(lines[i], searchWord, mode)) {
+                                results.push({
+                                    lineNumber: i + 1,
+                                    content: lines[i],
+                                    isSuspicious: isSuspiciousDomain
+                                });
+                            }
+                        }
+                        
+                        const endTime = Date.now();
+                        resolve({
+                            results: results,
+                            time: endTime - startTime,
+                            totalLines: lines.length
+                        });
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('Error reading file'));
+                };
+                
+                reader.readAsText(file);
+            });
+        }
+
+        async function scanStoredFile(fileData, searchWord, mode) {
+            return new Promise((resolve, reject) => {
+                const startTime = Date.now();
+                
+                try {
+                    const textDecoder = new TextDecoder('utf-8');
+                    const content = textDecoder.decode(fileData.data);
+                    const lines = content.split('\n');
+                    const results = [];
+                    const suspiciousDomains = [
+                        '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
+                        'wexside.ru', 'nixware.cc', 'neverlose.cc'
+                    ];
+                    
+                    let isSuspiciousDomain = false;
+                    for (const domain of suspiciousDomains) {
+                        if (searchWord.toLowerCase().includes(domain.toLowerCase())) {
+                            isSuspiciousDomain = true;
+                            break;
+                        }
+                    }
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                        if (checkMatch(lines[i], searchWord, mode)) {
+                            results.push({
+                                lineNumber: i + 1,
+                                content: lines[i],
+                                isSuspicious: isSuspiciousDomain
+                            });
+                        }
+                    }
+                    
+                    const endTime = Date.now();
+                    resolve({
+                        results: results,
+                        time: endTime - startTime,
+                        totalLines: lines.length
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        function displayResults(results, searchWord) {
+            const container = document.getElementById('resultsContainer');
+            const countElement = document.getElementById('resultsCount');
+            
+            countElement.textContent = results.length;
+            
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search-minus"></i>
+                        <h3>No matches found</h3>
+                        <p>Word "${searchWord}" not found in selected file</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
             const suspiciousDomains = [
                 '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
                 'wexside.ru', 'nixware.cc', 'neverlose.cc'
             ];
             
-            let isSuspiciousDomain = false;
-            for (const domain of suspiciousDomains) {
-                if (searchWord.toLowerCase().includes(domain.toLowerCase())) {
-                    isSuspiciousDomain = true;
-                    break;
+            results.forEach((result, index) => {
+                let isSuspiciousResult = false;
+                for (const domain of suspiciousDomains) {
+                    if (result.content.toLowerCase().includes(domain)) {
+                        isSuspiciousResult = true;
+                        break;
+                    }
                 }
-            }
-            
-            for (let i = 0; i < lines.length; i++) {
-                if (checkMatch(lines[i], searchWord, mode)) {
-                    results.push({
-                        lineNumber: i + 1,
-                        content: lines[i],
-                        isSuspicious: isSuspiciousDomain
-                    });
-                }
-            }
-            
-            const endTime = Date.now();
-            resolve({
-                results: results,
-                time: endTime - startTime,
-                totalLines: lines.length
-            });
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
-function displayResults(results, searchWord) {
-    const container = document.getElementById('resultsContainer');
-    const countElement = document.getElementById('resultsCount');
-    
-    countElement.textContent = results.length;
-    
-    if (results.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-search-minus"></i>
-                <h3>No matches found</h3>
-                <p>Word "${searchWord}" not found in selected file</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let html = '';
-    const suspiciousDomains = [
-        '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
-        'wexside.ru', 'nixware.cc', 'neverlose.cc'
-    ];
-    
-    results.forEach((result, index) => {
-        let isSuspiciousResult = false;
-        for (const domain of suspiciousDomains) {
-            if (result.content.toLowerCase().includes(domain)) {
-                isSuspiciousResult = true;
-                break;
-            }
-        }
-        
-        const cheatClass = isSuspiciousResult ? 'cheat-highlight' : 'highlight';
-        const cheatIcon = isSuspiciousResult ? '<i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-right: 8px;"></i>' : '';
-        const warningText = isSuspiciousResult ? '<span style="color: var(--warning); font-size: 0.9rem; font-weight: 600;">[suspicious]</span> ' : '';
-        
-        let content = result.content;
-        
-        if (searchWord) {
-            const escapedWord = searchWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`(${escapedWord})`, 'gi');
-            content = content.replace(regex, `<span class="${cheatClass}">$1</span>`);
-        }
-        
-        html += `
-            <div class="result-item" style="animation-delay: ${index * 0.05}s">
-                <div class="result-line">
-                    ${cheatIcon}
-                    <strong style="color: ${isSuspiciousResult ? 'var(--warning)' : 'var(--ice)'}">Line ${result.lineNumber}:</strong> 
-                    ${warningText}
-                    ${content}
-                </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
-}
-
-// Форматировать размер файла
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-// Функции для иконки профиля
-function showProfileModal() {
-    const modal = document.getElementById('profileModal');
-    modal.classList.add('active');
-    
-    showAdvancedStats();
-    
-    if (currentUser) {
-        document.getElementById('profileUsername').textContent = currentUser.username;
-        document.getElementById('profileRole').textContent = currentUser.role === 'admin' ? 'Administrator' : 
-                                                           currentUser.role === 'premium' ? 'Premium User' : 'Regular User';
-    }
-}
-
-function closeProfileModal() {
-    const modal = document.getElementById('profileModal');
-    modal.classList.remove('active');
-}
-
-// Загрузить пользовательский аватар
-function loadCustomAvatar() {
-    const avatarUrl = 'https://blaxxxik.github.io/favicon.png';
-    const profileIcon = document.getElementById('profileIcon');
-    const profileAvatarLarge = document.getElementById('profileAvatarLarge');
-    
-    const img = new Image();
-    img.src = avatarUrl;
-    img.onload = function() {
-        const iconImg = document.createElement('img');
-        iconImg.src = avatarUrl;
-        iconImg.alt = 'User Avatar';
-        
-        const largeImg = document.createElement('img');
-        largeImg.src = avatarUrl;
-        largeImg.alt = 'User Avatar';
-        
-        const iconFallback = profileIcon.querySelector('.icon-fallback');
-        if (iconFallback) {
-            iconFallback.style.display = 'none';
-            profileIcon.insertBefore(iconImg, iconFallback);
-        }
-        
-        const largeFallback = profileAvatarLarge.querySelector('.icon-fallback');
-        if (largeFallback) {
-            largeFallback.style.display = 'none';
-            profileAvatarLarge.insertBefore(largeImg, largeFallback);
-        }
-        
-        console.log('Custom avatar loaded successfully');
-    };
-    
-    img.onerror = function() {
-        console.log('Custom avatar not found, using default icon');
-    };
-}
-
-// Основная инициализация
-document.addEventListener('DOMContentLoaded', async function() {
-    // Загрузить пользователей с GitHub
-    await loadUsersFromGitHub();
-    
-    // Загрузить пользовательский аватар
-    setTimeout(loadCustomAvatar, 1000);
-    
-    // Загрузить пользовательские примеры поиска
-    loadSearchExamples();
-    
-    // Создать фон
-    createRealisticSnowflakes();
-    createParticles();
-    
-    // Элементы интерфейса
-    const loginPage = document.getElementById('loginPage');
-    const mainContent = document.getElementById('mainContent');
-    const adminPanel = document.getElementById('adminPanel');
-    const loginForm = document.getElementById('loginForm');
-    const errorMessage = document.getElementById('errorMessage');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const adminLoginBtn = document.getElementById('adminLoginBtn');
-    const backToLoginBtn = document.getElementById('backToLoginBtn');
-    const profileIcon = document.getElementById('profileIcon');
-    const closeProfileModalBtn = document.getElementById('closeProfileModal');
-    const addUserBtn = document.getElementById('addUserBtn');
-    const closeUserModalBtn = document.getElementById('closeUserModal');
-    const cancelUserBtn = document.getElementById('cancelUserBtn');
-    const userForm = document.getElementById('userForm');
-    
-    // Проверить активную сессию
-    const storedToken = sessionStorage.getItem('sessionToken');
-    const tokenTime = parseInt(sessionStorage.getItem('tokenTime') || '0');
-    const now = Date.now();
-    const storedUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-    
-    if (storedToken && tokenTime && (now - tokenTime) < 3600000 && storedUser) {
-        sessionToken = storedToken;
-        currentUser = storedUser;
-        isAdminSession = storedUser.role === 'admin';
-        
-        if (isAdminSession) {
-            showAdminPanel();
-        } else {
-            showMainContent();
-        }
-    } else {
-        sessionStorage.clear();
-        showLoginPage();
-    }
-    
-    // Обработчики событий для иконки профиля
-    if (profileIcon) {
-        profileIcon.addEventListener('click', showProfileModal);
-    }
-    
-    if (closeProfileModalBtn) {
-        closeProfileModalBtn.addEventListener('click', closeProfileModal);
-    }
-    
-    const profileModal = document.getElementById('profileModal');
-    if (profileModal) {
-        profileModal.addEventListener('click', function(e) {
-            if (e.target === profileModal) {
-                closeProfileModal();
-            }
-        });
-    }
-    
-    // Обработчики для модального окна пользователя
-    if (addUserBtn) {
-        addUserBtn.addEventListener('click', showAddUserModal);
-    }
-    
-    if (closeUserModalBtn) {
-        closeUserModalBtn.addEventListener('click', closeUserModal);
-    }
-    
-    if (cancelUserBtn) {
-        cancelUserBtn.addEventListener('click', closeUserModal);
-    }
-    
-    const userModal = document.getElementById('userModal');
-    if (userModal) {
-        userModal.addEventListener('click', function(e) {
-            if (e.target === userModal) {
-                closeUserModal();
-            }
-        });
-    }
-    
-    // Форма добавления пользователя
-    if (userForm) {
-        userForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('newUsername').value.trim();
-            const password = document.getElementById('newPassword').value.trim();
-            const confirmPassword = document.getElementById('confirmPassword').value.trim();
-            const role = document.getElementById('userRole').value;
-            
-            if (!username || !password) {
-                showNotification('Please fill in all fields', 'error');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showNotification('Passwords do not match', 'error');
-                return;
-            }
-            
-            if (password.length < 3) {
-                showNotification('Password must be at least 3 characters', 'error');
-                return;
-            }
-            
-            addNewUser(username, password, role).then(success => {
-                if (success) {
-                    closeUserModal();
-                }
-            });
-        });
-    }
-    
-    // Обычный вход
-    if (loginForm) {
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault(); // Предотвращаем перезагрузку страницы
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            
-            const loginResult = await checkLogin(username, password);
-            
-            if (loginResult.success) {
-                currentUser = loginResult.user;
-                sessionToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-                    .map(b => b.toString(16).padStart(2, '0'))
-                    .join('');
                 
-                sessionStorage.setItem('sessionToken', sessionToken);
-                sessionStorage.setItem('tokenTime', Date.now().toString());
-                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                sessionStorage.setItem('isAdmin', (currentUser.role === 'admin').toString());
+                const cheatClass = isSuspiciousResult ? 'cheat-highlight' : 'highlight';
+                const cheatIcon = isSuspiciousResult ? '<i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-right: 8px;"></i>' : '';
+                const warningText = isSuspiciousResult ? '<span style="color: var(--warning); font-size: 0.9rem; font-weight: 600;">[suspicious]</span> ' : '';
                 
-                isAdminSession = currentUser.role === 'admin';
+                let content = result.content;
+                
+                if (searchWord) {
+                    const escapedWord = searchWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(`(${escapedWord})`, 'gi');
+                    content = content.replace(regex, `<span class="${cheatClass}">$1</span>`);
+                }
+                
+                html += `
+                    <div class="result-item" style="animation-delay: ${index * 0.05}s">
+                        <div class="result-line">
+                            ${cheatIcon}
+                            <strong style="color: ${isSuspiciousResult ? 'var(--warning)' : 'var(--ice)'}">Line ${result.lineNumber}:</strong> 
+                            ${warningText}
+                            ${content}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showProfileModal() {
+            const modal = document.getElementById('profileModal');
+            modal.classList.add('active');
+            
+            showAdvancedStats();
+            
+            if (currentUser) {
+                document.getElementById('profileUsername').textContent = currentUser.username;
+                document.getElementById('profileRole').textContent = currentUser.role === 'admin' ? 'Administrator' : 
+                                                                   currentUser.role === 'premium' ? 'Premium User' : 'Regular User';
+            }
+        }
+
+        function closeProfileModal() {
+            const modal = document.getElementById('profileModal');
+            modal.classList.remove('active');
+        }
+
+        function loadCustomAvatar() {
+            const avatarUrl = 'https://your-username.github.io/avatar.png';
+            const profileIcon = document.getElementById('profileIcon');
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            
+            const img = new Image();
+            img.src = avatarUrl;
+            img.onload = function() {
+                const iconImg = document.createElement('img');
+                iconImg.src = avatarUrl;
+                iconImg.alt = 'User Avatar';
+                
+                const largeImg = document.createElement('img');
+                largeImg.src = avatarUrl;
+                largeImg.alt = 'User Avatar';
+                
+                const iconFallback = profileIcon.querySelector('.icon-fallback');
+                if (iconFallback) {
+                    iconFallback.style.display = 'none';
+                    profileIcon.insertBefore(iconImg, iconFallback);
+                }
+                
+                const largeFallback = profileAvatarLarge.querySelector('.icon-fallback');
+                if (largeFallback) {
+                    largeFallback.style.display = 'none';
+                    profileAvatarLarge.insertBefore(largeImg, largeFallback);
+                }
+                
+                console.log('Custom avatar loaded successfully');
+            };
+            
+            img.onerror = function() {
+                console.log('Custom avatar not found, using default icon');
+            };
+        }
+
+        // ================================================
+        // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
+        // ================================================
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await initIndexedDB();
+            } catch (error) {
+                console.error('Database initialization error:', error);
+            }
+            
+            setTimeout(loadCustomAvatar, 1000);
+            
+            loadSearchExamples();
+            
+            createRealisticSnowflakes();
+            createParticles();
+            
+            const loginPage = document.getElementById('loginPage');
+            const mainContent = document.getElementById('mainContent');
+            const adminPanel = document.getElementById('adminPanel');
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const adminLoginBtn = document.getElementById('adminLoginBtn');
+            const backToLoginBtn = document.getElementById('backToLoginBtn');
+            const profileIcon = document.getElementById('profileIcon');
+            const closeProfileModalBtn = document.getElementById('closeProfileModal');
+            const addUserBtn = document.getElementById('addUserBtn');
+            const closeUserModalBtn = document.getElementById('closeUserModal');
+            const cancelUserBtn = document.getElementById('cancelUserBtn');
+            const userForm = document.getElementById('userForm');
+            
+            const storedToken = sessionStorage.getItem('sessionToken');
+            const tokenTime = parseInt(sessionStorage.getItem('tokenTime') || '0');
+            const now = Date.now();
+            const storedUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            
+            if (storedToken && tokenTime && (now - tokenTime) < 3600000 && storedUser) {
+                sessionToken = storedToken;
+                currentUser = storedUser;
+                isAdminSession = storedUser.role === 'admin';
                 
                 if (isAdminSession) {
                     showAdminPanel();
                 } else {
                     showMainContent();
                 }
-                
-                errorMessage.style.display = 'none';
             } else {
-                errorMessage.style.display = 'block';
-                loginForm.style.transform = 'translateX(8px)';
-                setTimeout(() => {
-                    loginForm.style.transform = 'translateX(-8px)';
-                    setTimeout(() => {
-                        loginForm.style.transform = 'translateX(0)';
-                    }, 100);
-                }, 100);
-                
-                document.getElementById('password').value = '';
-            }
-        });
-    }
-    
-    // Вход в админ-панель (специальная кнопка)
-    if (adminLoginBtn) {
-        adminLoginBtn.addEventListener('click', function(e) {
-            e.preventDefault(); // Предотвращаем действие по умолчанию
-            
-            // Устанавливаем значения для админа
-            document.getElementById('username').value = 'admin';
-            document.getElementById('password').value = 'blax';
-            
-            // Имитируем отправку формы
-            if (loginForm) {
-                loginForm.dispatchEvent(new Event('submit'));
-            }
-        });
-    }
-    
-    // Назад к логину из админ-панели
-    if (backToLoginBtn) {
-        backToLoginBtn.addEventListener('click', function() {
-            sessionStorage.clear();
-            sessionToken = null;
-            currentUser = null;
-            isAdminSession = false;
-            
-            adminPanel.style.opacity = '0';
-            adminPanel.style.transform = 'translateY(30px)';
-            setTimeout(() => {
-                showLoginPage();
-            }, 500);
-        });
-    }
-    
-    // Выход
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-            sessionStorage.clear();
-            sessionToken = null;
-            currentUser = null;
-            isAdminSession = false;
-            
-            mainContent.style.opacity = '0';
-            mainContent.style.transform = 'translateY(30px)';
-            setTimeout(() => {
-                showLoginPage();
-            }, 500);
-        });
-    }
-    
-    // Функции переключения страниц
-    function showLoginPage() {
-        loginPage.style.display = 'flex';
-        mainContent.style.display = 'none';
-        adminPanel.style.display = 'none';
-        errorMessage.style.display = 'none';
-        loginForm.reset();
-        
-        loginPage.style.opacity = '0';
-        setTimeout(() => {
-            loginPage.style.transition = 'opacity 0.6s ease';
-            loginPage.style.opacity = '1';
-        }, 10);
-    }
-    
-    async function showMainContent() {
-        loginPage.style.display = 'none';
-        mainContent.style.display = 'block';
-        adminPanel.style.display = 'none';
-        
-        // Инициализировать IndexedDB
-        try {
-            await initIndexedDB();
-        } catch (error) {
-            console.error('Database initialization error:', error);
-        }
-        
-        await initUserScanner();
-        showAdvancedStats();
-        
-        mainContent.style.opacity = '0';
-        setTimeout(() => {
-            mainContent.style.transition = 'opacity 0.6s ease';
-            mainContent.style.opacity = '1';
-        }, 10);
-    }
-    
-    async function showAdminPanel() {
-        loginPage.style.display = 'none';
-        mainContent.style.display = 'none';
-        adminPanel.style.display = 'block';
-        
-        // Инициализировать IndexedDB
-        try {
-            await initIndexedDB();
-        } catch (error) {
-            console.error('Database initialization error:', error);
-        }
-        
-        await initAdminPanel();
-        
-        adminPanel.style.opacity = '0';
-        setTimeout(() => {
-            adminPanel.style.transition = 'opacity 0.6s ease';
-            adminPanel.style.opacity = '1';
-        }, 10);
-    }
-    
-    // Инициализировать админ-панель
-    async function initAdminPanel() {
-        // Обновить статистику
-        await updateAdminStats();
-        await displayAdminFiles();
-        
-        // Загрузка файлов
-        const adminFileInput = document.getElementById('adminFileInput');
-        const adminFileDropArea = document.getElementById('adminFileDropArea');
-        
-        if (adminFileInput) {
-            adminFileInput.addEventListener('change', async function(e) {
-                if (e.target.files.length > 0) {
-                    for (let i = 0; i < e.target.files.length; i++) {
-                        const file = e.target.files[i];
-                        
-                        try {
-                            updateUploadProgress(30, `Processing: ${file.name}`);
-                            
-                            showNotification(`Started upload: ${file.name}`, 'info');
-                            await saveFileToIndexedDB(file);
-                            
-                            updateUploadProgress(100, `Completed: ${file.name}`);
-                            showNotification(`File "${file.name}" uploaded successfully`, 'success');
-                            
-                        } catch (error) {
-                            showNotification(`Upload error "${file.name}": ${error.message}`, 'error');
-                        }
-                    }
-                    
-                    // Обновить список файлов и статистику
-                    await updateAdminStats();
-                    await displayAdminFiles();
-                    adminFileInput.value = '';
-                }
-            });
-        }
-        
-        // Drag & Drop для админ-панели
-        if (adminFileDropArea) {
-            adminFileDropArea.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                adminFileDropArea.classList.add('dragover');
-            });
-            
-            adminFileDropArea.addEventListener('dragleave', function() {
-                adminFileDropArea.classList.remove('dragover');
-            });
-            
-            adminFileDropArea.addEventListener('drop', async function(e) {
-                e.preventDefault();
-                adminFileDropArea.classList.remove('dragover');
-                
-                if (e.dataTransfer.files.length > 0) {
-                    for (let i = 0; i < e.dataTransfer.files.length; i++) {
-                        const file = e.dataTransfer.files[i];
-                        
-                        try {
-                            updateUploadProgress(30, `Processing: ${file.name}`);
-                            showNotification(`Started upload: ${file.name}`, 'info');
-                            await saveFileToIndexedDB(file);
-                            
-                            updateUploadProgress(100, `Completed: ${file.name}`);
-                            showNotification(`File "${file.name}" uploaded successfully`, 'success');
-                            
-                        } catch (error) {
-                            showNotification(`Upload error "${file.name}": ${error.message}`, 'error');
-                        }
-                    }
-                    
-                    await updateAdminStats();
-                    await displayAdminFiles();
-                }
-            });
-        }
-        
-        // Загрузить список пользователей
-        await loadUsers();
-    }
-    
-    // Инициализировать сканер пользователя
-    async function initUserScanner() {
-        const fileInput = document.getElementById('fileInput');
-        const fileDropArea = document.getElementById('fileDropArea');
-        const fileName = document.getElementById('fileName');
-        const fileSize = document.getElementById('fileSize');
-        const scanButton = document.getElementById('scanButton');
-        const clearResultsButton = document.getElementById('clearResults');
-        const searchWordInput = document.getElementById('searchWord');
-        const searchModeSelect = document.getElementById('searchMode');
-        
-        // Загрузить список файлов из хранилища
-        await displayStoredFiles();
-        
-        // Загрузка файла с компьютера
-        if (fileInput) {
-            fileInput.addEventListener('change', function(e) {
-                if (e.target.files.length > 0) {
-                    selectedFile = e.target.files[0];
-                    selectedFileFromStorage = null;
-                    
-                    if (selectedFile.size > MAX_FILE_SIZE) {
-                        showNotification(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
-                        fileInput.value = '';
-                        return;
-                    }
-                    
-                    fileName.textContent = `📁 ${selectedFile.name}`;
-                    fileSize.textContent = `📊 ${formatFileSize(selectedFile.size)}`;
-                    
-                    const storedItems = document.querySelectorAll('.stored-file-item');
-                    storedItems.forEach(item => item.classList.remove('selected'));
-                    
-                    fileDropArea.style.borderColor = 'var(--success)';
-                    fileDropArea.style.boxShadow = '0 0 40px rgba(74, 222, 128, 0.3)';
-                    setTimeout(() => {
-                        fileDropArea.style.borderColor = '';
-                        fileDropArea.style.boxShadow = '';
-                    }, 2000);
-                    
-                    showStatus(`File "${selectedFile.name}" uploaded successfully`, 'success');
-                    totalFiles++;
-                    localStorage.setItem('totalFiles', totalFiles);
-                    showAdvancedStats();
-                }
-            });
-        }
-        
-        // Drag & Drop для пользователя
-        if (fileDropArea) {
-            fileDropArea.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                fileDropArea.classList.add('dragover');
-            });
-            
-            fileDropArea.addEventListener('dragleave', function() {
-                fileDropArea.classList.remove('dragover');
-            });
-            
-            fileDropArea.addEventListener('drop', function(e) {
-                e.preventDefault();
-                fileDropArea.classList.remove('dragover');
-                
-                if (e.dataTransfer.files.length > 0) {
-                    selectedFile = e.dataTransfer.files[0];
-                    selectedFileFromStorage = null;
-                    
-                    if (selectedFile.size > MAX_FILE_SIZE) {
-                        showNotification(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
-                        return;
-                    }
-                    
-                    fileInput.files = e.dataTransfer.files;
-                    fileName.textContent = `📁 ${selectedFile.name}`;
-                    fileSize.textContent = `📊 ${formatFileSize(selectedFile.size)}`;
-                    
-                    const storedItems = document.querySelectorAll('.stored-file-item');
-                    storedItems.forEach(item => item.classList.remove('selected'));
-                    
-                    fileDropArea.style.borderColor = 'var(--success)';
-                    fileDropArea.style.boxShadow = '0 0 40px rgba(74, 222, 128, 0.3)';
-                    setTimeout(() => {
-                        fileDropArea.style.borderColor = '';
-                        fileDropArea.style.boxShadow = '';
-                    }, 2000);
-                    
-                    showStatus(`File "${selectedFile.name}" uploaded via Drag & Drop`, 'success');
-                    totalFiles++;
-                    localStorage.setItem('totalFiles', totalFiles);
-                    showAdvancedStats();
-                }
-            });
-        }
-        
-        // Сканирование
-        if (scanButton) {
-            scanButton.addEventListener('click', async function() {
-                let currentFile = null;
-                let isFromStorage = false;
-                
-                if (selectedFileFromStorage) {
-                    try {
-                        const fileData = await getStoredFile(selectedFileFromStorage.id);
-                        if (!fileData) {
-                            showStatus('Selected file from storage not found', 'error');
-                            return;
-                        }
-                        currentFile = fileData;
-                        isFromStorage = true;
-                    } catch (error) {
-                        showStatus(`Error loading file from storage: ${error.message}`, 'error');
-                        return;
-                    }
-                } else if (selectedFile) {
-                    currentFile = selectedFile;
-                } else {
-                    showStatus('Please select file for analysis', 'error');
-                    return;
-                }
-                
-                const searchWord = searchWordInput.value.trim();
-                if (!searchWord) {
-                    showStatus('Enter word to search', 'error');
-                    searchWordInput.focus();
-                    return;
-                }
-                
-                const mode = searchModeSelect.value;
-                const loadingIndicator = document.getElementById('loadingIndicator');
-                const statusText = document.getElementById('statusText');
-                
-                loadingIndicator.classList.add('active');
-                statusText.textContent = 'Scanning file...';
-                scanButton.disabled = true;
-                
-                try {
-                    const startTime = Date.now();
-                    let scanResult;
-                    
-                    if (isFromStorage) {
-                        scanResult = await scanStoredFile(currentFile, searchWord, mode);
-                    } else {
-                        scanResult = await scanFile(currentFile, searchWord, mode);
-                    }
-                    
-                    const endTime = Date.now();
-                    
-                    searchResults = scanResult.results;
-                    displayResults(searchResults, searchWord);
-                    
-                    const scanTime = endTime - startTime;
-                    totalScanTime += scanTime;
-                    totalScans++;
-                    
-                    const fileName = isFromStorage ? currentFile.name : selectedFile.name;
-                    scanHistory.push({
-                        timestamp: new Date().toISOString(),
-                        filename: fileName,
-                        searchWord: searchWord,
-                        results: searchResults.length,
-                        time: scanTime,
-                        mode: mode,
-                        fromStorage: isFromStorage
-                    });
-                    
-                    if (scanHistory.length > 50) {
-                        scanHistory = scanHistory.slice(-50);
-                    }
-                    
-                    localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
-                    localStorage.setItem('totalScans', totalScans.toString());
-                    localStorage.setItem('totalScanTime', totalScanTime.toString());
-                    
-                    loadingIndicator.classList.remove('active');
-                    scanButton.disabled = false;
-                    
-                    if (searchResults.length > 0) {
-                        const suspiciousCount = searchResults.filter(r => r.isSuspicious).length;
-                        if (suspiciousCount > 0) {
-                            showStatus(`Found ${searchResults.length} matches (${suspiciousCount} potentially suspicious) in ${(scanTime/1000).toFixed(2)} sec`, 'warning');
-                        } else {
-                            showStatus(`Found ${searchResults.length} matches in ${(scanTime/1000).toFixed(2)} sec`, 'success');
-                        }
-                    } else {
-                        showStatus(`No matches found. Processed ${scanResult.totalLines} lines in ${(scanTime/1000).toFixed(2)} sec`, 'info');
-                    }
-                    
-                    showAdvancedStats();
-                    
-                } catch (error) {
-                    loadingIndicator.classList.remove('active');
-                    scanButton.disabled = false;
-                    showStatus(`Scanning error: ${error.message}`, 'error');
-                }
-            });
-        }
-        
-        // Очистить результаты
-        if (clearResultsButton) {
-            clearResultsButton.addEventListener('click', function() {
-                searchResults = [];
-                document.getElementById('resultsCount').textContent = '0';
-                document.getElementById('resultsContainer').innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-search"></i>
-                        <h3>Results will appear here</h3>
-                        <p>Select file and enter word to search to see results</p>
-                    </div>
-                `;
-                showStatus('Results cleared', 'info');
-            });
-        }
-        
-        showStatus('Select file for analysis (upload new or choose from storage).', 'info');
-    }
-    
-    // Вспомогательные функции
-    function showStatus(message, type = 'info') {
-        const statusEl = document.getElementById('statusText');
-        if (!statusEl) return;
-        
-        statusEl.textContent = message;
-        statusEl.style.color = {
-            'error': 'var(--error)',
-            'success': 'var(--success)',
-            'warning': 'var(--warning)',
-            'info': 'var(--ice)'
-        }[type] || 'var(--text-secondary)';
-        
-        statusEl.style.opacity = '0.7';
-        statusEl.style.transform = 'translateY(-8px)';
-        
-        setTimeout(() => {
-            statusEl.style.opacity = '1';
-            statusEl.style.transform = 'translateY(0)';
-        }, 10);
-        
-        if (type !== 'info') {
-            setTimeout(() => {
-                statusEl.style.color = '';
-            }, 5000);
-        }
-    }
-    
-    // Автоматический выход при бездействии
-    let inactivityTimer;
-    function resetInactivityTimer() {
-        clearTimeout(inactivityTimer);
-        inactivityTimer = setTimeout(() => {
-            if (sessionToken) {
                 sessionStorage.clear();
                 showLoginPage();
-                showNotification('Session ended due to inactivity', 'warning');
             }
-        }, 45 * 60 * 1000);
-    }
-    
-    document.addEventListener('mousemove', resetInactivityTimer);
-    document.addEventListener('keypress', resetInactivityTimer);
-    document.addEventListener('click', resetInactivityTimer);
-    resetInactivityTimer();
-});
+            
+            if (profileIcon) {
+                profileIcon.addEventListener('click', showProfileModal);
+            }
+            
+            if (closeProfileModalBtn) {
+                closeProfileModalBtn.addEventListener('click', closeProfileModal);
+            }
+            
+            const profileModal = document.getElementById('profileModal');
+            if (profileModal) {
+                profileModal.addEventListener('click', function(e) {
+                    if (e.target === profileModal) {
+                        closeProfileModal();
+                    }
+                });
+            }
+            
+            if (addUserBtn) {
+                addUserBtn.addEventListener('click', showAddUserModal);
+            }
+            
+            if (closeUserModalBtn) {
+                closeUserModalBtn.addEventListener('click', closeUserModal);
+            }
+            
+            if (cancelUserBtn) {
+                cancelUserBtn.addEventListener('click', closeUserModal);
+            }
+            
+            const userModal = document.getElementById('userModal');
+            if (userModal) {
+                userModal.addEventListener('click', function(e) {
+                    if (e.target === userModal) {
+                        closeUserModal();
+                    }
+                });
+            }
+            
+            if (userForm) {
+                userForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('newUsername').value.trim();
+                    const password = document.getElementById('newPassword').value.trim();
+                    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+                    const role = document.getElementById('userRole').value;
+                    
+                    if (!username || !password) {
+                        showNotification('Please fill in all fields', 'error');
+                        return;
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        showNotification('Passwords do not match', 'error');
+                        return;
+                    }
+                    
+                    if (password.length < 3) {
+                        showNotification('Password must be at least 3 characters', 'error');
+                        return;
+                    }
+                    
+                    await addNewUser(username, password, role);
+                });
+            }
+            
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                const loginResult = await checkLogin(username, password);
+                
+                if (loginResult.success) {
+                    currentUser = loginResult.user;
+                    sessionToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+                        .map(b => b.toString(16).padStart(2, '0'))
+                        .join('');
+                    
+                    sessionStorage.setItem('sessionToken', sessionToken);
+                    sessionStorage.setItem('tokenTime', Date.now().toString());
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    sessionStorage.setItem('isAdmin', (currentUser.role === 'admin').toString());
+                    
+                    isAdminSession = currentUser.role === 'admin';
+                    
+                    if (isAdminSession) {
+                        showAdminPanel();
+                    } else {
+                        showMainContent();
+                    }
+                    
+                    errorMessage.style.display = 'none';
+                } else {
+                    errorMessage.style.display = 'block';
+                    loginForm.style.transform = 'translateX(8px)';
+                    setTimeout(() => {
+                        loginForm.style.transform = 'translateX(-8px)';
+                        setTimeout(() => {
+                            loginForm.style.transform = 'translateX(0)';
+                        }, 100);
+                    }, 100);
+                    
+                    document.getElementById('password').value = '';
+                }
+            });
+            
+            adminLoginBtn.addEventListener('click', function() {
+                document.getElementById('username').value = 'admin';
+                document.getElementById('password').value = 'admin123';
+                loginForm.dispatchEvent(new Event('submit'));
+            });
+            
+            backToLoginBtn.addEventListener('click', function() {
+                sessionStorage.clear();
+                sessionToken = null;
+                currentUser = null;
+                isAdminSession = false;
+                
+                adminPanel.style.opacity = '0';
+                adminPanel.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    showLoginPage();
+                }, 500);
+            });
+            
+            logoutBtn.addEventListener('click', function() {
+                sessionStorage.clear();
+                sessionToken = null;
+                currentUser = null;
+                isAdminSession = false;
+                
+                mainContent.style.opacity = '0';
+                mainContent.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    showLoginPage();
+                }, 500);
+            });
+            
+            function showLoginPage() {
+                loginPage.style.display = 'flex';
+                mainContent.style.display = 'none';
+                adminPanel.style.display = 'none';
+                errorMessage.style.display = 'none';
+                loginForm.reset();
+                
+                loginPage.style.opacity = '0';
+                setTimeout(() => {
+                    loginPage.style.transition = 'opacity 0.6s ease';
+                    loginPage.style.opacity = '1';
+                }, 10);
+            }
+            
+            async function showMainContent() {
+                loginPage.style.display = 'none';
+                mainContent.style.display = 'block';
+                adminPanel.style.display = 'none';
+                
+                await initUserScanner();
+                showAdvancedStats();
+                
+                mainContent.style.opacity = '0';
+                setTimeout(() => {
+                    mainContent.style.transition = 'opacity 0.6s ease';
+                    mainContent.style.opacity = '1';
+                }, 10);
+            }
+            
+            async function showAdminPanel() {
+                loginPage.style.display = 'none';
+                mainContent.style.display = 'none';
+                adminPanel.style.display = 'block';
+                
+                await initAdminPanel();
+                
+                adminPanel.style.opacity = '0';
+                setTimeout(() => {
+                    adminPanel.style.transition = 'opacity 0.6s ease';
+                    adminPanel.style.opacity = '1';
+                }, 10);
+            }
+            
+            async function initAdminPanel() {
+                await updateAdminStats();
+                await displayAdminFiles();
+                
+                const adminFileInput = document.getElementById('adminFileInput');
+                const adminFileDropArea = document.getElementById('adminFileDropArea');
+                
+                if (adminFileInput) {
+                    adminFileInput.addEventListener('change', async function(e) {
+                        if (e.target.files.length > 0) {
+                            for (let i = 0; i < e.target.files.length; i++) {
+                                const file = e.target.files[i];
+                                
+                                try {
+                                    updateUploadProgress(30, `Processing: ${file.name}`);
+                                    showNotification(`Started upload: ${file.name}`, 'info');
+                                    await saveFileToIndexedDB(file);
+                                    
+                                    updateUploadProgress(100, `Completed: ${file.name}`);
+                                    showNotification(`File "${file.name}" uploaded successfully`, 'success');
+                                    
+                                } catch (error) {
+                                    showNotification(`Upload error "${file.name}": ${error.message}`, 'error');
+                                }
+                            }
+                            
+                            await updateAdminStats();
+                            await displayAdminFiles();
+                            adminFileInput.value = '';
+                        }
+                    });
+                }
+                
+                if (adminFileDropArea) {
+                    adminFileDropArea.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        adminFileDropArea.classList.add('dragover');
+                    });
+                    
+                    adminFileDropArea.addEventListener('dragleave', function() {
+                        adminFileDropArea.classList.remove('dragover');
+                    });
+                    
+                    adminFileDropArea.addEventListener('drop', async function(e) {
+                        e.preventDefault();
+                        adminFileDropArea.classList.remove('dragover');
+                        
+                        if (e.dataTransfer.files.length > 0) {
+                            for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                                const file = e.dataTransfer.files[i];
+                                
+                                try {
+                                    updateUploadProgress(30, `Processing: ${file.name}`);
+                                    showNotification(`Started upload: ${file.name}`, 'info');
+                                    await saveFileToIndexedDB(file);
+                                    
+                                    updateUploadProgress(100, `Completed: ${file.name}`);
+                                    showNotification(`File "${file.name}" uploaded successfully`, 'success');
+                                    
+                                } catch (error) {
+                                    showNotification(`Upload error "${file.name}": ${error.message}`, 'error');
+                                }
+                            }
+                            
+                            await updateAdminStats();
+                            await displayAdminFiles();
+                        }
+                    });
+                }
+                
+                await loadUsers();
+            }
+            
+            async function initUserScanner() {
+                const fileInput = document.getElementById('fileInput');
+                const fileDropArea = document.getElementById('fileDropArea');
+                const fileName = document.getElementById('fileName');
+                const fileSize = document.getElementById('fileSize');
+                const scanButton = document.getElementById('scanButton');
+                const clearResultsButton = document.getElementById('clearResults');
+                const searchWordInput = document.getElementById('searchWord');
+                const searchModeSelect = document.getElementById('searchMode');
+                
+                await displayStoredFiles();
+                
+                async function checkAndCreateDemoFile() {
+                    try {
+                        const stats = await getStorageStats();
+                        if (stats.fileCount === 0) {
+                            function createDemoFile() {
+                                const lines = [];
+                                const normalDomains = [
+                                    'google.com', 'youtube.com', 'github.com',
+                                    'stackoverflow.com', 'microsoft.com', 'apple.com'
+                                ];
+                                const logLevels = ['INFO', 'WARNING', 'ERROR', 'DEBUG', 'SECURITY'];
+                                const actions = [
+                                    'User login attempt', 'File access', 'Network connection',
+                                    'Database query', 'API request', 'System update',
+                                    'Security scan', 'Process execution', 'Memory allocation'
+                                ];
+                                
+                                for (let i = 0; i < 1000; i++) {
+                                    const timestamp = new Date(Date.now() - Math.random() * 86400000)
+                                        .toISOString()
+                                        .replace('T', ' ')
+                                        .substring(0, 19);
+                                    
+                                    const level = logLevels[Math.floor(Math.random() * logLevels.length)];
+                                    const action = actions[Math.floor(Math.random() * actions.length)];
+                                    const ip = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+                                    
+                                    let line = `[${timestamp}] [${level}] ${action} from ${ip}`;
+                                    
+                                    if (Math.random() < 0.2) {
+                                        const normalDomain = normalDomains[Math.floor(Math.random() * normalDomains.length)];
+                                        line += ` | Domain: ${normalDomain}`;
+                                    }
+                                    
+                                    lines.push(line);
+                                }
+                                
+                                return lines.join('\n');
+                            }
+                            
+                            const demoContent = createDemoFile();
+                            selectedFile = new File([demoContent], 'security_logs_2025.log', { type: 'text/plain' });
+                            
+                            if (fileName && fileSize) {
+                                fileName.textContent = `📁 Demo file: security_logs_2025.log`;
+                                fileSize.textContent = `📊 Size: ${formatFileSize(demoContent.length)}`;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Demo file creation error:', error);
+                    }
+                }
+                
+                await checkAndCreateDemoFile();
+                
+                if (fileInput) {
+                    fileInput.addEventListener('change', function(e) {
+                        if (e.target.files.length > 0) {
+                            selectedFile = e.target.files[0];
+                            selectedFileFromStorage = null;
+                            
+                            if (selectedFile.size > MAX_FILE_SIZE) {
+                                showNotification(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
+                                fileInput.value = '';
+                                return;
+                            }
+                            
+                            fileName.textContent = `📁 ${selectedFile.name}`;
+                            fileSize.textContent = `📊 ${formatFileSize(selectedFile.size)}`;
+                            
+                            const storedItems = document.querySelectorAll('.stored-file-item');
+                            storedItems.forEach(item => item.classList.remove('selected'));
+                            
+                            fileDropArea.style.borderColor = 'var(--success)';
+                            fileDropArea.style.boxShadow = '0 0 40px rgba(74, 222, 128, 0.3)';
+                            setTimeout(() => {
+                                fileDropArea.style.borderColor = '';
+                                fileDropArea.style.boxShadow = '';
+                            }, 2000);
+                            
+                            showStatus(`File "${selectedFile.name}" uploaded successfully`, 'success');
+                            totalFiles++;
+                            localStorage.setItem('totalFiles', totalFiles);
+                            showAdvancedStats();
+                        }
+                    });
+                }
+                
+                if (fileDropArea) {
+                    fileDropArea.addEventListener('dragover', function(e) {
+                        e.preventDefault();
+                        fileDropArea.classList.add('dragover');
+                    });
+                    
+                    fileDropArea.addEventListener('dragleave', function() {
+                        fileDropArea.classList.remove('dragover');
+                    });
+                    
+                    fileDropArea.addEventListener('drop', function(e) {
+                        e.preventDefault();
+                        fileDropArea.classList.remove('dragover');
+                        
+                        if (e.dataTransfer.files.length > 0) {
+                            selectedFile = e.dataTransfer.files[0];
+                            selectedFileFromStorage = null;
+                            
+                            if (selectedFile.size > MAX_FILE_SIZE) {
+                                showNotification(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
+                                return;
+                            }
+                            
+                            fileInput.files = e.dataTransfer.files;
+                            fileName.textContent = `📁 ${selectedFile.name}`;
+                            fileSize.textContent = `📊 ${formatFileSize(selectedFile.size)}`;
+                            
+                            const storedItems = document.querySelectorAll('.stored-file-item');
+                            storedItems.forEach(item => item.classList.remove('selected'));
+                            
+                            fileDropArea.style.borderColor = 'var(--success)';
+                            fileDropArea.style.boxShadow = '0 0 40px rgba(74, 222, 128, 0.3)';
+                            setTimeout(() => {
+                                fileDropArea.style.borderColor = '';
+                                fileDropArea.style.boxShadow = '';
+                            }, 2000);
+                            
+                            showStatus(`File "${selectedFile.name}" uploaded via Drag & Drop`, 'success');
+                            totalFiles++;
+                            localStorage.setItem('totalFiles', totalFiles);
+                            showAdvancedStats();
+                        }
+                    });
+                }
+                
+                if (scanButton) {
+                    scanButton.addEventListener('click', async function() {
+                        let currentFile = null;
+                        let isFromStorage = false;
+                        
+                        if (selectedFileFromStorage) {
+                            try {
+                                const fileData = await getStoredFile(selectedFileFromStorage.id);
+                                if (!fileData) {
+                                    showStatus('Selected file from storage not found', 'error');
+                                    return;
+                                }
+                                currentFile = fileData;
+                                isFromStorage = true;
+                            } catch (error) {
+                                showStatus(`Error loading file from storage: ${error.message}`, 'error');
+                                return;
+                            }
+                        } else if (selectedFile) {
+                            currentFile = selectedFile;
+                        } else {
+                            showStatus('Please select file for analysis', 'error');
+                            return;
+                        }
+                        
+                        const searchWord = searchWordInput.value.trim();
+                        if (!searchWord) {
+                            showStatus('Enter word to search', 'error');
+                            searchWordInput.focus();
+                            return;
+                        }
+                        
+                        const mode = searchModeSelect.value;
+                        const loadingIndicator = document.getElementById('loadingIndicator');
+                        const statusText = document.getElementById('statusText');
+                        
+                        loadingIndicator.classList.add('active');
+                        statusText.textContent = 'Scanning file...';
+                        scanButton.disabled = true;
+                        
+                        try {
+                            const startTime = Date.now();
+                            let scanResult;
+                            
+                            if (isFromStorage) {
+                                scanResult = await scanStoredFile(currentFile, searchWord, mode);
+                            } else {
+                                scanResult = await scanFile(currentFile, searchWord, mode);
+                            }
+                            
+                            const endTime = Date.now();
+                            
+                            searchResults = scanResult.results;
+                            displayResults(searchResults, searchWord);
+                            
+                            const scanTime = endTime - startTime;
+                            totalScanTime += scanTime;
+                            totalScans++;
+                            
+                            const fileName = isFromStorage ? currentFile.name : selectedFile.name;
+                            scanHistory.push({
+                                timestamp: new Date().toISOString(),
+                                filename: fileName,
+                                searchWord: searchWord,
+                                results: searchResults.length,
+                                time: scanTime,
+                                mode: mode,
+                                fromStorage: isFromStorage
+                            });
+                            
+                            if (scanHistory.length > 50) {
+                                scanHistory = scanHistory.slice(-50);
+                            }
+                            
+                            localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+                            localStorage.setItem('totalScans', totalScans.toString());
+                            localStorage.setItem('totalScanTime', totalScanTime.toString());
+                            
+                            loadingIndicator.classList.remove('active');
+                            scanButton.disabled = false;
+                            
+                            if (searchResults.length > 0) {
+                                const suspiciousCount = searchResults.filter(r => r.isSuspicious).length;
+                                if (suspiciousCount > 0) {
+                                    showStatus(`Found ${searchResults.length} matches (${suspiciousCount} potentially suspicious) in ${(scanTime/1000).toFixed(2)} sec`, 'warning');
+                                } else {
+                                    showStatus(`Found ${searchResults.length} matches in ${(scanTime/1000).toFixed(2)} sec`, 'success');
+                                }
+                            } else {
+                                showStatus(`No matches found. Processed ${scanResult.totalLines} lines in ${(scanTime/1000).toFixed(2)} sec`, 'info');
+                            }
+                            
+                            showAdvancedStats();
+                            
+                        } catch (error) {
+                            loadingIndicator.classList.remove('active');
+                            scanButton.disabled = false;
+                            showStatus(`Scanning error: ${error.message}`, 'error');
+                        }
+                    });
+                }
+                
+                if (clearResultsButton) {
+                    clearResultsButton.addEventListener('click', function() {
+                        searchResults = [];
+                        document.getElementById('resultsCount').textContent = '0';
+                        document.getElementById('resultsContainer').innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <h3>Results will appear here</h3>
+                                <p>Select file and enter word to search to see results</p>
+                            </div>
+                        `;
+                        showStatus('Results cleared', 'info');
+                    });
+                }
+                
+                showStatus('Select file for analysis (upload new or choose from storage).', 'info');
+            }
+            
+            function showStatus(message, type = 'info') {
+                const statusEl = document.getElementById('statusText');
+                if (!statusEl) return;
+                
+                statusEl.textContent = message;
+                statusEl.style.color = {
+                    'error': 'var(--error)',
+                    'success': 'var(--success)',
+                    'warning': 'var(--warning)',
+                    'info': 'var(--ice)'
+                }[type] || 'var(--text-secondary)';
+                
+                statusEl.style.opacity = '0.7';
+                statusEl.style.transform = 'translateY(-8px)';
+                
+                setTimeout(() => {
+                    statusEl.style.opacity = '1';
+                    statusEl.style.transform = 'translateY(0)';
+                }, 10);
+                
+                if (type !== 'info') {
+                    setTimeout(() => {
+                        statusEl.style.color = '';
+                    }, 5000);
+                }
+            }
+            
+            let inactivityTimer;
+            function resetInactivityTimer() {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(() => {
+                    if (sessionToken) {
+                        sessionStorage.clear();
+                        showLoginPage();
+                        showNotification('Session ended due to inactivity', 'warning');
+                    }
+                }, 45 * 60 * 1000);
+            }
+            
+            document.addEventListener('mousemove', resetInactivityTimer);
+            document.addEventListener('keypress', resetInactivityTimer);
+            document.addEventListener('click', resetInactivityTimer);
+            resetInactivityTimer();
+        });
     </script>
 </body>
 </html>
