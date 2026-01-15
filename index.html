@@ -2703,13 +2703,28 @@
         }
 
         // ================================================
-        // BACK4APP ФУНКЦИИ ДЛЯ ФАЙЛОВ
+        // BACK4APP ФУНКЦИИ ДЛЯ ФАЙЛОВ (ИСПРАВЛЕННЫЕ)
         // ================================================
 
-        async function uploadFileToBack4App(file, category = "scanner_files") {
+        async function uploadFileToBack4App(file, category = "scanner_files", onProgress) {
             try {
+                // Обновляем прогресс на 5% - начало загрузки
+                if (onProgress) onProgress(5, `Preparing upload: ${file.name}`);
+                
+                // Создаем Parse файл
                 const parseFile = new Parse.File(file.name, file);
-                await parseFile.save();
+                
+                // Сохраняем файл с обработкой прогресса
+                await parseFile.save({ 
+                    progress: (percent) => {
+                        // Конвертируем прогресс от 5% до 85%
+                        const actualPercent = 5 + (percent * 0.8);
+                        if (onProgress) onProgress(Math.floor(actualPercent), `Uploading: ${file.name}`);
+                    }
+                });
+                
+                // Обновляем прогресс на 90% - файл загружен, создаем запись
+                if (onProgress) onProgress(90, `Creating file record: ${file.name}`);
                 
                 const Files = Parse.Object.extend("Files");
                 const fileRecord = new Files();
@@ -2725,6 +2740,9 @@
                 
                 await fileRecord.save();
                 
+                // Обновляем прогресс на 100% - завершено
+                if (onProgress) onProgress(100, `Upload complete: ${file.name}`);
+                
                 return {
                     success: true,
                     id: fileRecord.id,
@@ -2735,9 +2753,13 @@
                 };
             } catch (error) {
                 console.error("Error uploading file to Back4App:", error);
+                
+                // Сбрасываем прогресс при ошибке
+                if (onProgress) onProgress(0, `Upload failed: ${error.message}`);
+                
                 return {
                     success: false,
-                    message: error.message
+                    message: error.message || "Unknown upload error"
                 };
             }
         }
@@ -4038,13 +4060,13 @@
                                 const file = e.target.files[i];
                                 
                                 try {
-                                    updateUploadProgress(30, `Uploading to Back4App: ${file.name}`);
-                                    showNotification(`Started upload: ${file.name}`, 'info');
+                                    showNotification(`Starting upload: ${file.name}`, 'info');
                                     
-                                    const result = await uploadFileToBack4App(file);
+                                    const result = await uploadFileToBack4App(file, "scanner_files", (percent, message) => {
+                                        updateUploadProgress(percent, message);
+                                    });
                                     
                                     if (result.success) {
-                                        updateUploadProgress(100, `Completed: ${file.name}`);
                                         showNotification(`File "${file.name}" uploaded to Back4App successfully`, 'success');
                                     } else {
                                         showNotification(`Upload error "${file.name}": ${result.message}`, 'error');
@@ -4057,6 +4079,7 @@
                             
                             await updateAdminStats();
                             await displayAdminFiles();
+                            await displayStoredFiles();
                             adminFileInput.value = '';
                         }
                     });
@@ -4081,13 +4104,13 @@
                                 const file = e.dataTransfer.files[i];
                                 
                                 try {
-                                    updateUploadProgress(30, `Uploading to Back4App: ${file.name}`);
-                                    showNotification(`Started upload: ${file.name}`, 'info');
+                                    showNotification(`Starting upload: ${file.name}`, 'info');
                                     
-                                    const result = await uploadFileToBack4App(file);
+                                    const result = await uploadFileToBack4App(file, "scanner_files", (percent, message) => {
+                                        updateUploadProgress(percent, message);
+                                    });
                                     
                                     if (result.success) {
-                                        updateUploadProgress(100, `Completed: ${file.name}`);
                                         showNotification(`File "${file.name}" uploaded to Back4App successfully`, 'success');
                                     } else {
                                         showNotification(`Upload error "${file.name}": ${result.message}`, 'error');
@@ -4100,6 +4123,7 @@
                             
                             await updateAdminStats();
                             await displayAdminFiles();
+                            await displayStoredFiles();
                         }
                     });
                 }
