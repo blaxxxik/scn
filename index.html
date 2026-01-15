@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-      <link rel="icon" href="favicon.ico" type="image/x-icon">
-      <link rel="shortcut icon" href="favicon.ico">
-      <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyrox Search</title>
@@ -23,23 +23,26 @@
             --primary-dark: #00ccff;
             --secondary: #0066ff;
             --accent: #9d00ff;
-            --background: #0a0a1a;
-            --surface: rgba(20, 20, 40, 0.9);
-            --surface-light: rgba(40, 40, 80, 0.8);
+            --background: #000000;
+            --surface: rgba(0, 0, 0, 0.9);
+            --surface-light: rgba(20, 20, 20, 0.8);
             --text: #ffffff;
-            --text-secondary: #b8c2ff;
+            --text-secondary: #e0e0e0;
             --success: #00ff9d;
             --error: #ff0066;
             --warning: #ffcc00;
-            --border: rgba(0, 255, 252, 0.3);
-            --shadow: rgba(0, 0, 0, 0.6);
+            --border: rgba(0, 255, 252, 0.5);
+            --shadow: rgba(0, 0, 0, 0.8);
             --snow: #ffffff;
             --ice: #a8d8ea;
-            --glow: rgba(0, 255, 252, 0.5);
+            --glow: rgba(0, 255, 252, 0.7);
             --neon-blue: #0066ff;
             --neon-cyan: #00ffff;
             --neon-purple: #9d00ff;
             --neon-pink: #ff00ff;
+            --gold: #FFD700;
+            --silver: #C0C0C0;
+            --diamond: #b9f2ff;
         }
 
         body {
@@ -50,68 +53,68 @@
             position: relative;
         }
 
-        /* Красивый анимированный синий фон */
-        .animated-blue-bg {
+        /* Черный блестящий градиентный фон */
+        .shiny-black-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -4;
+            overflow: hidden;
+            background: 
+                radial-gradient(ellipse at 20% 20%, 
+                    rgba(30, 30, 30, 0.8) 0%, 
+                    rgba(20, 20, 20, 0.4) 40%, 
+                    transparent 70%),
+                radial-gradient(ellipse at 80% 80%, 
+                    rgba(50, 50, 50, 0.6) 0%, 
+                    rgba(30, 30, 30, 0.3) 40%, 
+                    transparent 70%),
+                radial-gradient(ellipse at 40% 60%, 
+                    rgba(0, 0, 0, 0.9) 0%, 
+                    rgba(10, 10, 10, 0.5) 40%, 
+                    transparent 70%),
+                linear-gradient(135deg, 
+                    #000000 0%, 
+                    #111111 25%, 
+                    #222222 50%, 
+                    #111111 75%, 
+                    #000000 100%);
+            background-size: 400% 400%;
+            animation: darkWave 20s ease infinite;
+        }
+
+        /* Блестящие кристаллы и бриллианты */
+        .crystal-grid {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -3;
-            overflow: hidden;
-            background: 
-                radial-gradient(ellipse at 20% 20%, 
-                    rgba(0, 102, 255, 0.4) 0%, 
-                    rgba(0, 102, 255, 0.1) 40%, 
-                    transparent 70%),
-                radial-gradient(ellipse at 80% 80%, 
-                    rgba(0, 204, 255, 0.3) 0%, 
-                    rgba(0, 204, 255, 0.1) 40%, 
-                    transparent 70%),
-                radial-gradient(ellipse at 40% 60%, 
-                    rgba(0, 255, 255, 0.25) 0%, 
-                    rgba(0, 255, 255, 0.08) 40%, 
-                    transparent 70%),
-                radial-gradient(ellipse at 60% 30%, 
-                    rgba(157, 0, 255, 0.2) 0%, 
-                    rgba(157, 0, 255, 0.05) 40%, 
-                    transparent 70%),
-                linear-gradient(135deg, 
-                    #001833 0%, 
-                    #00264d 25%, 
-                    #003366 50%, 
-                    #00264d 75%, 
-                    #001833 100%);
-            background-size: 400% 400%;
-            animation: blueWave 15s ease infinite;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            background-size: 80px 80px, 80px 80px, 100% 100%, 100% 100%;
+            animation: crystalMove 40s linear infinite;
+            opacity: 0.3;
         }
 
-        .blue-grid {
+        /* Блестящие волны */
+        .shiny-waves {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -2;
-            background-image: 
-                linear-gradient(rgba(0, 204, 255, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 204, 255, 0.15) 1px, transparent 1px);
-            background-size: 60px 60px;
-            animation: gridMove 40s linear infinite;
             opacity: 0.2;
         }
 
-        .blue-waves {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            opacity: 0.1;
-        }
-
-        .wave {
+        .shiny-wave {
             position: absolute;
             bottom: 0;
             left: 0;
@@ -119,37 +122,58 @@
             height: 200px;
             background: linear-gradient(90deg, 
                 transparent, 
-                rgba(0, 102, 255, 0.3), 
+                rgba(255, 255, 255, 0.1), 
+                rgba(255, 255, 255, 0.2),
+                rgba(255, 255, 255, 0.1),
                 transparent);
             border-radius: 50%;
-            animation: waveFloat 10s ease-in-out infinite;
+            animation: waveShine 15s ease-in-out infinite;
+            filter: blur(1px);
         }
 
-        .wave-1 {
+        .shiny-wave-1 {
             bottom: 20%;
             animation-delay: 0s;
             height: 250px;
-            opacity: 0.3;
-        }
-
-        .wave-2 {
-            bottom: 10%;
-            animation-delay: 2s;
-            height: 200px;
-            opacity: 0.2;
-            animation-duration: 12s;
-        }
-
-        .wave-3 {
-            bottom: 0%;
-            animation-delay: 4s;
-            height: 180px;
             opacity: 0.15;
-            animation-duration: 15s;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 215, 0, 0.1), 
+                rgba(192, 192, 192, 0.2),
+                rgba(255, 215, 0, 0.1),
+                transparent);
         }
 
-        /* Неоновые частицы (оставлены по просьбе) */
-        .neon-particles {
+        .shiny-wave-2 {
+            bottom: 10%;
+            animation-delay: 3s;
+            height: 200px;
+            opacity: 0.1;
+            animation-duration: 18s;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(185, 242, 255, 0.1), 
+                rgba(255, 255, 255, 0.15),
+                rgba(185, 242, 255, 0.1),
+                transparent);
+        }
+
+        .shiny-wave-3 {
+            bottom: 0%;
+            animation-delay: 6s;
+            height: 180px;
+            opacity: 0.08;
+            animation-duration: 20s;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.05), 
+                rgba(157, 0, 255, 0.1),
+                rgba(255, 255, 255, 0.05),
+                transparent);
+        }
+
+        /* Блестящие частицы */
+        .shiny-particles {
             position: fixed;
             top: 0;
             left: 0;
@@ -159,83 +183,102 @@
             pointer-events: none;
         }
 
-        .neon-particle {
+        .shiny-particle {
             position: absolute;
             border-radius: 50%;
+            animation: particleShine 15s infinite linear;
+        }
+
+        /* Типы блестящих частиц */
+        .particle-gold {
+            width: 4px;
+            height: 4px;
             background: radial-gradient(circle, 
-                rgba(0, 255, 255, 0.8) 0%, 
-                rgba(0, 255, 255, 0.4) 50%, 
+                rgba(255, 215, 0, 0.9) 0%, 
+                rgba(255, 215, 0, 0.4) 50%, 
                 transparent 70%);
             box-shadow: 
-                0 0 15px rgba(0, 255, 255, 0.6),
-                0 0 30px rgba(0, 255, 255, 0.4);
-            animation: particleFloat 20s infinite linear;
+                0 0 20px rgba(255, 215, 0, 0.8),
+                0 0 40px rgba(255, 215, 0, 0.4);
         }
 
-        .particle-small {
+        .particle-silver {
             width: 3px;
             height: 3px;
+            background: radial-gradient(circle, 
+                rgba(192, 192, 192, 0.9) 0%, 
+                rgba(192, 192, 192, 0.4) 50%, 
+                transparent 70%);
+            box-shadow: 
+                0 0 15px rgba(192, 192, 192, 0.8),
+                0 0 30px rgba(192, 192, 192, 0.4);
         }
 
-        .particle-medium {
-            width: 5px;
-            height: 5px;
-        }
-
-        .particle-large {
-            width: 8px;
-            height: 8px;
+        .particle-diamond {
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, 
+                rgba(185, 242, 255, 1) 0%, 
+                rgba(185, 242, 255, 0.5) 50%, 
+                transparent 70%);
+            box-shadow: 
+                0 0 25px rgba(185, 242, 255, 0.9),
+                0 0 50px rgba(185, 242, 255, 0.5),
+                0 0 75px rgba(185, 242, 255, 0.2);
+            animation: diamondSparkle 8s infinite linear;
         }
 
         .particle-sparkle {
             width: 2px;
             height: 2px;
             background: radial-gradient(circle, 
-                rgba(255, 255, 255, 0.9) 0%, 
-                rgba(255, 255, 255, 0.3) 50%, 
+                rgba(255, 255, 255, 1) 0%, 
+                rgba(255, 255, 255, 0.6) 50%, 
                 transparent 70%);
             box-shadow: 
-                0 0 10px rgba(255, 255, 255, 0.8),
-                0 0 20px rgba(255, 255, 255, 0.4);
-            animation: sparkleFloat 8s infinite linear;
+                0 0 15px rgba(255, 255, 255, 1),
+                0 0 30px rgba(255, 255, 255, 0.6);
+            animation: sparkleFlash 3s infinite alternate;
         }
 
         /* Анимации фона */
-        @keyframes blueWave {
+        @keyframes darkWave {
             0%, 100% { 
                 background-position: 0% 50%; 
-                filter: hue-rotate(0deg);
+                filter: brightness(1) hue-rotate(0deg);
             }
             50% { 
                 background-position: 100% 50%; 
-                filter: hue-rotate(10deg);
+                filter: brightness(1.2) hue-rotate(5deg);
             }
         }
 
-        @keyframes gridMove {
+        @keyframes crystalMove {
             0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(60px, 60px) rotate(0.5deg); }
+            100% { transform: translate(40px, 40px) rotate(0.2deg); }
         }
 
-        @keyframes waveFloat {
+        @keyframes waveShine {
             0%, 100% { 
                 transform: translateX(0) scaleY(1);
+                opacity: 0.1;
             }
             50% { 
-                transform: translateX(-50%) scaleY(1.2);
+                transform: translateX(-50%) scaleY(1.3);
+                opacity: 0.2;
             }
         }
 
-        @keyframes particleFloat {
+        @keyframes particleShine {
             0% {
                 transform: translateY(100vh) translateX(0) rotate(0deg);
                 opacity: 0;
             }
             10% {
-                opacity: 0.8;
+                opacity: 0.9;
             }
             90% {
-                opacity: 0.8;
+                opacity: 0.9;
             }
             100% {
                 transform: translateY(-100px) translateX(calc(var(--drift) * 2)) rotate(360deg);
@@ -243,35 +286,64 @@
             }
         }
 
-        @keyframes sparkleFloat {
+        @keyframes diamondSparkle {
             0% {
-                transform: translateY(100vh) translateX(0);
+                transform: translateY(100vh) translateX(0) rotate(0deg);
                 opacity: 0;
+                filter: brightness(1);
             }
-            10% {
+            20% {
                 opacity: 1;
+                filter: brightness(2);
             }
-            90% {
+            50% {
+                filter: brightness(3);
+            }
+            80% {
                 opacity: 1;
+                filter: brightness(2);
             }
             100% {
-                transform: translateY(-50px) translateX(calc(var(--drift) * 3));
+                transform: translateY(-50px) translateX(calc(var(--drift) * 3)) rotate(720deg);
                 opacity: 0;
+                filter: brightness(1);
+            }
+        }
+
+        @keyframes sparkleFlash {
+            0% { 
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+            100% { 
+                opacity: 1;
+                transform: scale(1.2);
             }
         }
 
         @keyframes pulseGlow {
             0% { 
                 transform: scale(1); 
-                filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.5));
+                filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.7));
             }
             100% { 
                 transform: scale(1.15); 
-                filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.9));
+                filter: drop-shadow(0 0 40px rgba(0, 255, 255, 1));
             }
         }
 
-        /* Иконка профиля в правом верхнем углу */
+        @keyframes goldPulse {
+            0% { 
+                transform: scale(1); 
+                filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7));
+            }
+            100% { 
+                transform: scale(1.1); 
+                filter: drop-shadow(0 0 30px rgba(255, 215, 0, 1));
+            }
+        }
+
+        /* Иконка профиля */
         .profile-icon {
             position: fixed;
             top: 2rem;
@@ -282,36 +354,27 @@
             overflow: hidden;
             cursor: pointer;
             z-index: 1000;
-            border: 2px solid var(--neon-cyan);
+            border: 2px solid var(--gold);
             box-shadow: 
-                0 8px 25px rgba(0, 0, 0, 0.3),
-                0 0 20px var(--neon-cyan),
-                0 0 40px rgba(0, 255, 252, 0.5);
+                0 8px 25px rgba(0, 0, 0, 0.5),
+                0 0 25px var(--gold),
+                0 0 50px rgba(255, 215, 0, 0.5);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
-            background: rgba(20, 20, 40, 0.9);
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
             align-items: center;
             justify-content: center;
+            animation: goldPulse 2s infinite alternate;
         }
 
         .profile-icon:hover {
             transform: translateY(-3px) scale(1.05);
-            border-color: var(--neon-pink);
+            border-color: var(--diamond);
             box-shadow: 
-                0 15px 35px rgba(0, 0, 0, 0.4),
-                0 0 30px var(--neon-pink),
-                0 0 60px rgba(255, 0, 255, 0.6);
-        }
-
-        .profile-icon:active {
-            transform: translateY(-1px) scale(1.02);
-        }
-
-        .profile-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+                0 15px 35px rgba(0, 0, 0, 0.6),
+                0 0 40px var(--diamond),
+                0 0 80px rgba(185, 242, 255, 0.6);
         }
 
         .profile-icon .icon-fallback {
@@ -321,10 +384,10 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            color: var(--neon-cyan);
+            color: var(--gold);
             background: linear-gradient(135deg, 
-                rgba(0, 255, 252, 0.3), 
-                rgba(157, 0, 255, 0.3));
+                rgba(255, 215, 0, 0.3), 
+                rgba(192, 192, 192, 0.3));
         }
 
         .profile-icon .badge {
@@ -333,24 +396,24 @@
             right: -3px;
             width: 16px;
             height: 16px;
-            background: linear-gradient(135deg, var(--warning), var(--neon-pink));
+            background: radial-gradient(circle, var(--diamond), var(--neon-cyan));
             border-radius: 50%;
             border: 2px solid var(--surface);
             animation: pulseBadge 2s infinite alternate;
-            box-shadow: 0 0 10px var(--warning);
+            box-shadow: 0 0 15px var(--diamond);
         }
 
         @keyframes pulseBadge {
             0% { 
                 transform: scale(1); 
                 opacity: 0.8; 
-                box-shadow: 0 0 10px var(--warning);
+                box-shadow: 0 0 15px var(--diamond);
             }
             100% { 
-                transform: scale(1.1); 
+                transform: scale(1.2); 
                 opacity: 1; 
-                box-shadow: 0 0 20px var(--warning),
-                            0 0 30px var(--neon-pink);
+                box-shadow: 0 0 30px var(--diamond),
+                            0 0 45px var(--neon-cyan);
             }
         }
 
@@ -372,18 +435,18 @@
         }
 
         .login-box {
-            background: rgba(20, 20, 40, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             border-radius: 24px;
             padding: 3.5rem;
             width: 100%;
             max-width: 480px;
             box-shadow: 
-                0 25px 80px rgba(0, 0, 0, 0.6),
-                0 0 0 1px rgba(0, 255, 252, 0.2),
+                0 25px 80px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 215, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                0 0 50px rgba(0, 255, 252, 0.2),
-                0 0 100px rgba(157, 0, 255, 0.1);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+                0 0 60px rgba(255, 215, 0, 0.3),
+                0 0 100px rgba(157, 0, 255, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(20px);
@@ -398,13 +461,13 @@
             right: 0;
             height: 4px;
             background: linear-gradient(90deg, 
-                var(--neon-cyan), 
-                var(--neon-blue),
-                var(--neon-purple),
-                var(--neon-pink)
+                var(--gold), 
+                var(--silver),
+                var(--diamond),
+                var(--neon-cyan)
             );
             animation: gradientShift 3s infinite alternate;
-            box-shadow: 0 0 20px var(--neon-cyan);
+            box-shadow: 0 0 25px var(--gold);
         }
 
         .login-box::after {
@@ -414,7 +477,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(0, 255, 252, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
             animation: rotate 25s linear infinite;
             z-index: -1;
         }
@@ -434,33 +497,33 @@
 
         .login-logo i {
             font-size: 3.5rem;
-            color: var(--neon-cyan);
-            animation: pulseGlow 2s infinite alternate;
-            filter: drop-shadow(0 0 20px var(--neon-cyan));
-            text-shadow: 0 0 10px var(--neon-cyan);
+            color: var(--gold);
+            animation: goldPulse 2s infinite alternate;
+            filter: drop-shadow(0 0 25px var(--gold));
+            text-shadow: 0 0 15px var(--gold);
         }
 
         .login-title {
             font-size: 2.5rem;
             font-weight: 800;
             background: linear-gradient(90deg, 
-                var(--neon-cyan), 
-                var(--neon-blue),
-                var(--neon-purple)
+                var(--gold), 
+                var(--silver),
+                var(--diamond)
             );
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             margin-bottom: 0.5rem;
             letter-spacing: -0.5px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .login-subtitle {
             color: var(--text-secondary);
             font-size: 1.1rem;
             opacity: 0.9;
-            text-shadow: 0 0 10px rgba(184, 194, 255, 0.3);
+            text-shadow: 0 0 10px rgba(224, 224, 224, 0.3);
         }
 
         .form-group {
@@ -482,31 +545,27 @@
         .form-input {
             width: 100%;
             padding: 1.2rem 1.5rem 1.2rem 3.5rem;
-            background-color: rgba(15, 15, 30, 0.7);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            background-color: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             border-radius: 14px;
             color: var(--text);
             font-size: 1rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.1),
-                0 0 20px rgba(0, 255, 252, 0.05);
+                inset 0 0 10px rgba(255, 215, 0, 0.2),
+                0 0 20px rgba(255, 215, 0, 0.1);
         }
 
         .form-input:focus {
             outline: none;
-            border-color: var(--neon-cyan);
+            border-color: var(--gold);
             box-shadow: 
-                0 0 0 3px rgba(0, 255, 252, 0.3),
-                0 0 40px rgba(0, 255, 252, 0.4),
-                inset 0 0 20px rgba(0, 255, 252, 0.1);
-            background-color: rgba(25, 25, 45, 0.9);
+                0 0 0 3px rgba(255, 215, 0, 0.3),
+                0 0 50px rgba(255, 215, 0, 0.5),
+                inset 0 0 20px rgba(255, 215, 0, 0.2);
+            background-color: rgba(20, 20, 20, 0.9);
             transform: translateY(-2px);
-        }
-
-        .form-input::placeholder {
-            color: rgba(184, 194, 255, 0.5);
         }
 
         .input-icon {
@@ -514,27 +573,26 @@
             left: 1.2rem;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--neon-cyan);
+            color: var(--gold);
             font-size: 1.2rem;
             opacity: 0.8;
             transition: all 0.3s ease;
             z-index: 2;
-            text-shadow: 0 0 10px var(--neon-cyan);
+            text-shadow: 0 0 10px var(--gold);
         }
 
         .form-input:focus + .input-icon {
             opacity: 1;
             transform: translateY(-50%) scale(1.1);
-            color: var(--neon-pink);
-            text-shadow: 0 0 15px var(--neon-pink);
+            color: var(--diamond);
+            text-shadow: 0 0 20px var(--diamond);
         }
 
-        /* Обычная кнопка входа (без неона) */
         .login-btn {
             width: 100%;
             padding: 1.2rem 2rem;
-            background: linear-gradient(90deg, #0066cc, #0099ff);
-            color: white;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            color: #000;
             border: none;
             border-radius: 14px;
             font-size: 1.2rem;
@@ -542,7 +600,7 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 
-                0 8px 20px rgba(0, 102, 204, 0.3);
+                0 8px 20px rgba(255, 215, 0, 0.3);
             margin-top: 1rem;
             position: relative;
             overflow: hidden;
@@ -552,19 +610,14 @@
         .login-btn:hover {
             transform: translateY(-3px);
             box-shadow: 
-                0 12px 30px rgba(0, 102, 204, 0.4);
-            background: linear-gradient(90deg, #0055aa, #0088ee);
+                0 12px 30px rgba(255, 215, 0, 0.4);
+            background: linear-gradient(90deg, #FFC400, #FF8C00);
         }
 
-        .login-btn:active {
-            transform: translateY(-1px);
-        }
-
-        /* Обычная кнопка админ-панели (без неона) */
         .admin-btn {
             width: 100%;
             padding: 1.2rem 2rem;
-            background: linear-gradient(90deg, #cc3300, #ff5500);
+            background: linear-gradient(90deg, #9d00ff, #ff00ff);
             color: white;
             border: none;
             border-radius: 14px;
@@ -573,7 +626,7 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 
-                0 8px 20px rgba(204, 51, 0, 0.3);
+                0 8px 20px rgba(157, 0, 255, 0.3);
             margin-top: 1rem;
             position: relative;
             overflow: hidden;
@@ -583,12 +636,8 @@
         .admin-btn:hover {
             transform: translateY(-3px);
             box-shadow: 
-                0 12px 30px rgba(204, 51, 0, 0.4);
-            background: linear-gradient(90deg, #bb2200, #ee4400);
-        }
-
-        .admin-btn:active {
-            transform: translateY(-1px);
+                0 12px 30px rgba(157, 0, 255, 0.4);
+            background: linear-gradient(90deg, #8a00e6, #e600e6);
         }
 
         .login-footer {
@@ -597,47 +646,27 @@
             color: var(--text-secondary);
             font-size: 0.9rem;
             opacity: 0.7;
-            text-shadow: 0 0 5px rgba(184, 194, 255, 0.3);
+            text-shadow: 0 0 5px rgba(224, 224, 224, 0.3);
         }
 
         .error-message {
             background: linear-gradient(90deg, 
-                rgba(255, 0, 102, 0.2), 
-                rgba(255, 0, 102, 0.1)
+                rgba(255, 0, 102, 0.3), 
+                rgba(255, 0, 102, 0.2)
             );
             color: #ff8a8a;
             padding: 1.2rem 1.5rem;
             border-radius: 12px;
             margin-bottom: 2rem;
-            border: 1px solid rgba(255, 0, 102, 0.3);
+            border: 1px solid rgba(255, 0, 102, 0.4);
             display: none;
             animation: shakeError 0.5s ease;
             backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
             box-shadow: 
-                inset 0 0 20px rgba(255, 0, 102, 0.1),
-                0 0 30px rgba(255, 0, 102, 0.2);
-        }
-
-        .error-message::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(255, 255, 255, 0.1), 
-                transparent
-            );
-            animation: scan 2s infinite linear;
-        }
-
-        .error-message i {
-            margin-right: 0.5rem;
-            text-shadow: 0 0 10px #ff0066;
+                inset 0 0 20px rgba(255, 0, 102, 0.2),
+                0 0 30px rgba(255, 0, 102, 0.3);
         }
 
         /* Основной контент */
@@ -658,9 +687,9 @@
             position: fixed;
             top: 2rem;
             right: 2rem;
-            background: rgba(20, 20, 40, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             color: var(--text-secondary);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             padding: 0.9rem 1.6rem;
             border-radius: 12px;
             cursor: pointer;
@@ -672,28 +701,28 @@
             gap: 0.6rem;
             font-weight: 500;
             box-shadow: 
-                0 8px 25px rgba(0, 0, 0, 0.3),
-                0 0 20px rgba(0, 255, 252, 0.2);
+                0 8px 25px rgba(0, 0, 0, 0.5),
+                0 0 25px rgba(255, 215, 0, 0.3);
             font-size: 0.95rem;
         }
 
         .logout-btn:hover {
-            color: var(--neon-cyan);
-            border-color: var(--neon-cyan);
+            color: var(--gold);
+            border-color: var(--gold);
             box-shadow: 
-                0 0 30px var(--neon-cyan),
-                0 8px 25px rgba(0, 0, 0, 0.4);
+                0 0 35px var(--gold),
+                0 8px 25px rgba(0, 0, 0, 0.6);
             transform: translateY(-3px);
-            background: rgba(20, 20, 40, 0.95);
+            background: rgba(0, 0, 0, 0.9);
         }
 
         .back-btn {
             position: fixed;
             top: 2rem;
             left: 2rem;
-            background: rgba(20, 20, 40, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             color: var(--text-secondary);
-            border: 1px solid rgba(255, 0, 255, 0.3);
+            border: 1px solid rgba(157, 0, 255, 0.4);
             padding: 0.9rem 1.6rem;
             border-radius: 12px;
             cursor: pointer;
@@ -705,19 +734,19 @@
             gap: 0.6rem;
             font-weight: 500;
             box-shadow: 
-                0 8px 25px rgba(0, 0, 0, 0.3),
-                0 0 20px rgba(255, 0, 255, 0.2);
+                0 8px 25px rgba(0, 0, 0, 0.5),
+                0 0 25px rgba(157, 0, 255, 0.3);
             font-size: 0.95rem;
         }
 
         .back-btn:hover {
-            color: var(--neon-pink);
-            border-color: var(--neon-pink);
+            color: var(--neon-purple);
+            border-color: var(--neon-purple);
             box-shadow: 
-                0 0 30px var(--neon-pink),
-                0 8px 25px rgba(0, 0, 0, 0.4);
+                0 0 35px var(--neon-purple),
+                0 8px 25px rgba(0, 0, 0, 0.6);
             transform: translateY(-3px);
-            background: rgba(20, 20, 40, 0.95);
+            background: rgba(0, 0, 0, 0.9);
         }
 
         /* Анимации */
@@ -769,11 +798,6 @@
             to { transform: rotate(360deg); }
         }
 
-        @keyframes scan {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
         /* Стили сканера */
         header {
             text-align: center;
@@ -791,26 +815,26 @@
 
         .logo-icon {
             font-size: 3.2rem;
-            color: var(--neon-cyan);
-            animation: pulseGlow 2s infinite alternate;
-            filter: drop-shadow(0 0 20px var(--neon-cyan));
+            color: var(--gold);
+            animation: goldPulse 2s infinite alternate;
+            filter: drop-shadow(0 0 25px var(--gold));
         }
 
         h1 {
             font-size: 3.5rem;
             font-weight: 800;
             background: linear-gradient(90deg, 
-                var(--neon-cyan), 
-                var(--neon-blue),
-                var(--neon-purple)
+                var(--gold), 
+                var(--silver),
+                var(--diamond)
             );
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             margin-bottom: 0.8rem;
             text-shadow: 
-                0 4px 8px rgba(0, 0, 0, 0.3),
-                0 0 20px rgba(0, 255, 252, 0.3);
+                0 4px 8px rgba(0, 0, 0, 0.5),
+                0 0 25px rgba(255, 215, 0, 0.4);
             letter-spacing: -1px;
         }
 
@@ -822,7 +846,7 @@
             line-height: 1.7;
             opacity: 0.9;
             font-weight: 300;
-            text-shadow: 0 0 10px rgba(184, 194, 255, 0.3);
+            text-shadow: 0 0 10px rgba(224, 224, 224, 0.3);
         }
 
         .content-grid {
@@ -846,30 +870,16 @@
             }
         }
 
-        @media (max-width: 768px) {
-            .profile-icon {
-                right: 5rem;
-                top: 1.5rem;
-                width: 40px;
-                height: 40px;
-            }
-            
-            .logout-btn {
-                padding: 0.7rem 1.2rem;
-                font-size: 0.85rem;
-            }
-        }
-
         .panel {
-            background: rgba(20, 20, 40, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             border-radius: 24px;
             padding: 2.5rem;
             box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(0, 255, 252, 0.2),
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 215, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                0 0 40px rgba(0, 255, 252, 0.1);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+                0 0 50px rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
@@ -879,11 +889,11 @@
         .panel:hover {
             transform: translateY(-8px) scale(1.02);
             box-shadow: 
-                0 30px 80px rgba(0, 0, 0, 0.6),
-                0 0 0 1px rgba(0, 255, 252, 0.4),
-                0 0 60px var(--neon-cyan),
-                0 0 100px rgba(0, 255, 252, 0.3);
-            border-color: rgba(0, 255, 252, 0.5);
+                0 30px 80px rgba(0, 0, 0, 0.9),
+                0 0 0 1px rgba(255, 215, 0, 0.5),
+                0 0 80px var(--gold),
+                0 0 120px rgba(255, 215, 0, 0.4);
+            border-color: rgba(255, 215, 0, 0.6);
         }
 
         .panel::before {
@@ -894,12 +904,12 @@
             right: 0;
             height: 4px;
             background: linear-gradient(90deg, 
-                var(--neon-cyan), 
-                var(--neon-blue),
-                var(--neon-purple)
+                var(--gold), 
+                var(--silver),
+                var(--diamond)
             );
             animation: gradientShift 3s infinite alternate;
-            box-shadow: 0 0 20px var(--neon-cyan);
+            box-shadow: 0 0 25px var(--gold);
         }
 
         .panel-title {
@@ -910,53 +920,38 @@
             margin-bottom: 2.2rem;
             color: var(--text);
             font-weight: 600;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .panel-title i {
-            color: var(--neon-cyan);
+            color: var(--gold);
             font-size: 1.9rem;
-            text-shadow: 0 0 10px var(--neon-cyan);
+            text-shadow: 0 0 15px var(--gold);
         }
 
         .file-input-wrapper {
             position: relative;
-            border: 2px dashed rgba(0, 255, 252, 0.4);
+            border: 2px dashed rgba(255, 215, 0, 0.5);
             border-radius: 18px;
             padding: 2.8rem 1.8rem;
             text-align: center;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background-color: rgba(15, 15, 30, 0.6);
+            background-color: rgba(10, 10, 10, 0.6);
             cursor: pointer;
             overflow: hidden;
             backdrop-filter: blur(15px);
             box-shadow: 
-                inset 0 0 20px rgba(0, 255, 252, 0.1),
-                0 0 30px rgba(0, 255, 252, 0.1);
+                inset 0 0 20px rgba(255, 215, 0, 0.2),
+                0 0 30px rgba(255, 215, 0, 0.2);
         }
 
-        .file-input-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 252, 0.2), transparent);
-            transition: left 0.8s;
-        }
-
-        .file-input-wrapper:hover::before {
-            left: 100%;
-        }
-
-        .file-input-wrapper:hover, .file-input-wrapper.dragover {
-            border-color: var(--neon-cyan);
-            background-color: rgba(0, 255, 252, 0.2);
+        .file-input-wrapper:hover {
+            border-color: var(--gold);
+            background-color: rgba(255, 215, 0, 0.1);
             box-shadow: 
-                0 0 40px var(--neon-cyan),
-                0 0 60px rgba(0, 255, 252, 0.3),
-                inset 0 0 30px rgba(0, 255, 252, 0.2);
+                0 0 50px var(--gold),
+                0 0 80px rgba(255, 215, 0, 0.4),
+                inset 0 0 30px rgba(255, 215, 0, 0.3);
             transform: translateY(-4px);
         }
 
@@ -972,66 +967,52 @@
 
         .file-icon {
             font-size: 3.8rem;
-            color: var(--neon-cyan);
+            color: var(--gold);
             margin-bottom: 1.8rem;
-            filter: drop-shadow(0 0 15px var(--neon-cyan));
+            filter: drop-shadow(0 0 20px var(--gold));
             transition: all 0.3s ease;
         }
 
         .file-input-wrapper:hover .file-icon {
             transform: translateY(-8px) scale(1.1);
-            filter: drop-shadow(0 0 25px var(--neon-cyan));
-        }
-
-        .file-info {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-top: 1rem;
-            opacity: 0.8;
+            filter: drop-shadow(0 0 30px var(--gold));
         }
 
         .file-name {
-            color: var(--neon-cyan);
+            color: var(--gold);
             font-weight: 600;
             word-break: break-all;
-            text-shadow: 0 0 15px var(--neon-cyan);
+            text-shadow: 0 0 20px var(--gold);
             font-size: 1.2rem;
             margin: 1.2rem 0;
-        }
-
-        .file-size-info {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            margin-top: 0.6rem;
         }
 
         .search-input, select {
             width: 100%;
             padding: 1.3rem 1.6rem;
-            background-color: rgba(15, 15, 30, 0.7);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            background-color: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             border-radius: 16px;
             color: var(--text);
             font-size: 1.05rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(15px);
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.1),
-                0 0 20px rgba(0, 255, 252, 0.05);
+                inset 0 0 10px rgba(255, 215, 0, 0.2),
+                0 0 20px rgba(255, 215, 0, 0.1);
         }
 
         .search-input:focus, select:focus {
             outline: none;
-            border-color: var(--neon-cyan);
+            border-color: var(--gold);
             box-shadow: 
-                0 0 0 4px rgba(0, 255, 252, 0.3),
-                0 0 50px var(--neon-cyan),
-                inset 0 0 20px rgba(0, 255, 252, 0.2);
-            background-color: rgba(25, 25, 45, 0.9);
+                0 0 0 4px rgba(255, 215, 0, 0.3),
+                0 0 60px var(--gold),
+                inset 0 0 20px rgba(255, 215, 0, 0.3);
+            background-color: rgba(20, 20, 20, 0.9);
             transform: translateY(-2px);
         }
 
-        /* Обычная кнопка сканирования (без неона) */
         .button {
             display: inline-flex;
             align-items: center;
@@ -1039,8 +1020,8 @@
             gap: 1.2rem;
             width: 100%;
             padding: 1.3rem 2.2rem;
-            background: linear-gradient(90deg, #0066cc, #0099ff);
-            color: white;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            color: #000;
             border: none;
             border-radius: 16px;
             font-size: 1.3rem;
@@ -1048,7 +1029,7 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 
-                0 10px 25px rgba(0, 102, 204, 0.3);
+                0 10px 25px rgba(255, 215, 0, 0.4);
             position: relative;
             overflow: hidden;
             margin-top: 1.8rem;
@@ -1057,118 +1038,66 @@
         .button:hover {
             transform: translateY(-4px);
             box-shadow: 
-                0 15px 35px rgba(0, 102, 204, 0.4);
-            background: linear-gradient(90deg, #0055aa, #0088ee);
+                0 15px 35px rgba(255, 215, 0, 0.5);
+            background: linear-gradient(90deg, #FFC400, #FF8C00);
         }
 
-        .button:active {
-            transform: translateY(-2px);
-        }
-
-        .button i {
-            font-size: 1.4rem;
-        }
-
-        /* Компактная информация */
         .compact-info {
-            background: rgba(15, 15, 30, 0.7);
+            background: rgba(10, 10, 10, 0.7);
             border-radius: 18px;
             padding: 1.8rem;
             margin-top: 1.8rem;
-            border: 1px solid rgba(0, 255, 252, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             backdrop-filter: blur(15px);
             box-shadow: 
-                inset 0 0 20px rgba(0, 255, 252, 0.1),
-                0 0 30px rgba(0, 255, 252, 0.1);
+                inset 0 0 20px rgba(255, 215, 0, 0.2),
+                0 0 30px rgba(255, 215, 0, 0.2);
         }
 
         .compact-info h4 {
-            color: var(--neon-cyan);
+            color: var(--gold);
             margin-bottom: 1.2rem;
             font-size: 1.15rem;
             display: flex;
             align-items: center;
             gap: 0.6rem;
             font-weight: 600;
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
-
-        .compact-info p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            line-height: 1.7;
-            margin-bottom: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .compact-info ul {
-            padding-left: 1.3rem;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .compact-info li {
-            margin-bottom: 0.6rem;
-            position: relative;
+            text-shadow: 0 0 15px var(--gold);
         }
 
         .compact-info li::before {
-            content: '▸';
-            color: var(--neon-cyan);
+            content: '✦';
+            color: var(--gold);
             position: absolute;
             left: -1rem;
             font-size: 0.9rem;
-            text-shadow: 0 0 5px var(--neon-cyan);
+            text-shadow: 0 0 10px var(--gold);
         }
 
         .results-panel {
             grid-column: span 2;
         }
 
-        @media (max-width: 992px) {
-            .results-panel {
-                grid-column: span 1;
-            }
-        }
-
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.2rem;
-            flex-wrap: wrap;
-            gap: 1.2rem;
-        }
-
-        .results-count {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            color: var(--text-secondary);
-            font-size: 1.15rem;
-        }
-
         .results-count span {
             color: var(--text);
             font-weight: 700;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+            background: linear-gradient(90deg, var(--gold), var(--silver));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             font-size: 1.4rem;
             padding: 0.4rem 1rem;
             border-radius: 25px;
-            border: 1px solid rgba(0, 255, 252, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.5);
             box-shadow: 
-                0 0 15px var(--neon-cyan),
-                0 0 30px rgba(0, 255, 252, 0.2);
+                0 0 20px var(--gold),
+                0 0 40px rgba(255, 215, 0, 0.3);
         }
 
         .clear-btn {
             background: transparent;
             color: var(--text-secondary);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             padding: 0.9rem 1.6rem;
             border-radius: 12px;
             cursor: pointer;
@@ -1178,15 +1107,15 @@
             gap: 0.6rem;
             font-weight: 500;
             backdrop-filter: blur(15px);
-            box-shadow: 0 0 20px rgba(0, 255, 252, 0.1);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.2);
         }
 
         .clear-btn:hover {
-            color: var(--neon-cyan);
-            border-color: var(--neon-cyan);
+            color: var(--gold);
+            border-color: var(--gold);
             box-shadow: 
-                0 0 25px var(--neon-cyan),
-                0 0 40px rgba(0, 255, 252, 0.3);
+                0 0 30px var(--gold),
+                0 0 50px rgba(255, 215, 0, 0.4);
             transform: translateY(-3px);
         }
 
@@ -1194,57 +1123,46 @@
             max-height: 650px;
             overflow-y: auto;
             border-radius: 18px;
-            background-color: rgba(15, 15, 30, 0.7);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            background-color: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             backdrop-filter: blur(15px);
             box-shadow: 
-                inset 0 0 20px rgba(0, 255, 252, 0.1),
-                0 0 30px rgba(0, 255, 252, 0.1);
+                inset 0 0 20px rgba(255, 215, 0, 0.2),
+                0 0 30px rgba(255, 215, 0, 0.2);
         }
 
         .result-item {
             padding: 1.6rem 2.2rem;
-            border-bottom: 1px solid rgba(0, 255, 252, 0.2);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
             transition: all 0.3s ease;
             animation: fadeIn 0.5s ease-out;
             position: relative;
         }
 
         .result-item:hover {
-            background-color: rgba(0, 255, 252, 0.1);
+            background-color: rgba(255, 215, 0, 0.1);
             transform: translateX(8px);
             box-shadow: 
-                inset 0 0 20px rgba(0, 255, 252, 0.1),
-                0 0 20px rgba(0, 255, 252, 0.1);
-        }
-
-        .result-item:last-child {
-            border-bottom: none;
-        }
-
-        .result-line {
-            color: var(--text);
-            line-height: 1.8;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 1.05rem;
+                inset 0 0 20px rgba(255, 215, 0, 0.2),
+                0 0 25px rgba(255, 215, 0, 0.2);
         }
 
         .highlight {
-            background-color: rgba(0, 255, 252, 0.4);
+            background-color: rgba(255, 215, 0, 0.5);
             padding: 0.3rem 0.5rem;
             border-radius: 8px;
             font-weight: 700;
-            color: #a8e6ff;
-            text-shadow: 0 0 10px var(--neon-cyan);
+            color: #000;
+            text-shadow: 0 0 10px var(--gold);
             box-shadow: 
-                0 0 8px var(--neon-cyan),
-                0 0 15px rgba(0, 255, 252, 0.5);
+                0 0 10px var(--gold),
+                0 0 20px rgba(255, 215, 0, 0.6);
         }
 
         .cheat-highlight {
             background: linear-gradient(90deg, 
-                rgba(255, 0, 102, 0.5), 
-                rgba(255, 204, 0, 0.5)
+                rgba(255, 0, 102, 0.6), 
+                rgba(255, 204, 0, 0.6)
             );
             padding: 0.3rem 0.5rem;
             border-radius: 8px;
@@ -1252,87 +1170,55 @@
             color: #ffbaba;
             text-shadow: 0 0 10px #ff0066;
             box-shadow: 
-                0 0 10px #ff0066,
-                0 0 20px rgba(255, 0, 102, 0.5);
+                0 0 15px #ff0066,
+                0 0 25px rgba(255, 0, 102, 0.6);
             animation: pulseWarning 1.2s infinite alternate;
         }
 
         @keyframes pulseWarning {
             from { 
                 box-shadow: 
-                    0 0 8px #ff0066,
-                    0 0 15px rgba(255, 0, 102, 0.3);
+                    0 0 10px #ff0066,
+                    0 0 20px rgba(255, 0, 102, 0.4);
                 transform: scale(1);
             }
             to { 
                 box-shadow: 
-                    0 0 20px #ff0066,
-                    0 0 40px rgba(255, 0, 102, 0.7);
+                    0 0 25px #ff0066,
+                    0 0 50px rgba(255, 0, 102, 0.8);
                 transform: scale(1.02);
             }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 5rem 2rem;
-            color: var(--text-secondary);
         }
 
         .empty-state i {
             font-size: 4.5rem;
             margin-bottom: 1.8rem;
-            color: rgba(0, 255, 252, 0.4);
+            color: rgba(255, 215, 0, 0.5);
             opacity: 0.7;
-            text-shadow: 0 0 20px var(--neon-cyan);
+            text-shadow: 0 0 25px var(--gold);
         }
 
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 2.2rem;
-            padding-top: 1.8rem;
-            border-top: 1px solid rgba(0, 255, 252, 0.3);
-            color: var(--text-secondary);
-            font-size: 1rem;
-            flex-wrap: wrap;
-            gap: 1.2rem;
-        }
-
-        .loading {
-            display: none;
-            align-items: center;
-            gap: 1.2rem;
-            color: var(--neon-cyan);
-            font-weight: 500;
-        }
-
-        .loading.active {
-            display: flex;
-        }
-
-        .spinner {
+        .loading .spinner {
             width: 28px;
             height: 28px;
-            border: 4px solid rgba(0, 255, 252, 0.3);
+            border: 4px solid rgba(255, 215, 0, 0.4);
             border-radius: 50%;
-            border-top-color: var(--neon-cyan);
+            border-top-color: var(--gold);
             animation: spin 1s linear infinite;
-            box-shadow: 0 0 10px var(--neon-cyan);
+            box-shadow: 0 0 15px var(--gold);
         }
 
         footer {
             text-align: center;
             margin-top: 4.5rem;
             padding-top: 2.5rem;
-            border-top: 1px solid rgba(0, 255, 252, 0.3);
+            border-top: 1px solid rgba(255, 215, 0, 0.4);
             color: var(--text-secondary);
             font-size: 0.95rem;
             opacity: 0.7;
-            text-shadow: 0 0 5px rgba(184, 194, 255, 0.3);
+            text-shadow: 0 0 5px rgba(224, 224, 224, 0.3);
         }
 
-        /* Примеры читов */
         .cheat-examples {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1342,8 +1228,8 @@
 
         .cheat-example {
             padding: 1rem 1.4rem;
-            background: rgba(15, 15, 30, 0.9);
-            border: 1px solid rgba(255, 0, 102, 0.3);
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid rgba(255, 0, 102, 0.4);
             border-radius: 14px;
             font-size: 1rem;
             font-family: 'Consolas', monospace;
@@ -1355,40 +1241,20 @@
             position: relative;
             overflow: hidden;
             box-shadow: 
-                inset 0 0 10px rgba(255, 0, 102, 0.1),
-                0 0 20px rgba(255, 0, 102, 0.1);
-        }
-
-        .cheat-example::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 0, 102, 0.2), transparent);
-            transition: left 0.7s;
-        }
-
-        .cheat-example:hover::before {
-            left: 100%;
+                inset 0 0 10px rgba(255, 0, 102, 0.2),
+                0 0 25px rgba(255, 0, 102, 0.2);
         }
 
         .cheat-example:hover {
             background: rgba(255, 0, 102, 0.3);
-            border-color: rgba(255, 0, 102, 0.5);
+            border-color: rgba(255, 0, 102, 0.6);
             transform: translateY(-4px);
             box-shadow: 
-                0 12px 30px rgba(255, 0, 102, 0.3),
-                0 0 40px rgba(255, 0, 102, 0.2),
-                inset 0 0 20px rgba(255, 0, 102, 0.2);
+                0 12px 30px rgba(255, 0, 102, 0.4),
+                0 0 50px rgba(255, 0, 102, 0.3),
+                inset 0 0 20px rgba(255, 0, 102, 0.3);
         }
 
-        .cheat-example:active {
-            transform: translateY(-2px);
-        }
-
-        /* Дополнительные функции */
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -1398,8 +1264,8 @@
 
         .quick-action {
             padding: 1.4rem;
-            background: rgba(15, 15, 30, 0.7);
-            border: 1px solid rgba(0, 255, 252, 0.2);
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             border-radius: 14px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1407,27 +1273,27 @@
             color: var(--text-secondary);
             backdrop-filter: blur(15px);
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.1),
-                0 0 20px rgba(0, 255, 252, 0.1);
+                inset 0 0 10px rgba(255, 215, 0, 0.2),
+                0 0 25px rgba(255, 215, 0, 0.2);
         }
 
         .quick-action:hover {
-            background: rgba(0, 255, 252, 0.2);
-            border-color: rgba(0, 255, 252, 0.4);
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.5);
             transform: translateY(-4px);
-            color: var(--neon-cyan);
+            color: var(--gold);
             box-shadow: 
-                0 10px 30px rgba(0, 255, 252, 0.3),
-                0 0 40px rgba(0, 255, 252, 0.2),
-                inset 0 0 20px rgba(0, 255, 252, 0.2);
+                0 10px 30px rgba(255, 215, 0, 0.4),
+                0 0 50px rgba(255, 215, 0, 0.3),
+                inset 0 0 20px rgba(255, 215, 0, 0.3);
         }
 
         .quick-action i {
             font-size: 1.8rem;
             margin-bottom: 0.8rem;
             display: block;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 10px var(--neon-cyan);
+            color: var(--gold);
+            text-shadow: 0 0 15px var(--gold);
         }
 
         .stats-panel {
@@ -1440,39 +1306,33 @@
         .stat-item {
             text-align: center;
             padding: 1.4rem;
-            background: rgba(15, 15, 30, 0.7);
+            background: rgba(10, 10, 10, 0.7);
             border-radius: 14px;
-            border: 1px solid rgba(0, 255, 252, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             backdrop-filter: blur(15px);
             transition: all 0.3s ease;
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.1),
-                0 0 20px rgba(0, 255, 252, 0.1);
+                inset 0 0 10px rgba(255, 215, 0, 0.2),
+                0 0 25px rgba(255, 215, 0, 0.2);
         }
 
         .stat-item:hover {
             transform: translateY(-3px);
-            border-color: rgba(0, 255, 252, 0.4);
+            border-color: rgba(255, 215, 0, 0.5);
             box-shadow: 
-                0 8px 25px rgba(0, 255, 252, 0.3),
-                0 0 30px rgba(0, 255, 252, 0.2);
+                0 8px 25px rgba(255, 215, 0, 0.4),
+                0 0 40px rgba(255, 215, 0, 0.3);
         }
 
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+            background: linear-gradient(90deg, var(--gold), var(--silver));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             margin-bottom: 0.4rem;
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            opacity: 0.8;
+            text-shadow: 0 0 15px var(--gold);
         }
 
         /* Стили админ-панели */
@@ -1486,38 +1346,32 @@
         .admin-stat {
             text-align: center;
             padding: 1.5rem;
-            background: rgba(20, 20, 40, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             border-radius: 16px;
-            border: 1px solid rgba(255, 0, 255, 0.3);
+            border: 1px solid rgba(157, 0, 255, 0.4);
             backdrop-filter: blur(15px);
             transition: all 0.3s ease;
             box-shadow: 
-                inset 0 0 10px rgba(255, 0, 255, 0.1),
-                0 0 20px rgba(255, 0, 255, 0.1);
+                inset 0 0 10px rgba(157, 0, 255, 0.2),
+                0 0 25px rgba(157, 0, 255, 0.2);
         }
 
         .admin-stat:hover {
             transform: translateY(-3px);
-            border-color: rgba(255, 0, 255, 0.5);
+            border-color: rgba(157, 0, 255, 0.6);
             box-shadow: 
-                0 10px 30px rgba(255, 0, 255, 0.3),
-                0 0 40px rgba(255, 0, 255, 0.2);
+                0 10px 30px rgba(157, 0, 255, 0.4),
+                0 0 50px rgba(157, 0, 255, 0.3);
         }
 
         .admin-stat-value {
             font-size: 2.5rem;
             font-weight: 700;
-            color: var(--neon-pink);
+            color: var(--neon-purple);
             margin-bottom: 0.5rem;
             text-shadow: 
-                0 0 10px var(--neon-pink),
-                0 0 20px rgba(255, 0, 255, 0.5);
-        }
-
-        .admin-stat-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            opacity: 0.8;
+                0 0 15px var(--neon-purple),
+                0 0 25px rgba(157, 0, 255, 0.6);
         }
 
         .admin-file-list {
@@ -1529,86 +1383,55 @@
             justify-content: space-between;
             align-items: center;
             padding: 1.2rem 1.5rem;
-            background: rgba(15, 15, 30, 0.7);
+            background: rgba(10, 10, 10, 0.7);
             border-radius: 12px;
             margin-bottom: 0.8rem;
-            border: 1px solid rgba(0, 255, 252, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             transition: all 0.3s ease;
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.05),
-                0 0 15px rgba(0, 255, 252, 0.05);
+                inset 0 0 10px rgba(255, 215, 0, 0.1),
+                0 0 20px rgba(255, 215, 0, 0.1);
         }
 
         .admin-file-item:hover {
-            background: rgba(0, 255, 252, 0.15);
+            background: rgba(255, 215, 0, 0.15);
             transform: translateX(5px);
             box-shadow: 
-                inset 0 0 20px rgba(0, 255, 252, 0.1),
-                0 0 25px rgba(0, 255, 252, 0.2);
-        }
-
-        .admin-file-info {
-            flex: 1;
-        }
-
-        .admin-file-name {
-            color: var(--text);
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-        }
-
-        .admin-file-meta {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-
-        .admin-file-actions {
-            display: flex;
-            gap: 0.8rem;
+                inset 0 0 20px rgba(255, 215, 0, 0.2),
+                0 0 30px rgba(255, 215, 0, 0.3);
         }
 
         .admin-action-btn {
             padding: 0.5rem 1rem;
-            background: rgba(0, 255, 252, 0.2);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             border-radius: 8px;
             color: var(--text);
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 0.9rem;
-            box-shadow: 0 0 10px rgba(0, 255, 252, 0.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
         }
 
         .admin-action-btn:hover {
-            background: rgba(0, 255, 252, 0.3);
+            background: rgba(255, 215, 0, 0.3);
             transform: translateY(-2px);
             box-shadow: 
-                0 0 15px var(--neon-cyan),
-                0 0 25px rgba(0, 255, 252, 0.2);
+                0 0 20px var(--gold),
+                0 0 30px rgba(255, 215, 0, 0.3);
         }
 
         .admin-action-btn.delete {
             background: rgba(255, 0, 102, 0.2);
             border-color: rgba(255, 0, 102, 0.3);
-            box-shadow: 0 0 10px rgba(255, 0, 102, 0.1);
+            box-shadow: 0 0 15px rgba(255, 0, 102, 0.2);
         }
 
         .admin-action-btn.delete:hover {
             background: rgba(255, 0, 102, 0.3);
             box-shadow: 
-                0 0 15px #ff0066,
-                0 0 25px rgba(255, 0, 102, 0.2);
-        }
-
-        .admin-large-upload {
-            background: rgba(20, 20, 40, 0.9);
-            border-radius: 20px;
-            padding: 2.5rem;
-            margin-top: 2rem;
-            border: 2px dashed rgba(0, 255, 252, 0.4);
-            box-shadow: 
-                inset 0 0 20px rgba(0, 255, 252, 0.1),
-                0 0 30px rgba(0, 255, 252, 0.1);
+                0 0 20px #ff0066,
+                0 0 30px rgba(255, 0, 102, 0.3);
         }
 
         .upload-progress {
@@ -1619,28 +1442,21 @@
         .progress-bar {
             width: 100%;
             height: 10px;
-            background: rgba(15, 15, 30, 0.7);
+            background: rgba(10, 10, 10, 0.7);
             border-radius: 5px;
             overflow: hidden;
             margin-bottom: 0.5rem;
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.1),
-                0 0 10px rgba(0, 255, 252, 0.1);
+                inset 0 0 10px rgba(255, 215, 0, 0.2),
+                0 0 15px rgba(255, 215, 0, 0.2);
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #0066cc, #0099ff);
+            background: linear-gradient(90deg, #FFD700, #FFA500);
             width: 0%;
             transition: width 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 102, 204, 0.5);
-        }
-
-        .progress-text {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
         }
 
         /* Уведомления */
@@ -1657,25 +1473,25 @@
             backdrop-filter: blur(10px);
             max-width: 400px;
             box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.4);
+                0 10px 30px rgba(0, 0, 0, 0.6);
         }
 
         .notification.success {
             background: linear-gradient(90deg, rgba(0, 255, 157, 0.9), rgba(0, 204, 102, 0.9));
-            border: 1px solid rgba(0, 255, 157, 0.3);
+            border: 1px solid rgba(0, 255, 157, 0.4);
             color: #00ff9d;
         }
 
         .notification.error {
             background: linear-gradient(90deg, rgba(255, 0, 102, 0.9), rgba(204, 0, 51, 0.9));
-            border: 1px solid rgba(255, 0, 102, 0.3);
+            border: 1px solid rgba(255, 0, 102, 0.4);
             color: #ff8a8a;
         }
 
         .notification.info {
-            background: linear-gradient(90deg, rgba(0, 255, 252, 0.9), rgba(0, 204, 255, 0.9));
-            border: 1px solid rgba(0, 255, 252, 0.3);
-            color: var(--neon-cyan);
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            color: var(--gold);
         }
 
         @keyframes slideInRight {
@@ -1695,38 +1511,38 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(15, 15, 30, 0.9);
+            background: rgba(10, 10, 10, 0.9);
             border-radius: 8px;
-            border: 1px solid rgba(0, 255, 252, 0.2);
-            box-shadow: inset 0 0 10px rgba(0, 255, 252, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.2);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(45deg, #0066cc, #0099ff);
+            background: linear-gradient(45deg, #FFD700, #FFA500);
             border-radius: 8px;
-            border: 3px solid rgba(15, 15, 30, 0.9);
+            border: 3px solid rgba(10, 10, 10, 0.9);
             box-shadow: 
-                0 0 10px rgba(0, 102, 204, 0.5);
+                0 0 15px rgba(255, 215, 0, 0.6);
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(45deg, #0055aa, #0088ee);
+            background: linear-gradient(45deg, #FFC400, #FF8C00);
             box-shadow: 
-                0 0 15px rgba(0, 102, 204, 0.7);
+                0 0 20px rgba(255, 215, 0, 0.8);
         }
         
-        /* Новые стили для выбора сохраненных файлов */
+        /* Новые стили */
         .stored-files-container {
             margin-top: 1.5rem;
             max-height: 300px;
             overflow-y: auto;
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             border-radius: 12px;
             padding: 1rem;
-            background: rgba(15, 15, 30, 0.5);
+            background: rgba(10, 10, 10, 0.5);
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.1),
-                0 0 20px rgba(0, 255, 252, 0.1);
+                inset 0 0 15px rgba(255, 215, 0, 0.2),
+                0 0 25px rgba(255, 215, 0, 0.2);
         }
         
         .stored-files-header {
@@ -1735,165 +1551,101 @@
             align-items: center;
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(0, 255, 252, 0.3);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.4);
         }
         
         .stored-file-item {
             padding: 0.8rem 1rem;
             margin-bottom: 0.5rem;
-            background: rgba(20, 20, 40, 0.7);
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 1px solid rgba(0, 255, 252, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             box-shadow: 
-                inset 0 0 5px rgba(0, 255, 252, 0.05),
-                0 0 10px rgba(0, 255, 252, 0.05);
+                inset 0 0 10px rgba(255, 215, 0, 0.1),
+                0 0 15px rgba(255, 215, 0, 0.1);
         }
         
         .stored-file-item:hover {
-            background: rgba(0, 255, 252, 0.2);
+            background: rgba(255, 215, 0, 0.2);
             transform: translateX(5px);
-            border-color: rgba(0, 255, 252, 0.4);
+            border-color: rgba(255, 215, 0, 0.5);
             box-shadow: 
-                inset 0 0 15px rgba(0, 255, 252, 0.1),
-                0 0 20px rgba(0, 255, 252, 0.2);
+                inset 0 0 20px rgba(255, 215, 0, 0.2),
+                0 0 25px rgba(255, 215, 0, 0.3);
         }
         
         .stored-file-item.selected {
-            background: rgba(0, 255, 252, 0.3);
-            border-color: rgba(0, 255, 252, 0.6);
+            background: rgba(255, 215, 0, 0.3);
+            border-color: rgba(255, 215, 0, 0.7);
             box-shadow: 
-                0 0 15px var(--neon-cyan),
-                0 0 30px rgba(0, 255, 252, 0.3),
-                inset 0 0 15px rgba(0, 255, 252, 0.2);
-        }
-        
-        .stored-file-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+                0 0 20px var(--gold),
+                0 0 40px rgba(255, 215, 0, 0.4),
+                inset 0 0 20px rgba(255, 215, 0, 0.3);
         }
         
         .stored-file-name {
             font-weight: 600;
-            color: var(--neon-cyan);
+            color: var(--gold);
             flex: 1;
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
-        
-        .stored-file-size {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-left: 1rem;
-        }
-        
-        .stored-file-date {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-left: 1rem;
+            text-shadow: 0 0 15px var(--gold);
         }
         
         .refresh-files-btn {
             padding: 0.4rem 0.8rem;
-            background: rgba(0, 255, 252, 0.2);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             border-radius: 6px;
             color: var(--text);
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 0.8rem;
-            box-shadow: 0 0 10px rgba(0, 255, 252, 0.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
         }
         
         .refresh-files-btn:hover {
-            background: rgba(0, 255, 252, 0.3);
+            background: rgba(255, 215, 0, 0.3);
             transform: translateY(-2px);
             box-shadow: 
-                0 0 15px var(--neon-cyan),
-                0 0 25px rgba(0, 255, 252, 0.2);
+                0 0 20px var(--gold),
+                0 0 30px rgba(255, 215, 0, 0.3);
         }
         
-        .no-files-message {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-        
-        .stored-file-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-left: 1rem;
-        }
-        
-        .stored-file-action-btn {
-            padding: 0.3rem 0.6rem;
-            background: rgba(0, 255, 252, 0.15);
-            border: 1px solid rgba(0, 255, 252, 0.25);
-            border-radius: 4px;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.7rem;
-        }
-        
-        .stored-file-action-btn:hover {
-            background: rgba(0, 255, 252, 0.25);
-            box-shadow: 0 0 10px rgba(0, 255, 252, 0.2);
-        }
-        
-        /* Стили для пользовательских примеров поиска */
         .custom-example-input {
             width: 100%;
             padding: 0.8rem 1rem;
-            background: rgba(15, 15, 30, 0.7);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             border-radius: 10px;
             color: var(--text);
             font-size: 1rem;
             margin-bottom: 0.8rem;
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.1),
-                0 0 15px rgba(0, 255, 252, 0.05);
+                inset 0 0 15px rgba(255, 215, 0, 0.2),
+                0 0 20px rgba(255, 215, 0, 0.1);
         }
         
         .add-example-btn {
             width: 100%;
             padding: 0.8rem;
-            background: rgba(0, 255, 252, 0.2);
-            border: 1px solid rgba(0, 255, 252, 0.3);
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             border-radius: 10px;
-            color: var(--neon-cyan);
+            color: var(--gold);
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
             margin-bottom: 1rem;
-            box-shadow: 0 0 15px rgba(0, 255, 252, 0.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
         }
         
         .add-example-btn:hover {
-            background: rgba(0, 255, 252, 0.3);
+            background: rgba(255, 215, 0, 0.3);
             transform: translateY(-2px);
             box-shadow: 
-                0 0 20px var(--neon-cyan),
-                0 0 30px rgba(0, 255, 252, 0.2);
-        }
-        
-        .remove-example-btn {
-            padding: 0.2rem 0.5rem;
-            background: rgba(255, 0, 102, 0.15);
-            border: 1px solid rgba(255, 0, 102, 0.25);
-            border-radius: 4px;
-            color: #ff8a8a;
-            cursor: pointer;
-            font-size: 0.7rem;
-            margin-left: 0.5rem;
-        }
-        
-        .remove-example-btn:hover {
-            background: rgba(255, 0, 102, 0.25);
-            box-shadow: 0 0 10px rgba(255, 0, 102, 0.2);
+                0 0 25px var(--gold),
+                0 0 40px rgba(255, 215, 0, 0.3);
         }
         
         /* Стили для модального окна профиля */
@@ -1903,7 +1655,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1920,16 +1672,16 @@
         }
         
         .profile-modal-content {
-            background: var(--surface);
+            background: rgba(0, 0, 0, 0.95);
             border-radius: 24px;
             padding: 2.5rem;
             width: 90%;
             max-width: 500px;
-            border: 2px solid var(--neon-cyan);
+            border: 2px solid var(--gold);
             box-shadow: 
-                0 25px 60px rgba(0, 0, 0, 0.7),
-                0 0 40px var(--neon-cyan),
-                0 0 80px rgba(0, 255, 252, 0.4);
+                0 30px 80px rgba(0, 0, 0, 0.9),
+                0 0 50px var(--gold),
+                0 0 100px rgba(255, 215, 0, 0.5);
             transform: translateY(-30px);
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -1938,43 +1690,11 @@
             transform: translateY(0);
         }
         
-        .profile-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border);
-        }
-        
         .profile-modal-title {
             font-size: 1.8rem;
-            color: var(--neon-cyan);
+            color: var(--gold);
             font-weight: 600;
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
-        
-        .profile-modal-close {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .profile-modal-close:hover {
-            color: var(--neon-cyan);
-            background: rgba(0, 255, 252, 0.1);
-            transform: rotate(90deg);
-            box-shadow: 0 0 10px var(--neon-cyan);
-        }
-        
-        .profile-info {
-            text-align: center;
-            margin-bottom: 2rem;
+            text-shadow: 0 0 15px var(--gold);
         }
         
         .profile-avatar-large {
@@ -1982,18 +1702,12 @@
             height: 120px;
             border-radius: 50%;
             margin: 0 auto 1.5rem;
-            border: 3px solid var(--neon-cyan);
+            border: 3px solid var(--gold);
             box-shadow: 
-                0 0 30px var(--neon-cyan),
-                0 0 60px rgba(0, 255, 252, 0.4),
-                inset 0 0 20px rgba(0, 255, 252, 0.2);
+                0 0 40px var(--gold),
+                0 0 80px rgba(255, 215, 0, 0.5),
+                inset 0 0 25px rgba(255, 215, 0, 0.3);
             overflow: hidden;
-        }
-        
-        .profile-avatar-large img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
         
         .profile-avatar-large .icon-fallback {
@@ -2003,73 +1717,48 @@
             align-items: center;
             justify-content: center;
             font-size: 3rem;
-            color: var(--neon-cyan);
+            color: var(--gold);
             background: linear-gradient(135deg, 
-                rgba(0, 255, 252, 0.3), 
-                rgba(157, 0, 255, 0.3));
-        }
-        
-        .profile-username {
-            font-size: 1.8rem;
-            color: var(--text);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+                rgba(255, 215, 0, 0.4), 
+                rgba(192, 192, 192, 0.4));
         }
         
         .profile-role {
             display: inline-block;
             padding: 0.4rem 1.2rem;
-            background: linear-gradient(90deg, #0066cc, #0099ff);
-            color: white;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            color: #000;
             border-radius: 20px;
             font-size: 0.9rem;
             font-weight: 600;
             margin-bottom: 1rem;
             box-shadow: 
-                0 0 20px rgba(0, 102, 204, 0.5);
-        }
-        
-        .profile-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
+                0 0 25px rgba(255, 215, 0, 0.6);
         }
         
         .profile-stat {
             text-align: center;
             padding: 1rem;
-            background: rgba(15, 15, 30, 0.7);
+            background: rgba(10, 10, 10, 0.7);
             border-radius: 12px;
-            border: 1px solid rgba(0, 255, 252, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.1),
-                0 0 15px rgba(0, 255, 252, 0.1);
+                inset 0 0 15px rgba(255, 215, 0, 0.2),
+                0 0 20px rgba(255, 215, 0, 0.2);
         }
         
         .profile-stat-value {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--neon-cyan);
+            color: var(--gold);
             margin-bottom: 0.3rem;
-            text-shadow: 0 0 10px var(--neon-cyan);
-        }
-        
-        .profile-stat-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-        
-        .profile-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
+            text-shadow: 0 0 15px var(--gold);
         }
         
         .profile-action-btn {
             padding: 1rem;
-            background: rgba(0, 255, 252, 0.15);
-            border: 1px solid rgba(0, 255, 252, 0.25);
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             border-radius: 12px;
             color: var(--text);
             cursor: pointer;
@@ -2080,57 +1769,50 @@
             gap: 0.8rem;
             font-weight: 500;
             box-shadow: 
-                inset 0 0 10px rgba(0, 255, 252, 0.1),
-                0 0 15px rgba(0, 255, 252, 0.1);
+                inset 0 0 15px rgba(255, 215, 0, 0.2),
+                0 0 20px rgba(255, 215, 0, 0.2);
         }
         
         .profile-action-btn:hover {
-            background: rgba(0, 255, 252, 0.25);
+            background: rgba(255, 215, 0, 0.3);
             transform: translateY(-3px);
-            border-color: rgba(0, 255, 252, 0.4);
+            border-color: rgba(255, 215, 0, 0.5);
             box-shadow: 
-                inset 0 0 15px rgba(0, 255, 252, 0.2),
-                0 0 25px var(--neon-cyan),
-                0 0 35px rgba(0, 255, 252, 0.2);
+                inset 0 0 20px rgba(255, 215, 0, 0.3),
+                0 0 30px var(--gold),
+                0 0 50px rgba(255, 215, 0, 0.3);
         }
         
         .profile-action-btn i {
             font-size: 1.2rem;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 10px var(--neon-cyan);
+            color: var(--gold);
+            text-shadow: 0 0 15px var(--gold);
         }
 
-        /* Новые стили для управления пользователями */
+        /* Управление пользователями */
         .user-management-section {
             margin-top: 2.5rem;
-            background: rgba(20, 20, 40, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             border-radius: 20px;
             padding: 2rem;
-            border: 1px solid rgba(255, 0, 255, 0.3);
+            border: 1px solid rgba(157, 0, 255, 0.4);
             box-shadow: 
-                inset 0 0 20px rgba(255, 0, 255, 0.1),
-                0 0 30px rgba(255, 0, 255, 0.1);
-        }
-
-        .user-management-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
+                inset 0 0 25px rgba(157, 0, 255, 0.2),
+                0 0 40px rgba(157, 0, 255, 0.2);
         }
 
         .user-management-title {
             font-size: 1.5rem;
-            color: var(--neon-pink);
+            color: var(--neon-purple);
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            text-shadow: 0 0 10px var(--neon-pink);
+            text-shadow: 0 0 15px var(--neon-purple);
         }
 
         .add-user-btn {
             padding: 0.7rem 1.2rem;
-            background: linear-gradient(90deg, #cc3300, #ff5500);
+            background: linear-gradient(90deg, #9d00ff, #ff00ff);
             color: white;
             border: none;
             border-radius: 10px;
@@ -2138,25 +1820,25 @@
             font-weight: 600;
             transition: all 0.3s ease;
             box-shadow: 
-                0 5px 15px rgba(204, 51, 0, 0.3);
+                0 5px 20px rgba(157, 0, 255, 0.4);
         }
 
         .add-user-btn:hover {
             transform: translateY(-2px);
             box-shadow: 
-                0 10px 25px rgba(204, 51, 0, 0.4);
-            background: linear-gradient(90deg, #bb2200, #ee4400);
+                0 10px 30px rgba(157, 0, 255, 0.5);
+            background: linear-gradient(90deg, #8a00e6, #e600e6);
         }
 
         .users-list {
             max-height: 400px;
             overflow-y: auto;
             border-radius: 12px;
-            background: rgba(15, 15, 30, 0.7);
+            background: rgba(10, 10, 10, 0.7);
             padding: 1rem;
             box-shadow: 
-                inset 0 0 10px rgba(255, 0, 255, 0.1),
-                0 0 20px rgba(255, 0, 255, 0.1);
+                inset 0 0 15px rgba(157, 0, 255, 0.2),
+                0 0 25px rgba(157, 0, 255, 0.2);
         }
 
         .user-item {
@@ -2164,67 +1846,33 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem;
-            background: rgba(20, 20, 40, 0.7);
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 10px;
             margin-bottom: 0.8rem;
-            border: 1px solid rgba(255, 0, 255, 0.2);
+            border: 1px solid rgba(157, 0, 255, 0.3);
             box-shadow: 
-                inset 0 0 5px rgba(255, 0, 255, 0.05),
-                0 0 10px rgba(255, 0, 255, 0.05);
-        }
-
-        .user-info {
-            flex: 1;
-        }
-
-        .user-username {
-            color: var(--text);
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .user-created {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-top: 0.3rem;
-        }
-
-        .user-actions {
-            display: flex;
-            gap: 0.5rem;
+                inset 0 0 10px rgba(157, 0, 255, 0.1),
+                0 0 15px rgba(157, 0, 255, 0.1);
         }
 
         .user-action-btn {
             padding: 0.5rem 0.8rem;
-            background: rgba(255, 0, 255, 0.2);
-            border: 1px solid rgba(255, 0, 255, 0.3);
+            background: rgba(157, 0, 255, 0.2);
+            border: 1px solid rgba(157, 0, 255, 0.3);
             border-radius: 6px;
             color: var(--text);
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 0.85rem;
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.1);
+            box-shadow: 0 0 15px rgba(157, 0, 255, 0.2);
         }
 
         .user-action-btn:hover {
-            background: rgba(255, 0, 255, 0.3);
+            background: rgba(157, 0, 255, 0.3);
             transform: translateY(-2px);
             box-shadow: 
-                0 0 15px var(--neon-pink),
-                0 0 25px rgba(255, 0, 255, 0.2);
-        }
-
-        .user-action-btn.delete {
-            background: rgba(255, 0, 102, 0.2);
-            border-color: rgba(255, 0, 102, 0.3);
-            box-shadow: 0 0 10px rgba(255, 0, 102, 0.1);
-        }
-
-        .user-action-btn.delete:hover {
-            background: rgba(255, 0, 102, 0.3);
-            box-shadow: 
-                0 0 15px #ff0066,
-                0 0 25px rgba(255, 0, 102, 0.2);
+                0 0 20px var(--neon-purple),
+                0 0 30px rgba(157, 0, 255, 0.3);
         }
 
         /* Модальное окно добавления пользователя */
@@ -2234,7 +1882,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -2251,14 +1899,14 @@
         }
 
         .user-modal-content {
-            background: var(--surface);
+            background: rgba(0, 0, 0, 0.95);
             border-radius: 20px;
             padding: 2rem;
             width: 90%;
             max-width: 500px;
-            border: 2px solid #ff5500;
+            border: 2px solid #9d00ff;
             box-shadow: 
-                0 20px 50px rgba(0, 0, 0, 0.7);
+                0 25px 60px rgba(0, 0, 0, 0.9);
             transform: translateY(-30px);
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -2267,131 +1915,72 @@
             transform: translateY(0);
         }
 
-        .user-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
         .user-modal-title {
             font-size: 1.5rem;
-            color: #ff5500;
+            color: #9d00ff;
             font-weight: 600;
-        }
-
-        .user-modal-close {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 0.3rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .user-modal-close:hover {
-            color: #ff5500;
-            background: rgba(255, 85, 0, 0.1);
-            transform: rotate(90deg);
-        }
-
-        .user-form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .user-form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-secondary);
-            font-weight: 500;
         }
 
         .user-form-input {
             width: 100%;
             padding: 0.8rem 1rem;
-            background: rgba(15, 15, 30, 0.7);
-            border: 1px solid rgba(255, 0, 255, 0.3);
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(157, 0, 255, 0.4);
             border-radius: 8px;
             color: var(--text);
             font-size: 1rem;
             box-shadow: 
-                inset 0 0 10px rgba(255, 0, 255, 0.1),
-                0 0 15px rgba(255, 0, 255, 0.05);
+                inset 0 0 15px rgba(157, 0, 255, 0.2),
+                0 0 20px rgba(157, 0, 255, 0.1);
         }
 
         .user-form-input:focus {
             outline: none;
-            border-color: #ff5500;
+            border-color: #9d00ff;
             box-shadow: 
-                0 0 0 2px rgba(255, 85, 0, 0.2),
-                inset 0 0 15px rgba(255, 85, 0, 0.1);
-        }
-
-        .user-modal-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .user-modal-btn {
-            flex: 1;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
+                0 0 0 2px rgba(157, 0, 255, 0.3),
+                inset 0 0 20px rgba(157, 0, 255, 0.2);
         }
 
         .user-modal-btn.primary {
-            background: linear-gradient(90deg, #cc3300, #ff5500);
+            background: linear-gradient(90deg, #9d00ff, #ff00ff);
             color: white;
             box-shadow: 
-                0 5px 15px rgba(204, 51, 0, 0.3);
+                0 5px 20px rgba(157, 0, 255, 0.4);
         }
 
         .user-modal-btn.secondary {
-            background: rgba(0, 255, 252, 0.2);
+            background: rgba(255, 215, 0, 0.2);
             color: var(--text);
-            border: 1px solid rgba(0, 255, 252, 0.3);
-            box-shadow: 0 5px 15px rgba(0, 255, 252, 0.1);
-        }
-
-        .user-modal-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 10px 25px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.2);
         }
 
         .user-modal-btn.primary:hover {
-            background: linear-gradient(90deg, #bb2200, #ee4400);
+            background: linear-gradient(90deg, #8a00e6, #e600e6);
             box-shadow: 
-                0 10px 25px rgba(204, 51, 0, 0.4);
+                0 10px 30px rgba(157, 0, 255, 0.5);
         }
 
         .user-modal-btn.secondary:hover {
-            background: rgba(0, 255, 252, 0.3);
+            background: rgba(255, 215, 0, 0.3);
             box-shadow: 
-                0 10px 25px rgba(0, 255, 252, 0.3);
+                0 10px 30px rgba(255, 215, 0, 0.4);
         }
     </style>
 </head>
 <body>
-    <!-- Красивый анимированный синий фон -->
-    <div class="animated-blue-bg"></div>
-    <div class="blue-grid"></div>
-    <div class="blue-waves">
-        <div class="wave wave-1"></div>
-        <div class="wave wave-2"></div>
-        <div class="wave wave-3"></div>
+    <!-- Черный блестящий градиентный фон -->
+    <div class="shiny-black-bg"></div>
+    <div class="crystal-grid"></div>
+    <div class="shiny-waves">
+        <div class="shiny-wave shiny-wave-1"></div>
+        <div class="shiny-wave shiny-wave-2"></div>
+        <div class="shiny-wave shiny-wave-3"></div>
     </div>
     
-    <!-- Неоновые частицы -->
-    <div class="neon-particles" id="neonParticles"></div>
+    <!-- Блестящие частицы -->
+    <div class="shiny-particles" id="shinyParticles"></div>
     
     <!-- Модальное окно профиля -->
     <div class="profile-modal" id="profileModal">
@@ -2603,7 +2192,7 @@
                 <div class="form-group">
                     <div class="stored-files-container" id="storedFilesContainer">
                         <div class="stored-files-header">
-                            <span>📁 Stored Files</span>
+                            <span>📁 Stored Files (Back4App)</span>
                             <button class="refresh-files-btn" onclick="refreshStoredFiles()">
                                 <i class="fas fa-sync-alt"></i> Refresh
                             </button>
@@ -2787,7 +2376,7 @@
             <div class="logo">
                 <i class="fas fa-user-shield logo-icon"></i>
             </div>
-            <h1 style="background: linear-gradient(90deg, #cc3300, #ff5500); -webkit-background-clip: text; background-clip: text;">🛡️ Cyrox Panel</h1>
+            <h1 style="background: linear-gradient(90deg, #9d00ff, #ff00ff); -webkit-background-clip: text; background-clip: text;">🛡️ Cyrox Panel</h1>
             <p class="subtitle">File management, upload and data storage.</p>
         </header>
 
@@ -2814,17 +2403,17 @@
             <div class="panel">
                 <div class="panel-title">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <span>File Upload</span>
+                    <span>File Upload (Back4App)</span>
                 </div>
                 
                 <div class="form-group">
-                    <label>Upload files to system</label>
+                    <label>Upload files to Back4App</label>
                     <div class="file-input-wrapper" id="adminFileDropArea">
                         <div class="file-icon">
                             <i class="fas fa-database"></i>
                         </div>
                         <p>Drag and drop files here or click to select</p>
-                        <p class="file-info">Supported text files up to 10 GB: .log, .txt, .json, .csv, .xml, .yaml</p>
+                        <p class="file-info">Files will be stored in Back4App cloud</p>
                         <input type="file" id="adminFileInput" class="file-input" accept=".log,.txt,.json,.csv,.xml,.yaml" multiple>
                     </div>
                 </div>
@@ -2835,18 +2424,18 @@
                     </div>
                     <div class="progress-text">
                         <span id="progressPercent">0%</span>
-                        <span id="fileProgressInfo">Uploading...</span>
+                        <span id="fileProgressInfo">Uploading to Back4App...</span>
                     </div>
                 </div>
                 
                 <div class="compact-info">
                     <h4><i class="fas fa-info-circle"></i> Upload Information:</h4>
                     <ul>
-                        <li>Files stored in browser database (IndexedDB)</li>
+                        <li>Files stored in Back4App cloud storage</li>
                         <li>Uploaded files available to all system users</li>
-                        <li>Maximum total storage: up to 50% free disk space</li>
                         <li>Automatic duplicate check</li>
                         <li>Batch upload support (multiple files at once)</li>
+                        <li>Files accessible via secure URLs</li>
                     </ul>
                 </div>
             </div>
@@ -2854,7 +2443,7 @@
             <div class="panel">
                 <div class="panel-title">
                     <i class="fas fa-folder-open"></i>
-                    <span>File Management</span>
+                    <span>File Management (Back4App)</span>
                 </div>
                 
                 <div class="admin-file-list" id="adminFileList">
@@ -2868,10 +2457,10 @@
                 <div class="compact-info">
                     <h4><i class="fas fa-cog"></i> Storage Management:</h4>
                     <ul>
-                        <li>All files stored locally in browser</li>
-                        <li>Data not sent to server</li>
-                        <li>Files available in normal mode</li>
-                        <li>Automatic backup</li>
+                        <li>All files stored in Back4App cloud</li>
+                        <li>Automatic backup and versioning</li>
+                        <li>Files available to all users</li>
+                        <li>Download tracking</li>
                         <li>Storage clearing capability</li>
                     </ul>
                 </div>
@@ -2897,7 +2486,7 @@
         </div>
         
         <footer>
-            <p>Cyrox Panel &copy; 2025 | Cyrox Search | Powered by Cyrox</p>
+            <p>Cyrox Panel &copy; 2025 | Cyrox Search | Powered by Cyrox & Back4App</p>
             <p style="margin-top: 0.5rem; font-size: 0.85rem;">Credentials: blaxuxd</p>
         </footer>
     </div>
@@ -2905,7 +2494,6 @@
     <script>
         // ================================================
         // КОНФИГУРАЦИЯ BACK4APP
-        // ЗАМЕНИТЕ ЭТИ КЛЮЧИ НА ВАШИ ИЗ BACK4APP!
         // ================================================
         const BACK4APP_CONFIG = {
             applicationId: "Ud6RkmSIguQgUXt4NdNxlfGLS4ZXYQaSLipNVvXQ",
@@ -2924,7 +2512,7 @@
         // ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
         // ================================================
         let selectedFile = null;
-        let selectedFileFromStorage = null;
+        let selectedBack4AppFile = null;
         let searchResults = [];
         let sessionToken = null;
         let isAdminSession = false;
@@ -2938,18 +2526,56 @@
         // Пользовательские примеры поиска
         let searchExamples = JSON.parse(localStorage.getItem('cyroxSearchExamples') || '["example.com", "test.com", "admin", "error", "warning"]');
         
-        // IndexedDB для хранения файлов
-        let db;
-        const DB_NAME = 'CyroxFileStorage';
-        const DB_VERSION = 1;
-        const STORE_NAME = 'files';
         const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024;
 
         // ================================================
-        // BACK4APP ФУНКЦИИ (РАБОТАЮТ ДЛЯ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ)
+        // СОЗДАНИЕ БЛЕСТЯЩИХ ЧАСТИЦ
         // ================================================
 
-        // Проверка логина через Back4App
+        function createShinyParticles() {
+            const container = document.getElementById('shinyParticles');
+            const totalParticles = 150;
+            
+            for (let i = 0; i < totalParticles; i++) {
+                const particle = document.createElement('div');
+                
+                // Распределение типов частиц
+                const particleType = Math.random();
+                let particleClass;
+                
+                if (particleType < 0.4) {
+                    particleClass = 'shiny-particle particle-gold';
+                } else if (particleType < 0.7) {
+                    particleClass = 'shiny-particle particle-silver';
+                } else if (particleType < 0.85) {
+                    particleClass = 'shiny-particle particle-diamond';
+                } else {
+                    particleClass = 'shiny-particle particle-sparkle';
+                }
+                
+                particle.className = particleClass;
+                
+                const left = Math.random() * 100;
+                const startDelay = Math.random() * 20;
+                const duration = Math.random() * 20 + 10;
+                const drift = (Math.random() - 0.5) * 200;
+                const startY = Math.random() * 150 + 50;
+                
+                particle.style.left = `${left}%`;
+                particle.style.top = `-${startY}px`;
+                
+                particle.style.animationDelay = `${startDelay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.setProperty('--drift', `${drift}px`);
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // ================================================
+        // BACK4APP ФУНКЦИИ ДЛЯ ПОЛЬЗОВАТЕЛЕЙ
+        // ================================================
+
         async function checkLogin(username, password) {
             try {
                 const user = await Parse.User.logIn(username, password);
@@ -2973,7 +2599,6 @@
             }
         }
 
-        // Получить всех пользователей
         async function getUsersFromBack4App() {
             try {
                 const query = new Parse.Query(Parse.User);
@@ -2995,10 +2620,8 @@
             }
         }
 
-        // Добавить нового пользователя
         async function addNewUserToBack4App(username, password, role) {
             try {
-                // Проверить существование пользователя
                 const query = new Parse.Query(Parse.User);
                 query.equalTo("username", username);
                 const existingUser = await query.first();
@@ -3010,7 +2633,6 @@
                     };
                 }
                 
-                // Создать нового пользователя
                 const user = new Parse.User();
                 user.set("username", username);
                 user.set("password", password);
@@ -3032,7 +2654,6 @@
             }
         }
 
-        // Удалить пользователя
         async function deleteUserFromBack4App(userId) {
             try {
                 const query = new Parse.Query(Parse.User);
@@ -3060,7 +2681,6 @@
             }
         }
 
-        // Сбросить пароль
         async function resetUserPasswordInBack4App(userId, newPassword) {
             try {
                 const query = new Parse.Query(Parse.User);
@@ -3083,6 +2703,179 @@
         }
 
         // ================================================
+        // BACK4APP ФУНКЦИИ ДЛЯ ФАЙЛОВ
+        // ================================================
+
+        async function uploadFileToBack4App(file, category = "scanner_files") {
+            try {
+                const parseFile = new Parse.File(file.name, file);
+                await parseFile.save();
+                
+                const Files = Parse.Object.extend("Files");
+                const fileRecord = new Files();
+                
+                fileRecord.set("file", parseFile);
+                fileRecord.set("name", file.name);
+                fileRecord.set("size", file.size);
+                fileRecord.set("type", file.type);
+                fileRecord.set("category", category);
+                fileRecord.set("uploadedBy", currentUser ? currentUser.username : "admin");
+                fileRecord.set("uploadDate", new Date());
+                fileRecord.set("downloadCount", 0);
+                
+                await fileRecord.save();
+                
+                return {
+                    success: true,
+                    id: fileRecord.id,
+                    name: file.name,
+                    size: file.size,
+                    url: parseFile.url(),
+                    parseFile: parseFile
+                };
+            } catch (error) {
+                console.error("Error uploading file to Back4App:", error);
+                return {
+                    success: false,
+                    message: error.message
+                };
+            }
+        }
+
+        async function getFilesFromBack4App(category = "scanner_files") {
+            try {
+                const Files = Parse.Object.extend("Files");
+                const query = new Parse.Query(Files);
+                
+                if (category) {
+                    query.equalTo("category", category);
+                }
+                
+                query.descending("uploadDate");
+                query.include("file");
+                
+                const files = await query.find();
+                
+                return files.map(file => ({
+                    id: file.id,
+                    name: file.get("name"),
+                    size: file.get("size"),
+                    type: file.get("type"),
+                    url: file.get("file").url(),
+                    category: file.get("category"),
+                    uploadedBy: file.get("uploadedBy"),
+                    uploadDate: file.get("uploadDate"),
+                    downloadCount: file.get("downloadCount") || 0,
+                    parseFile: file.get("file"),
+                    fileRecord: file
+                }));
+            } catch (error) {
+                console.error("Error fetching files from Back4App:", error);
+                return [];
+            }
+        }
+
+        async function deleteFileFromBack4App(fileId) {
+            try {
+                const Files = Parse.Object.extend("Files");
+                const query = new Parse.Query(Files);
+                
+                const fileRecord = await query.get(fileId);
+                const parseFile = fileRecord.get("file");
+                
+                await parseFile.destroy();
+                await fileRecord.destroy();
+                
+                return {
+                    success: true,
+                    message: "File deleted successfully"
+                };
+            } catch (error) {
+                console.error("Error deleting file from Back4App:", error);
+                return {
+                    success: false,
+                    message: error.message
+                };
+            }
+        }
+
+        async function downloadFileFromBack4App(fileId) {
+            try {
+                const Files = Parse.Object.extend("Files");
+                const query = new Parse.Query(Files);
+                
+                const fileRecord = await query.get(fileId);
+                const parseFile = fileRecord.get("file");
+                const fileName = fileRecord.get("name");
+                
+                const downloadCount = fileRecord.get("downloadCount") || 0;
+                fileRecord.set("downloadCount", downloadCount + 1);
+                await fileRecord.save();
+                
+                const fileUrl = parseFile.url();
+                
+                return {
+                    success: true,
+                    url: fileUrl,
+                    name: fileName,
+                    fileRecord: fileRecord
+                };
+            } catch (error) {
+                console.error("Error downloading file from Back4App:", error);
+                return {
+                    success: false,
+                    message: error.message
+                };
+            }
+        }
+
+        async function getFileStatsFromBack4App() {
+            try {
+                const files = await getFilesFromBack4App();
+                const totalSize = files.reduce((sum, file) => sum + (file.size || 0), 0);
+                
+                return {
+                    fileCount: files.length,
+                    totalSize: totalSize,
+                    files: files
+                };
+            } catch (error) {
+                console.error("Error getting file stats:", error);
+                return { fileCount: 0, totalSize: 0, files: [] };
+            }
+        }
+
+        async function loadFileFromBack4App(fileId) {
+            try {
+                const result = await downloadFileFromBack4App(fileId);
+                
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+                
+                const response = await fetch(result.url);
+                const blob = await response.blob();
+                
+                const Files = Parse.Object.extend("Files");
+                const query = new Parse.Query(Files);
+                const fileRecord = await query.get(fileId);
+                const fileName = fileRecord.get("name");
+                
+                return {
+                    id: fileId,
+                    name: fileName,
+                    size: blob.size,
+                    blob: blob,
+                    url: result.url,
+                    lastAccessed: new Date().toISOString()
+                };
+            } catch (error) {
+                console.error("Error loading file from Back4App:", error);
+                throw error;
+            }
+        }
+
+        // ================================================
         // ФУНКЦИИ ИНТЕРФЕЙСА
         // ================================================
 
@@ -3093,7 +2886,7 @@
                 searchInput.focus();
                 
                 searchInput.style.transform = 'scale(1.03)';
-                searchInput.style.boxShadow = '0 0 30px rgba(0, 102, 204, 0.5)';
+                searchInput.style.boxShadow = '0 0 40px rgba(255, 215, 0, 0.6)';
                 setTimeout(() => {
                     searchInput.style.transform = '';
                     searchInput.style.boxShadow = '';
@@ -3105,12 +2898,12 @@
             const searchInput = document.getElementById('searchWord');
             const scanButton = document.getElementById('scanButton');
             
-            if (!selectedFile && !selectedFileFromStorage) {
+            if (!selectedFile && !selectedBack4AppFile) {
                 showStatus('Please select file for analysis first', 'warning');
                 
                 const dropArea = document.getElementById('fileDropArea');
                 dropArea.style.borderColor = 'var(--warning)';
-                dropArea.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.3)';
+                dropArea.style.boxShadow = '0 0 40px rgba(255, 204, 0, 0.4)';
                 setTimeout(() => {
                     dropArea.style.borderColor = '';
                     dropArea.style.boxShadow = '';
@@ -3179,7 +2972,6 @@
             showStatus(isDarkMode ? 'Dark theme enabled' : 'Light theme enabled', 'info');
         }
 
-        // Функции для пользовательских примеров поиска
         function loadSearchExamples() {
             const container = document.getElementById('searchExamples');
             if (!container) return;
@@ -3235,7 +3027,6 @@
             }
         }
 
-        // Функции управления пользователями
         async function loadUsers() {
             const usersList = document.getElementById('usersList');
             if (!usersList) return;
@@ -3265,7 +3056,7 @@
                             <div class="user-info">
                                 <div class="user-username">
                                     ${user.username}
-                                    <span style="color: ${user.role === 'admin' ? '#ff5500' : user.role === 'premium' ? 'var(--neon-cyan)' : 'var(--text-secondary)'}; font-size: 0.8rem; margin-left: 0.5rem;">
+                                    <span style="color: ${user.role === 'admin' ? '#ff00ff' : user.role === 'premium' ? 'var(--gold)' : 'var(--text-secondary)'}; font-size: 0.8rem; margin-left: 0.5rem;">
                                         (${user.role})
                                     </span>
                                 </div>
@@ -3352,7 +3143,6 @@
             return result.success;
         }
 
-        // Уведомления
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
@@ -3370,520 +3160,6 @@
                     document.body.removeChild(notification);
                 }, 300);
             }, 5000);
-        }
-
-        // ================================================
-        // INDEXEDDB ФУНКЦИИ (остались без изменений)
-        // ================================================
-
-        function initIndexedDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                
-                request.onerror = () => {
-                    console.error('IndexedDB error:', request.error);
-                    reject(request.error);
-                };
-                
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
-                
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    
-                    if (!db.objectStoreNames.contains(STORE_NAME)) {
-                        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-                        store.createIndex('name', 'name', { unique: false });
-                        store.createIndex('size', 'size', { unique: false });
-                        store.createIndex('uploadDate', 'uploadDate', { unique: false });
-                    }
-                };
-            });
-        }
-
-        async function saveFileToIndexedDB(file) {
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject(new Error('Database not initialized'));
-                    return;
-                }
-                
-                if (file.size > MAX_FILE_SIZE) {
-                    reject(new Error(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`));
-                    return;
-                }
-                
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const transaction = db.transaction([STORE_NAME], 'readwrite');
-                    const store = transaction.objectStore(STORE_NAME);
-                    
-                    const fileData = {
-                        name: file.name,
-                        size: file.size,
-                        type: file.type,
-                        data: e.target.result,
-                        uploadDate: new Date().toISOString(),
-                        lastAccessed: new Date().toISOString()
-                    };
-                    
-                    const request = store.add(fileData);
-                    
-                    request.onsuccess = () => {
-                        resolve({
-                            id: request.result,
-                            name: file.name,
-                            size: file.size
-                        });
-                    };
-                    
-                    request.onerror = () => {
-                        reject(request.error);
-                    };
-                };
-                
-                reader.onerror = () => {
-                    reject(new Error('Error reading file'));
-                };
-                
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        async function getStoredFiles() {
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject(new Error('Database not initialized'));
-                    return;
-                }
-                
-                const transaction = db.transaction([STORE_NAME], 'readonly');
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.getAll();
-                
-                request.onsuccess = () => {
-                    resolve(request.result || []);
-                };
-                
-                request.onerror = () => {
-                    reject(request.error);
-                };
-            });
-        }
-
-        async function deleteStoredFile(fileId) {
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject(new Error('Database not initialized'));
-                    return;
-                }
-                
-                const transaction = db.transaction([STORE_NAME], 'readwrite');
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.delete(fileId);
-                
-                request.onsuccess = () => {
-                    resolve(true);
-                };
-                
-                request.onerror = () => {
-                    reject(request.error);
-                };
-            });
-        }
-
-        async function getStoredFile(fileId) {
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject(new Error('Database not initialized'));
-                    return;
-                }
-                
-                const transaction = db.transaction([STORE_NAME], 'readonly');
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.get(fileId);
-                
-                request.onsuccess = () => {
-                    resolve(request.result);
-                };
-                
-                request.onerror = () => {
-                    reject(request.error);
-                };
-            });
-        }
-
-        async function getStorageStats() {
-            const files = await getStoredFiles();
-            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-            const fileCount = files.length;
-            
-            return {
-                fileCount,
-                totalSize,
-                files
-            };
-        }
-
-        async function updateAdminStats() {
-            try {
-                const stats = await getStorageStats();
-                
-                document.getElementById('totalFilesCount').textContent = stats.fileCount;
-                document.getElementById('totalStorageUsed').textContent = formatFileSize(stats.totalSize);
-                
-                return stats;
-            } catch (error) {
-                console.error('Error updating statistics:', error);
-                return { fileCount: 0, totalSize: 0, files: [] };
-            }
-        }
-
-        async function displayAdminFiles() {
-            const fileList = document.getElementById('adminFileList');
-            const stats = await getStorageStats();
-            
-            if (stats.fileCount === 0) {
-                fileList.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-folder-open"></i>
-                        <h3>No files uploaded</h3>
-                        <p>Upload files to display in this list</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            stats.files.forEach(file => {
-                const uploadDate = new Date(file.uploadDate).toLocaleDateString();
-                const lastAccessed = new Date(file.lastAccessed).toLocaleDateString();
-                
-                html += `
-                    <div class="admin-file-item" data-file-id="${file.id}">
-                        <div class="admin-file-info">
-                            <div class="admin-file-name">${file.name}</div>
-                            <div class="admin-file-meta">
-                                📊 ${formatFileSize(file.size)} | 
-                                📅 ${uploadDate} | 
-                                🔍 ${lastAccessed}
-                            </div>
-                        </div>
-                        <div class="admin-file-actions">
-                            <button class="admin-action-btn" onclick="downloadAdminFile(${file.id}, '${file.name}')">
-                                <i class="fas fa-download"></i> Download
-                            </button>
-                            <button class="admin-action-btn delete" onclick="deleteAdminFile(${file.id})">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            fileList.innerHTML = html;
-        }
-
-        async function displayStoredFiles() {
-            const fileList = document.getElementById('storedFilesList');
-            
-            try {
-                const stats = await getStorageStats();
-                
-                if (stats.fileCount === 0) {
-                    fileList.innerHTML = `
-                        <div class="no-files-message">
-                            <i class="fas fa-folder-open"></i>
-                            <p>No stored files</p>
-                            <p style="font-size: 0.8rem; margin-top: 0.5rem;">Upload files through admin panel</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                let html = '';
-                stats.files.forEach(file => {
-                    const uploadDate = new Date(file.uploadDate).toLocaleDateString();
-                    const isSelected = selectedFileFromStorage && selectedFileFromStorage.id === file.id;
-                    
-                    html += `
-                        <div class="stored-file-item ${isSelected ? 'selected' : ''}" 
-                             data-file-id="${file.id}"
-                             onclick="selectStoredFile(${file.id})">
-                            <div class="stored-file-info">
-                                <div class="stored-file-name">${file.name}</div>
-                                <div class="stored-file-size">${formatFileSize(file.size)}</div>
-                                <div class="stored-file-date">${uploadDate}</div>
-                            </div>
-                            <div class="stored-file-actions">
-                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); previewStoredFile(${file.id})" title="Preview">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); downloadStoredFile(${file.id}, '${file.name}')" title="Download">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                fileList.innerHTML = html;
-            } catch (error) {
-                console.error('Error displaying files:', error);
-                fileList.innerHTML = `
-                    <div class="no-files-message">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Error loading file list</p>
-                    </div>
-                `;
-            }
-        }
-
-        async function selectStoredFile(fileId) {
-            try {
-                const fileData = await getStoredFile(fileId);
-                
-                if (!fileData) {
-                    showNotification('File not found', 'error');
-                    return;
-                }
-                
-                const blob = new Blob([fileData.data], { type: fileData.type });
-                selectedFileFromStorage = {
-                    id: fileId,
-                    name: fileData.name,
-                    size: fileData.size,
-                    blob: blob,
-                    lastAccessed: new Date().toISOString()
-                };
-                
-                if (db) {
-                    const transaction = db.transaction([STORE_NAME], 'readwrite');
-                    const store = transaction.objectStore(STORE_NAME);
-                    fileData.lastAccessed = new Date().toISOString();
-                    store.put(fileData);
-                }
-                
-                document.getElementById('fileName').textContent = `📁 ${fileData.name} (from storage)`;
-                document.getElementById('fileSize').textContent = `📊 ${formatFileSize(fileData.size)}`;
-                
-                selectedFile = null;
-                document.getElementById('fileInput').value = '';
-                
-                showNotification(`Selected file: ${fileData.name}`, 'success');
-                
-                await displayStoredFiles();
-                
-                showStatus(`File "${fileData.name}" selected from storage`, 'success');
-                
-            } catch (error) {
-                console.error('Error selecting file:', error);
-                showNotification(`Error selecting file: ${error.message}`, 'error');
-            }
-        }
-
-        async function previewStoredFile(fileId) {
-            try {
-                const fileData = await getStoredFile(fileId);
-                
-                if (!fileData) {
-                    showNotification('File not found', 'error');
-                    return;
-                }
-                
-                const textDecoder = new TextDecoder('utf-8');
-                const content = textDecoder.decode(fileData.data);
-                const previewContent = content.length > 1000 
-                    ? content.substring(0, 1000) + '...' 
-                    : content;
-                
-                const modal = document.createElement('div');
-                modal.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.8);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 10000;
-                    backdrop-filter: blur(10px);
-                `;
-                
-                modal.innerHTML = `
-                    <div style="
-                        background: var(--surface);
-                        border-radius: 20px;
-                        padding: 2rem;
-                        width: 90%;
-                        max-width: 800px;
-                        max-height: 80vh;
-                        overflow: hidden;
-                        border: 2px solid var(--neon-cyan);
-                        box-shadow: 
-                            0 20px 60px rgba(0, 0, 0, 0.6),
-                            0 0 40px var(--neon-cyan);
-                    ">
-                        <div style="
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            margin-bottom: 1.5rem;
-                            padding-bottom: 1rem;
-                            border-bottom: 1px solid var(--border);
-                        ">
-                            <h3 style="color: var(--neon-cyan);">
-                                <i class="fas fa-file-alt"></i> Preview: ${fileData.name}
-                            </h3>
-                            <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                                    style="
-                                        background: transparent;
-                                        border: none;
-                                        color: var(--text-secondary);
-                                        font-size: 1.5rem;
-                                        cursor: pointer;
-                                        padding: 0.5rem;
-                                    ">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div style="
-                            background: rgba(15, 15, 30, 0.7);
-                            border-radius: 12px;
-                            padding: 1.5rem;
-                            max-height: 60vh;
-                            overflow-y: auto;
-                            font-family: 'Consolas', monospace;
-                            font-size: 0.9rem;
-                            line-height: 1.5;
-                            color: var(--text-secondary);
-                            white-space: pre-wrap;
-                            word-wrap: break-word;
-                        ">
-                            ${previewContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                        </div>
-                        <div style="
-                            margin-top: 1.5rem;
-                            padding-top: 1rem;
-                            border-top: 1px solid var(--border);
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            color: var(--text-secondary);
-                            font-size: 0.9rem;
-                        ">
-                            <div>
-                                <i class="fas fa-info-circle"></i> Size: ${formatFileSize(fileData.size)} | 
-                                Lines: ${previewContent.split('\\n').length}
-                            </div>
-                            <button onclick="selectStoredFile(${fileId})" 
-                                    style="
-                                        background: linear-gradient(90deg, #0066cc, #0099ff);
-                                        color: white;
-                                        border: none;
-                                        padding: 0.7rem 1.5rem;
-                                        border-radius: 10px;
-                                        cursor: pointer;
-                                        font-weight: 600;
-                                        box-shadow: 0 0 20px rgba(0, 102, 204, 0.5);
-                                    ">
-                                <i class="fas fa-check"></i> Select this file
-                            </button>
-                        </div>
-                    </div>
-                `;
-                
-                document.body.appendChild(modal);
-                
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        modal.remove();
-                    }
-                });
-                
-            } catch (error) {
-                console.error('Error previewing file:', error);
-                showNotification(`Preview error: ${error.message}`, 'error');
-            }
-        }
-
-        async function downloadStoredFile(fileId, fileName) {
-            try {
-                const fileData = await getStoredFile(fileId);
-                
-                if (!fileData) {
-                    showNotification('File not found', 'error');
-                    return;
-                }
-                
-                const blob = new Blob([fileData.data], { type: fileData.type });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showNotification(`File "${fileName}" downloaded`, 'success');
-                
-            } catch (error) {
-                showNotification(`Download error: ${error.message}`, 'error');
-            }
-        }
-
-        async function downloadAdminFile(fileId, fileName) {
-            await downloadStoredFile(fileId, fileName);
-        }
-
-        async function deleteAdminFile(fileId) {
-            if (!confirm('Are you sure you want to delete this file?')) {
-                return;
-            }
-            
-            try {
-                await deleteStoredFile(fileId);
-                await updateAdminStats();
-                await displayAdminFiles();
-                await displayStoredFiles();
-                
-                if (selectedFileFromStorage && selectedFileFromStorage.id === fileId) {
-                    selectedFileFromStorage = null;
-                    document.getElementById('fileName').textContent = '';
-                    document.getElementById('fileSize').textContent = '';
-                    showStatus('Selected file was deleted', 'warning');
-                }
-                
-                showNotification('File deleted', 'success');
-            } catch (error) {
-                showNotification(`Delete error: ${error.message}`, 'error');
-            }
-        }
-
-        async function refreshStoredFiles() {
-            const refreshBtn = document.querySelector('.refresh-files-btn');
-            const originalContent = refreshBtn.innerHTML;
-            
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-            refreshBtn.disabled = true;
-            
-            try {
-                await displayStoredFiles();
-                showNotification('File list updated', 'success');
-            } catch (error) {
-                showNotification('Error refreshing file list', 'error');
-            } finally {
-                setTimeout(() => {
-                    refreshBtn.innerHTML = originalContent;
-                    refreshBtn.disabled = false;
-                }, 1000);
-            }
         }
 
         function updateUploadProgress(percent, fileName) {
@@ -3905,7 +3181,7 @@
             }
             
             if (fileProgressInfo) {
-                fileProgressInfo.textContent = fileName || 'Uploading...';
+                fileProgressInfo.textContent = fileName || 'Uploading to Back4App...';
             }
             
             if (percent >= 100) {
@@ -3914,52 +3190,6 @@
                     progressFill.style.width = '0%';
                     progressPercent.textContent = '0%';
                 }, 1000);
-            }
-        }
-
-        function createNeonParticles() {
-            const container = document.getElementById('neonParticles');
-            const totalParticles = 80;
-            
-            for (let i = 0; i < totalParticles; i++) {
-                const particle = document.createElement('div');
-                
-                // Разные типы частиц
-                const particleType = Math.random();
-                if (particleType < 0.6) {
-                    particle.className = 'neon-particle particle-small';
-                } else if (particleType < 0.85) {
-                    particle.className = 'neon-particle particle-medium';
-                } else if (particleType < 0.95) {
-                    particle.className = 'neon-particle particle-large';
-                } else {
-                    particle.className = 'neon-particle particle-sparkle';
-                }
-                
-                const left = Math.random() * 100;
-                const startDelay = Math.random() * 20;
-                const duration = Math.random() * 15 + 10;
-                const color = Math.random() > 0.7 ? 'var(--neon-purple)' : 'var(--neon-cyan)';
-                const drift = (Math.random() - 0.5) * 150;
-                
-                particle.style.left = `${left}%`;
-                particle.style.top = `-${Math.random() * 100}px`;
-                
-                if (!particle.classList.contains('particle-sparkle')) {
-                    particle.style.background = `radial-gradient(circle, 
-                        ${color} 0%, 
-                        ${color.replace('0.8', '0.4')} 50%, 
-                        transparent 70%)`;
-                    particle.style.boxShadow = 
-                        `0 0 15px ${color},
-                         0 0 30px ${color.replace('0.6', '0.4')}`;
-                }
-                
-                particle.style.animationDelay = `${startDelay}s`;
-                particle.style.animationDuration = `${duration}s`;
-                particle.style.setProperty('--drift', `${drift}px`);
-                
-                container.appendChild(particle);
             }
         }
 
@@ -4037,44 +3267,54 @@
             });
         }
 
-        async function scanStoredFile(fileData, searchWord, mode) {
+        async function scanBack4AppFile(fileData, searchWord, mode) {
             return new Promise((resolve, reject) => {
                 const startTime = Date.now();
                 
                 try {
-                    const textDecoder = new TextDecoder('utf-8');
-                    const content = textDecoder.decode(fileData.data);
-                    const lines = content.split('\n');
-                    const results = [];
-                    const suspiciousDomains = [
-                        '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
-                        'wexside.ru', 'nixware.cc', 'neverlose.cc'
-                    ];
+                    const reader = new FileReader();
                     
-                    let isSuspiciousDomain = false;
-                    for (const domain of suspiciousDomains) {
-                        if (searchWord.toLowerCase().includes(domain.toLowerCase())) {
-                            isSuspiciousDomain = true;
-                            break;
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        const lines = content.split('\n');
+                        const results = [];
+                        const suspiciousDomains = [
+                            '0xcheats.net', 'nursultan.fun', 'deltaclient.xyz',
+                            'wexside.ru', 'nixware.cc', 'neverlose.cc'
+                        ];
+                        
+                        let isSuspiciousDomain = false;
+                        for (const domain of suspiciousDomains) {
+                            if (searchWord.toLowerCase().includes(domain.toLowerCase())) {
+                                isSuspiciousDomain = true;
+                                break;
+                            }
                         }
-                    }
-                    
-                    for (let i = 0; i < lines.length; i++) {
-                        if (checkMatch(lines[i], searchWord, mode)) {
-                            results.push({
-                                lineNumber: i + 1,
-                                content: lines[i],
-                                isSuspicious: isSuspiciousDomain
-                            });
+                        
+                        for (let i = 0; i < lines.length; i++) {
+                            if (checkMatch(lines[i], searchWord, mode)) {
+                                results.push({
+                                    lineNumber: i + 1,
+                                    content: lines[i],
+                                    isSuspicious: isSuspiciousDomain
+                                });
+                            }
                         }
-                    }
+                        
+                        const endTime = Date.now();
+                        resolve({
+                            results: results,
+                            time: endTime - startTime,
+                            totalLines: lines.length
+                        });
+                    };
                     
-                    const endTime = Date.now();
-                    resolve({
-                        results: results,
-                        time: endTime - startTime,
-                        totalLines: lines.length
-                    });
+                    reader.onerror = function() {
+                        reject(new Error('Error reading file'));
+                    };
+                    
+                    reader.readAsText(fileData.blob);
+                    
                 } catch (error) {
                     reject(error);
                 }
@@ -4129,7 +3369,7 @@
                     <div class="result-item" style="animation-delay: ${index * 0.05}s">
                         <div class="result-line">
                             ${cheatIcon}
-                            <strong style="color: ${isSuspiciousResult ? 'var(--warning)' : '#0066cc'}">Line ${result.lineNumber}:</strong> 
+                            <strong style="color: ${isSuspiciousResult ? 'var(--warning)' : 'var(--gold)'}">Line ${result.lineNumber}:</strong> 
                             ${warningText}
                             ${content}
                         </div>
@@ -4202,29 +3442,388 @@
             };
         }
 
+        // Отображение файлов из Back4App
+        async function displayStoredFiles() {
+            const fileList = document.getElementById('storedFilesList');
+            
+            try {
+                const files = await getFilesFromBack4App();
+                
+                if (files.length === 0) {
+                    fileList.innerHTML = `
+                        <div class="no-files-message">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No files in Back4App storage</p>
+                            <p style="font-size: 0.8rem; margin-top: 0.5rem;">Upload files through admin panel</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                files.forEach(file => {
+                    const uploadDate = new Date(file.uploadDate).toLocaleDateString();
+                    const isSelected = selectedBack4AppFile && selectedBack4AppFile.id === file.id;
+                    
+                    html += `
+                        <div class="stored-file-item ${isSelected ? 'selected' : ''}" 
+                             data-file-id="${file.id}"
+                             onclick="selectBack4AppFile('${file.id}')">
+                            <div class="stored-file-info">
+                                <div class="stored-file-name">${file.name}</div>
+                                <div class="stored-file-size">${formatFileSize(file.size)}</div>
+                                <div class="stored-file-date">${uploadDate}</div>
+                            </div>
+                            <div class="stored-file-actions">
+                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); previewBack4AppFile('${file.id}')" title="Preview">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="stored-file-action-btn" onclick="event.stopPropagation(); downloadBack4AppFile('${file.id}', '${file.name}')" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                fileList.innerHTML = html;
+            } catch (error) {
+                console.error('Error displaying files:', error);
+                fileList.innerHTML = `
+                    <div class="no-files-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error loading file list from Back4App</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function selectBack4AppFile(fileId) {
+            try {
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                loadingIndicator.classList.add('active');
+                
+                const fileData = await loadFileFromBack4App(fileId);
+                
+                selectedBack4AppFile = fileData;
+                selectedFile = null;
+                
+                document.getElementById('fileName').textContent = `📁 ${fileData.name} (Back4App)`;
+                document.getElementById('fileSize').textContent = `📊 ${formatFileSize(fileData.size)}`;
+                
+                document.getElementById('fileInput').value = '';
+                
+                loadingIndicator.classList.remove('active');
+                
+                showNotification(`Selected file: ${fileData.name}`, 'success');
+                
+                await displayStoredFiles();
+                
+                showStatus(`File "${fileData.name}" selected from Back4App`, 'success');
+                
+            } catch (error) {
+                console.error('Error selecting file:', error);
+                showNotification(`Error selecting file: ${error.message}`, 'error');
+            }
+        }
+
+        async function previewBack4AppFile(fileId) {
+            try {
+                const fileData = await loadFileFromBack4App(fileId);
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    const previewContent = content.length > 1000 
+                        ? content.substring(0, 1000) + '...' 
+                        : content;
+                    
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.9);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 10000;
+                        backdrop-filter: blur(10px);
+                    `;
+                    
+                    modal.innerHTML = `
+                        <div style="
+                            background: rgba(0, 0, 0, 0.95);
+                            border-radius: 20px;
+                            padding: 2rem;
+                            width: 90%;
+                            max-width: 800px;
+                            max-height: 80vh;
+                            overflow: hidden;
+                            border: 2px solid var(--gold);
+                            box-shadow: 
+                                0 25px 80px rgba(0, 0, 0, 0.9),
+                                0 0 50px var(--gold);
+                        ">
+                            <div style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                margin-bottom: 1.5rem;
+                                padding-bottom: 1rem;
+                                border-bottom: 1px solid rgba(255, 215, 0, 0.4);
+                            ">
+                                <h3 style="color: var(--gold);">
+                                    <i class="fas fa-file-alt"></i> Preview: ${fileData.name}
+                                </h3>
+                                <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                        style="
+                                            background: transparent;
+                                            border: none;
+                                            color: var(--text-secondary);
+                                            font-size: 1.5rem;
+                                            cursor: pointer;
+                                            padding: 0.5rem;
+                                        ">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div style="
+                                background: rgba(10, 10, 10, 0.7);
+                                border-radius: 12px;
+                                padding: 1.5rem;
+                                max-height: 60vh;
+                                overflow-y: auto;
+                                font-family: 'Consolas', monospace;
+                                font-size: 0.9rem;
+                                line-height: 1.5;
+                                color: var(--text-secondary);
+                                white-space: pre-wrap;
+                                word-wrap: break-word;
+                            ">
+                                ${previewContent.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                            </div>
+                            <div style="
+                                margin-top: 1.5rem;
+                                padding-top: 1rem;
+                                border-top: 1px solid rgba(255, 215, 0, 0.4);
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                color: var(--text-secondary);
+                                font-size: 0.9rem;
+                            ">
+                                <div>
+                                    <i class="fas fa-info-circle"></i> Size: ${formatFileSize(fileData.size)} | 
+                                    Lines: ${previewContent.split('\n').length}
+                                </div>
+                                <button onclick="selectBack4AppFile('${fileId}')" 
+                                        style="
+                                            background: linear-gradient(90deg, #FFD700, #FFA500);
+                                            color: #000;
+                                            border: none;
+                                            padding: 0.7rem 1.5rem;
+                                            border-radius: 10px;
+                                            cursor: pointer;
+                                            font-weight: 600;
+                                            box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+                                        ">
+                                    <i class="fas fa-check"></i> Select this file
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.remove();
+                        }
+                    });
+                };
+                
+                reader.onerror = function() {
+                    showNotification('Error reading file for preview', 'error');
+                };
+                
+                reader.readAsText(fileData.blob);
+                
+            } catch (error) {
+                console.error('Error previewing file:', error);
+                showNotification(`Preview error: ${error.message}`, 'error');
+            }
+        }
+
+        async function downloadBack4AppFile(fileId, fileName) {
+            try {
+                const result = await downloadFileFromBack4App(fileId);
+                
+                if (!result.success) {
+                    showNotification(result.message, 'error');
+                    return;
+                }
+                
+                const response = await fetch(result.url);
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showNotification(`File "${fileName}" downloaded`, 'success');
+                
+            } catch (error) {
+                showNotification(`Download error: ${error.message}`, 'error');
+            }
+        }
+
+        async function refreshStoredFiles() {
+            const refreshBtn = document.querySelector('.refresh-files-btn');
+            const originalContent = refreshBtn.innerHTML;
+            
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            try {
+                await displayStoredFiles();
+                showNotification('File list updated from Back4App', 'success');
+            } catch (error) {
+                showNotification('Error refreshing file list', 'error');
+            } finally {
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalContent;
+                    refreshBtn.disabled = false;
+                }, 1000);
+            }
+        }
+
+        // Обновить статистику админ-панели
+        async function updateAdminStats() {
+            try {
+                const stats = await getFileStatsFromBack4App();
+                
+                document.getElementById('totalFilesCount').textContent = stats.fileCount;
+                document.getElementById('totalStorageUsed').textContent = formatFileSize(stats.totalSize);
+                
+                return stats;
+            } catch (error) {
+                console.error('Error updating statistics:', error);
+                return { fileCount: 0, totalSize: 0, files: [] };
+            }
+        }
+
+        // Отображение файлов в админ-панели
+        async function displayAdminFiles() {
+            const fileList = document.getElementById('adminFileList');
+            
+            try {
+                const files = await getFilesFromBack4App();
+                
+                if (files.length === 0) {
+                    fileList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <h3>No files uploaded</h3>
+                            <p>Upload files to display in this list</p>
+                    </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                files.forEach(file => {
+                    const uploadDate = new Date(file.uploadDate).toLocaleDateString();
+                    const uploadedBy = file.uploadedBy || 'admin';
+                    
+                    html += `
+                        <div class="admin-file-item" data-file-id="${file.id}">
+                            <div class="admin-file-info">
+                                <div class="admin-file-name">${file.name}</div>
+                                <div class="admin-file-meta">
+                                    📊 ${formatFileSize(file.size)} | 
+                                    📅 ${uploadDate} | 
+                                    👤 ${uploadedBy} |
+                                    ⬇️ ${file.downloadCount || 0} downloads
+                                </div>
+                            </div>
+                            <div class="admin-file-actions">
+                                <button class="admin-action-btn" onclick="downloadBack4AppFile('${file.id}', '${file.name}')">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="admin-action-btn delete" onclick="deleteAdminFile('${file.id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                fileList.innerHTML = html;
+            } catch (error) {
+                console.error('Error displaying files:', error);
+                fileList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error loading files from Back4App</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function deleteAdminFile(fileId) {
+            if (!confirm('Are you sure you want to delete this file from Back4App?')) {
+                return;
+            }
+            
+            try {
+                const result = await deleteFileFromBack4App(fileId);
+                
+                if (result.success) {
+                    await updateAdminStats();
+                    await displayAdminFiles();
+                    await displayStoredFiles();
+                    
+                    if (selectedBack4AppFile && selectedBack4AppFile.id === fileId) {
+                        selectedBack4AppFile = null;
+                        document.getElementById('fileName').textContent = '';
+                        document.getElementById('fileSize').textContent = '';
+                        showStatus('Selected file was deleted', 'warning');
+                    }
+                    
+                    showNotification('File deleted from Back4App', 'success');
+                } else {
+                    showNotification(`Delete error: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showNotification(`Delete error: ${error.message}`, 'error');
+            }
+        }
+
         // ================================================
         // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
         // ================================================
 
         document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                await initIndexedDB();
-            } catch (error) {
-                console.error('Database initialization error:', error);
-            }
+            // Создаем блестящие частицы
+            createShinyParticles();
             
             setTimeout(loadCustomAvatar, 1000);
             
             loadSearchExamples();
-            
-            createNeonParticles();
             
             const loginPage = document.getElementById('loginPage');
             const mainContent = document.getElementById('mainContent');
             const adminPanel = document.getElementById('adminPanel');
             const loginForm = document.getElementById('loginForm');
             const errorMessage = document.getElementById('errorMessage');
-            const logoutBtn = document.getElementById('logoutBtn');
             const adminLoginBtn = document.getElementById('adminLoginBtn');
             const backToLoginBtn = document.getElementById('backToLoginBtn');
             const profileIcon = document.getElementById('profileIcon');
@@ -4381,19 +3980,6 @@
                 }, 500);
             });
             
-            logoutBtn.addEventListener('click', function() {
-                sessionStorage.clear();
-                sessionToken = null;
-                currentUser = null;
-                isAdminSession = false;
-                
-                mainContent.style.opacity = '0';
-                mainContent.style.transform = 'translateY(30px)';
-                setTimeout(() => {
-                    showLoginPage();
-                }, 500);
-            });
-            
             function showLoginPage() {
                 loginPage.style.display = 'flex';
                 mainContent.style.display = 'none';
@@ -4440,6 +4026,7 @@
             async function initAdminPanel() {
                 await updateAdminStats();
                 await displayAdminFiles();
+                await loadUsers();
                 
                 const adminFileInput = document.getElementById('adminFileInput');
                 const adminFileDropArea = document.getElementById('adminFileDropArea');
@@ -4451,12 +4038,17 @@
                                 const file = e.target.files[i];
                                 
                                 try {
-                                    updateUploadProgress(30, `Processing: ${file.name}`);
+                                    updateUploadProgress(30, `Uploading to Back4App: ${file.name}`);
                                     showNotification(`Started upload: ${file.name}`, 'info');
-                                    await saveFileToIndexedDB(file);
                                     
-                                    updateUploadProgress(100, `Completed: ${file.name}`);
-                                    showNotification(`File "${file.name}" uploaded successfully`, 'success');
+                                    const result = await uploadFileToBack4App(file);
+                                    
+                                    if (result.success) {
+                                        updateUploadProgress(100, `Completed: ${file.name}`);
+                                        showNotification(`File "${file.name}" uploaded to Back4App successfully`, 'success');
+                                    } else {
+                                        showNotification(`Upload error "${file.name}": ${result.message}`, 'error');
+                                    }
                                     
                                 } catch (error) {
                                     showNotification(`Upload error "${file.name}": ${error.message}`, 'error');
@@ -4489,12 +4081,17 @@
                                 const file = e.dataTransfer.files[i];
                                 
                                 try {
-                                    updateUploadProgress(30, `Processing: ${file.name}`);
+                                    updateUploadProgress(30, `Uploading to Back4App: ${file.name}`);
                                     showNotification(`Started upload: ${file.name}`, 'info');
-                                    await saveFileToIndexedDB(file);
                                     
-                                    updateUploadProgress(100, `Completed: ${file.name}`);
-                                    showNotification(`File "${file.name}" uploaded successfully`, 'success');
+                                    const result = await uploadFileToBack4App(file);
+                                    
+                                    if (result.success) {
+                                        updateUploadProgress(100, `Completed: ${file.name}`);
+                                        showNotification(`File "${file.name}" uploaded to Back4App successfully`, 'success');
+                                    } else {
+                                        showNotification(`Upload error "${file.name}": ${result.message}`, 'error');
+                                    }
                                     
                                 } catch (error) {
                                     showNotification(`Upload error "${file.name}": ${error.message}`, 'error');
@@ -4506,8 +4103,6 @@
                         }
                     });
                 }
-                
-                await loadUsers();
             }
             
             async function initUserScanner() {
@@ -4524,8 +4119,8 @@
                 
                 async function checkAndCreateDemoFile() {
                     try {
-                        const stats = await getStorageStats();
-                        if (stats.fileCount === 0) {
+                        const files = await getFilesFromBack4App();
+                        if (files.length === 0) {
                             function createDemoFile() {
                                 const lines = [];
                                 const normalDomains = [
@@ -4581,7 +4176,7 @@
                     fileInput.addEventListener('change', function(e) {
                         if (e.target.files.length > 0) {
                             selectedFile = e.target.files[0];
-                            selectedFileFromStorage = null;
+                            selectedBack4AppFile = null;
                             
                             if (selectedFile.size > MAX_FILE_SIZE) {
                                 showNotification(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
@@ -4596,7 +4191,7 @@
                             storedItems.forEach(item => item.classList.remove('selected'));
                             
                             fileDropArea.style.borderColor = 'var(--success)';
-                            fileDropArea.style.boxShadow = '0 0 40px rgba(0, 255, 157, 0.3)';
+                            fileDropArea.style.boxShadow = '0 0 50px rgba(0, 255, 157, 0.4)';
                             setTimeout(() => {
                                 fileDropArea.style.borderColor = '';
                                 fileDropArea.style.boxShadow = '';
@@ -4626,7 +4221,7 @@
                         
                         if (e.dataTransfer.files.length > 0) {
                             selectedFile = e.dataTransfer.files[0];
-                            selectedFileFromStorage = null;
+                            selectedBack4AppFile = null;
                             
                             if (selectedFile.size > MAX_FILE_SIZE) {
                                 showNotification(`File too large. Maximum size: ${formatFileSize(MAX_FILE_SIZE)}`, 'error');
@@ -4641,7 +4236,7 @@
                             storedItems.forEach(item => item.classList.remove('selected'));
                             
                             fileDropArea.style.borderColor = 'var(--success)';
-                            fileDropArea.style.boxShadow = '0 0 40px rgba(0, 255, 157, 0.3)';
+                            fileDropArea.style.boxShadow = '0 0 50px rgba(0, 255, 157, 0.4)';
                             setTimeout(() => {
                                 fileDropArea.style.borderColor = '';
                                 fileDropArea.style.boxShadow = '';
@@ -4658,21 +4253,11 @@
                 if (scanButton) {
                     scanButton.addEventListener('click', async function() {
                         let currentFile = null;
-                        let isFromStorage = false;
+                        let isFromBack4App = false;
                         
-                        if (selectedFileFromStorage) {
-                            try {
-                                const fileData = await getStoredFile(selectedFileFromStorage.id);
-                                if (!fileData) {
-                                    showStatus('Selected file from storage not found', 'error');
-                                    return;
-                                }
-                                currentFile = fileData;
-                                isFromStorage = true;
-                            } catch (error) {
-                                showStatus(`Error loading file from storage: ${error.message}`, 'error');
-                                return;
-                            }
+                        if (selectedBack4AppFile) {
+                            currentFile = selectedBack4AppFile;
+                            isFromBack4App = true;
                         } else if (selectedFile) {
                             currentFile = selectedFile;
                         } else {
@@ -4699,8 +4284,8 @@
                             const startTime = Date.now();
                             let scanResult;
                             
-                            if (isFromStorage) {
-                                scanResult = await scanStoredFile(currentFile, searchWord, mode);
+                            if (isFromBack4App) {
+                                scanResult = await scanBack4AppFile(currentFile, searchWord, mode);
                             } else {
                                 scanResult = await scanFile(currentFile, searchWord, mode);
                             }
@@ -4714,7 +4299,7 @@
                             totalScanTime += scanTime;
                             totalScans++;
                             
-                            const fileName = isFromStorage ? currentFile.name : selectedFile.name;
+                            const fileName = isFromBack4App ? currentFile.name : selectedFile.name;
                             scanHistory.push({
                                 timestamp: new Date().toISOString(),
                                 filename: fileName,
@@ -4722,7 +4307,7 @@
                                 results: searchResults.length,
                                 time: scanTime,
                                 mode: mode,
-                                fromStorage: isFromStorage
+                                fromBack4App: isFromBack4App
                             });
                             
                             if (scanHistory.length > 50) {
@@ -4772,7 +4357,7 @@
                     });
                 }
                 
-                showStatus('Select file for analysis (upload new or choose from storage).', 'info');
+                showStatus('Select file for analysis (upload new or choose from Back4App storage).', 'info');
             }
             
             function showStatus(message, type = 'info') {
@@ -4784,7 +4369,7 @@
                     'error': 'var(--error)',
                     'success': 'var(--success)',
                     'warning': 'var(--warning)',
-                    'info': '#0066cc'
+                    'info': '#FFD700'
                 }[type] || 'var(--text-secondary)';
                 
                 statusEl.style.opacity = '0.7';
