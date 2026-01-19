@@ -919,7 +919,7 @@
                         </button>
                         
                         <div style="text-align: center; margin-top: 20px; color: #00a8ff;">
-                            <p>discord.gg/cyrox</p>
+                            <p>Test account: admin / admin123</p>
                         </div>
                     </form>
                     
@@ -1201,7 +1201,10 @@
                         
                         // Проверяем сессию Parse
                         const currentUser = Parse.User.current();
-                        if (!currentUser) {
+                        if (currentUser) {
+                            // Синхронизируем с Back4App
+                            await this.syncWithBack4App(currentUser);
+                        } else {
                             // Пробуем восстановить сессию через localStorage
                             await this.restoreSession();
                         }
@@ -1220,6 +1223,28 @@
                 
                 // Создаем демо пользователя при первом запуске
                 await this.createDemoUser();
+            }
+            
+            async syncWithBack4App(parseUser) {
+                try {
+                    // Получаем актуальные данные пользователя из Back4App
+                    const userData = {
+                        id: parseUser.id,
+                        username: parseUser.get('username'),
+                        email: parseUser.get('email'),
+                        // Получаем план из Back4App, если поле существует
+                        subscription: parseUser.get('plan') || parseUser.get('subscription') || 'free',
+                        createdAt: parseUser.createdAt.toISOString()
+                    };
+                    
+                    // Обновляем локального пользователя
+                    this.currentUser = userData;
+                    localStorage.setItem('cyrox_user', JSON.stringify(this.currentUser));
+                    
+                    console.log('Synced with Back4App:', userData);
+                } catch (error) {
+                    console.error('Error syncing with Back4App:', error);
+                }
             }
             
             async createDemoUser() {
@@ -1361,13 +1386,18 @@
                             const user = await Parse.User.logIn(username, password);
                             console.log('Back4App login successful:', user);
                             
+                            // Создаем объект пользователя с данными из Back4App
                             this.currentUser = {
                                 id: user.id,
                                 username: user.get('username'),
                                 email: user.get('email'),
-                                subscription: user.get('subscription') || 'free',
+                                // Получаем план из поля 'plan' или 'subscription' из Back4App
+                                subscription: user.get('plan') || user.get('subscription') || 'free',
                                 createdAt: user.createdAt.toISOString()
                             };
+                            
+                            console.log('User subscription from Back4App:', this.currentUser.subscription);
+                            
                         } catch (parseError) {
                             console.log('Back4App login failed, trying local storage:', parseError);
                             
@@ -1466,7 +1496,7 @@
                         user.set('username', username);
                         user.set('email', email);
                         user.set('password', password);
-                        user.set('subscription', 'free');
+                        user.set('subscription', 'free'); // По умолчанию free
                         
                         await user.signUp();
                         console.log('Back4App registration successful');
@@ -1475,7 +1505,7 @@
                             id: user.id,
                             username: user.get('username'),
                             email: user.get('email'),
-                            subscription: 'free',
+                            subscription: 'free', // По умолчанию free
                             createdAt: user.createdAt.toISOString()
                         };
                         
@@ -1569,6 +1599,8 @@
                 const plan = this.currentUser.subscription;
                 const dailyLimit = this.getPlanLimit(plan);
                 
+                console.log('Current plan:', plan, 'Daily limit:', dailyLimit);
+                
                 // Сбрасываем если новый день
                 if (this.userStats.lastResetDate !== this.getTodayDate()) {
                     this.userStats.todayScans = 0;
@@ -1606,10 +1638,14 @@
                 const plan = this.currentUser.subscription;
                 const dailyLimit = this.getPlanLimit(plan);
                 
+                console.log('Updating UI with plan:', plan, 'Limit:', dailyLimit);
+                
+                // Обновляем все элементы с информацией о плане
                 document.getElementById('today-scans').textContent = this.userStats.todayScans;
                 document.getElementById('daily-limit').textContent = `${this.userStats.todayScans}/${dailyLimit}`;
                 document.getElementById('total-scans').textContent = this.userStats.totalScans;
                 document.getElementById('account-status').textContent = plan.toUpperCase();
+                document.getElementById('user-plan').textContent = `${plan.toUpperCase()} PLAN`;
                 
                 document.getElementById('profile-scans-today').textContent = `${this.userStats.todayScans}/${dailyLimit}`;
                 document.getElementById('profile-total-scans').textContent = this.userStats.totalScans;
@@ -1619,13 +1655,34 @@
                 document.getElementById('profile-avatar').textContent = this.currentUser.username.charAt(0).toUpperCase();
                 document.getElementById('profile-joined').textContent = new Date(this.currentUser.createdAt).toLocaleDateString();
                 
-                // Обновляем бейдж плана
-                const badge = document.querySelector('.subscription-badge');
+                // Обновляем бейдж плана на дашборде
+                const badge = document.getElementById('plan-status');
                 if (badge) {
-                    badge.textContent = `${plan.toUpperCase()} PLAN`;
+                    badge.textContent = plan.toUpperCase();
                     badge.className = 'subscription-badge';
                     if (plan === 'premium') badge.classList.add('premium');
                     if (plan === 'pro') badge.classList.add('pro');
+                }
+                
+                // Обновляем бейдж плана в профиле
+                const profileBadge = document.querySelector('#current-plan-display .subscription-badge');
+                if (profileBadge) {
+                    profileBadge.textContent = `${plan.toUpperCase()} PLAN`;
+                    profileBadge.className = 'subscription-badge';
+                    if (plan === 'premium') profileBadge.classList.add('premium');
+                    if (plan === 'pro') profileBadge.classList.add('pro');
+                }
+                
+                // Обновляем текст лимитов
+                const limitText = document.querySelector('#current-plan-display + p');
+                if (limitText) {
+                    limitText.innerHTML = `Current plan limits: <strong>${dailyLimit} scans/day</strong>`;
+                }
+                
+                // Обновляем кнопку апгрейда
+                const upgradeBtn = document.querySelector('.subscription-status .btn-secondary');
+                if (upgradeBtn && plan !== 'free') {
+                    upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> MANAGE PLAN';
                 }
             }
             
@@ -2085,8 +2142,8 @@
         // Автозаполнение демо аккаунта
         setTimeout(() => {
             if (!logAnalyzer.currentUser) {
-                document.getElementById('login-username').value = 'admin';
-                document.getElementById('login-password').value = 'admin123';
+                document.getElementById('login-username').value = 'test';
+                document.getElementById('login-password').value = 'test';
             }
         }, 500);
     </script>
