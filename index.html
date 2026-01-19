@@ -868,7 +868,7 @@
         <header>
             <div class="logo">
                 <i class="fas fa-shield-alt" style="font-size: 36px;"></i>
-                CYROX SEARCH
+                CYROX LOG ANALYZER
             </div>
             <nav>
                 <ul id="nav-menu">
@@ -1167,17 +1167,20 @@
         </footer>
     </div>
 
+    <!-- Back4App Parse SDK -->
+    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
+
     <script>
-        // Back4App Configuration
-        const BACK4APP_APP_ID = 'Ud6RkmSIguQgUXt4NdNxlfGLS4ZXYQaSLipNVvXQ'; // Replace with your Back4App App ID
-        const BACK4APP_JS_KEY = 'fE7OQJZoiGRyLHNUhlb5lGcbRpuWjbcWcyxWJRtn'; // Replace with your Back4App JavaScript Key
-        const BACK4APP_REST_API_KEY = 'aXPoAsULKOfRVO2z3MgTD2upR3M0AeG5rqohXViz'; // Replace with your Back4App REST API Key
+        // Back4App Configuration (замените эти значения своими)
+        const BACK4APP_APP_ID = 'Ud6RkmSIguQgUXt4NdNxlfGLS4ZXYQaSLipNVvXQ';
+        const BACK4APP_JS_KEY = 'fE7OQJZoiGRyLHNUhlb5lGcbRpuWjbcWcyxWJRtn';
+        const BACK4APP_SERVER_URL = 'https://parseapi.back4app.com/';
 
-        // Initialize Back4App Parse
+        // Инициализация Parse
         Parse.initialize(BACK4APP_APP_ID, BACK4APP_JS_KEY);
-        Parse.serverURL = 'https://parseapi.back4app.com/';
+        Parse.serverURL = BACK4APP_SERVER_URL;
 
-        // User Management System with Back4App
+        // User Management System
         class LogAnalyzerSystem {
             constructor() {
                 this.currentUser = null;
@@ -1190,16 +1193,16 @@
             }
             
             async init() {
-                // Check for saved session
+                // Проверяем сохраненную сессию
                 const savedUser = localStorage.getItem('cyrox_user');
                 if (savedUser) {
                     try {
                         this.currentUser = JSON.parse(savedUser);
                         
-                        // Try to restore Parse session
+                        // Проверяем сессию Parse
                         const currentUser = Parse.User.current();
                         if (!currentUser) {
-                            // Try to login with stored credentials
+                            // Пробуем восстановить сессию через localStorage
                             await this.restoreSession();
                         }
                         
@@ -1214,15 +1217,36 @@
                 }
                 
                 this.initParticles();
+                
+                // Создаем демо пользователя при первом запуске
+                await this.createDemoUser();
+            }
+            
+            async createDemoUser() {
+                // Проверяем, существует ли уже демо пользователь в localStorage
+                const users = JSON.parse(localStorage.getItem('cyrox_users') || '[]');
+                const demoUserExists = users.some(u => u.username === 'admin');
+                
+                if (!demoUserExists) {
+                    const demoUser = {
+                        id: 'demo-admin',
+                        username: 'admin',
+                        email: 'admin@cyrox.com',
+                        password: 'admin123',
+                        subscription: 'free',
+                        createdAt: new Date().toISOString()
+                    };
+                    users.push(demoUser);
+                    localStorage.setItem('cyrox_users', JSON.stringify(users));
+                }
             }
             
             async restoreSession() {
                 try {
-                    // Try to restore user from localStorage
                     const userData = JSON.parse(localStorage.getItem('cyrox_user'));
                     if (!userData) return false;
                     
-                    // Create a dummy user to maintain compatibility
+                    // Просто используем данные из localStorage
                     this.currentUser = userData;
                     return true;
                 } catch (error) {
@@ -1279,7 +1303,7 @@
                     const stats = localStorage.getItem(`cyrox_stats_${this.currentUser.id}`);
                     if (stats) {
                         this.userStats = JSON.parse(stats);
-                        // Reset if new day
+                        // Сбрасываем счетчики если новый день
                         if (this.userStats.lastResetDate !== this.getTodayDate()) {
                             this.userStats.todayScans = 0;
                             this.userStats.lastResetDate = this.getTodayDate();
@@ -1313,15 +1337,15 @@
                     btn.innerHTML = '<div class="pulse-loader"></div> LOGGING IN';
                     btn.disabled = true;
                     
-                    // Hide any previous messages
+                    // Скрываем предыдущие сообщения об ошибках
                     document.getElementById('login-error').style.display = 'none';
                     
-                    // Simple validation
+                    // Валидация
                     if (!username.trim() || !password.trim()) {
                         throw new Error('Please enter username and password');
                     }
                     
-                    // Test credentials (demo account)
+                    // Проверка демо аккаунта
                     if (username === 'admin' && password === 'admin123') {
                         this.currentUser = {
                             id: 'demo-admin',
@@ -1331,9 +1355,12 @@
                             createdAt: new Date().toISOString()
                         };
                     } else {
-                        // Try Back4App login
+                        // Пробуем логин через Back4App
                         try {
+                            console.log('Attempting Back4App login...');
                             const user = await Parse.User.logIn(username, password);
+                            console.log('Back4App login successful:', user);
+                            
                             this.currentUser = {
                                 id: user.id,
                                 username: user.get('username'),
@@ -1342,7 +1369,9 @@
                                 createdAt: user.createdAt.toISOString()
                             };
                         } catch (parseError) {
-                            // Fallback to local storage
+                            console.log('Back4App login failed, trying local storage:', parseError);
+                            
+                            // Fallback к localStorage
                             const users = JSON.parse(localStorage.getItem('cyrox_users') || '[]');
                             const user = users.find(u => u.username === username && u.password === password);
                             
@@ -1360,11 +1389,14 @@
                         }
                     }
                     
+                    // Сохраняем пользователя в localStorage
                     localStorage.setItem('cyrox_user', JSON.stringify(this.currentUser));
                     
+                    // Загружаем статистику
                     await this.loadUserStats();
                     this.updateUIForLoggedInUser();
                     
+                    // Показываем успех
                     btn.innerHTML = '<i class="fas fa-check"></i> LOGIN SUCCESSFUL';
                     btn.style.background = 'linear-gradient(45deg, #00ff88, #00cc66)';
                     
@@ -1377,6 +1409,7 @@
                     return { success: true };
                     
                 } catch (error) {
+                    console.error('Login error:', error);
                     const errorElement = document.getElementById('login-error');
                     const errorText = document.getElementById('error-text');
                     errorText.textContent = error.message;
@@ -1397,11 +1430,11 @@
                     btn.innerHTML = '<div class="pulse-loader"></div> CREATING ACCOUNT';
                     btn.disabled = true;
                     
-                    // Hide any previous messages
+                    // Скрываем предыдущие сообщения
                     document.getElementById('register-error').style.display = 'none';
                     document.getElementById('register-success').style.display = 'none';
                     
-                    // Validation
+                    // Валидация
                     if (!username.trim() || !email.trim() || !password.trim()) {
                         throw new Error('Please fill all fields');
                     }
@@ -1418,7 +1451,7 @@
                         throw new Error('Please enter a valid email');
                     }
                     
-                    // Check if user already exists
+                    // Проверяем, существует ли пользователь в localStorage
                     const users = JSON.parse(localStorage.getItem('cyrox_users') || '[]');
                     const existingUser = users.find(u => u.username === username || u.email === email);
                     
@@ -1426,8 +1459,9 @@
                         throw new Error('Username or email already exists');
                     }
                     
-                    // Try Back4App registration first
+                    // Пробуем регистрацию через Back4App
                     try {
+                        console.log('Attempting Back4App registration...');
                         const user = new Parse.User();
                         user.set('username', username);
                         user.set('email', email);
@@ -1435,6 +1469,7 @@
                         user.set('subscription', 'free');
                         
                         await user.signUp();
+                        console.log('Back4App registration successful');
                         
                         this.currentUser = {
                             id: user.id,
@@ -1444,12 +1479,12 @@
                             createdAt: user.createdAt.toISOString()
                         };
                         
-                        // Also save to local storage for fallback
+                        // Сохраняем в localStorage для fallback
                         const newUser = {
                             id: user.id,
                             username: username,
                             email: email,
-                            password: password, // Note: Only for fallback
+                            password: password, // ВНИМАНИЕ: только для fallback
                             subscription: 'free',
                             createdAt: new Date().toISOString()
                         };
@@ -1457,14 +1492,14 @@
                         localStorage.setItem('cyrox_users', JSON.stringify(users));
                         
                     } catch (parseError) {
-                        // Fallback to local storage only
-                        console.log('Back4App registration failed, using local storage:', parseError);
+                        console.log('Back4App registration failed, using local storage only:', parseError);
                         
+                        // Fallback к localStorage
                         const newUser = {
                             id: 'user_' + Date.now(),
                             username: username,
                             email: email,
-                            password: password, // In production, hash this!
+                            password: password, // В production хэшируйте это!
                             subscription: 'free',
                             createdAt: new Date().toISOString()
                         };
@@ -1481,10 +1516,10 @@
                         };
                     }
                     
-                    // Save to localStorage
+                    // Сохраняем пользователя в localStorage
                     localStorage.setItem('cyrox_user', JSON.stringify(this.currentUser));
                     
-                    // Initialize user stats
+                    // Инициализируем статистику
                     this.userStats = {
                         todayScans: 0,
                         totalScans: 0,
@@ -1492,13 +1527,13 @@
                     };
                     await this.saveUserStats();
                     
-                    // Show success message
+                    // Показываем сообщение об успехе
                     const successElement = document.getElementById('register-success');
                     const successText = document.getElementById('success-text');
-                    successText.textContent = 'Account created successfully! Switch to login tab.';
+                    successText.textContent = 'Account created successfully! Please login with your credentials.';
                     successElement.style.display = 'block';
                     
-                    // Clear form
+                    // Очищаем форму
                     document.getElementById('register-form').reset();
                     
                     btn.innerHTML = '<i class="fas fa-check"></i> ACCOUNT CREATED';
@@ -1509,13 +1544,14 @@
                         btn.style.background = '';
                         btn.disabled = false;
                         
-                        // Switch to login tab
+                        // Переключаемся на вкладку логина
                         document.querySelector('.auth-tab[data-form="login-form"]').click();
                     }, 2000);
                     
                     return { success: true };
                     
                 } catch (error) {
+                    console.error('Registration error:', error);
                     const errorElement = document.getElementById('register-error');
                     const errorText = document.getElementById('register-error-text');
                     errorText.textContent = error.message;
@@ -1533,14 +1569,14 @@
                 const plan = this.currentUser.subscription;
                 const dailyLimit = this.getPlanLimit(plan);
                 
-                // Reset if new day
+                // Сбрасываем если новый день
                 if (this.userStats.lastResetDate !== this.getTodayDate()) {
                     this.userStats.todayScans = 0;
                     this.userStats.lastResetDate = this.getTodayDate();
                     await this.saveUserStats();
                 }
                 
-                // Check limit
+                // Проверяем лимит
                 if (this.userStats.todayScans >= dailyLimit) {
                     return { 
                         success: false, 
@@ -1583,7 +1619,7 @@
                 document.getElementById('profile-avatar').textContent = this.currentUser.username.charAt(0).toUpperCase();
                 document.getElementById('profile-joined').textContent = new Date(this.currentUser.createdAt).toLocaleDateString();
                 
-                // Update plan badge
+                // Обновляем бейдж плана
                 const badge = document.querySelector('.subscription-badge');
                 if (badge) {
                     badge.textContent = `${plan.toUpperCase()} PLAN`;
@@ -1618,7 +1654,7 @@
             
             async logout() {
                 try {
-                    // Logout from Parse
+                    // Выход из Parse
                     await Parse.User.logOut();
                 } catch (error) {
                     console.error('Parse logout error:', error);
@@ -1636,12 +1672,12 @@
                 `;
                 this.showPage('login');
                 
-                // Clear messages
+                // Очищаем сообщения
                 document.getElementById('login-error').style.display = 'none';
                 document.getElementById('register-error').style.display = 'none';
                 document.getElementById('register-success').style.display = 'none';
                 
-                // Reset forms
+                // Сбрасываем формы
                 document.getElementById('login-form').reset();
                 document.getElementById('register-form').reset();
             }
@@ -1658,7 +1694,7 @@
                 return new Date().toISOString().split('T')[0];
             }
             
-            // Log analysis functions
+            // Функции анализа логов
             async analyzeLogFile(file, pattern, mode, cheatDetection) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -1779,10 +1815,10 @@
             }
         }
 
-        // Initialize the system
+        // Инициализируем систему
         const logAnalyzer = new LogAnalyzerSystem();
 
-        // Global functions for upgrade modal
+        // Глобальные функции для модального окна
         window.showUpgradeModal = function() {
             document.getElementById('upgradeModal').classList.add('active');
         };
@@ -1795,9 +1831,9 @@
             alert(`To purchase the ${plan.toUpperCase()} plan, please send a DM to blaxuxd on Discord with your username and desired plan.`);
         };
 
-        // DOM Event Listeners
+        // Обработчики событий DOM
         document.addEventListener('DOMContentLoaded', function() {
-            // Navigation
+            // Навигация
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('nav-link') || e.target.closest('.nav-link')) {
                     e.preventDefault();
@@ -1813,7 +1849,7 @@
                 }
             });
 
-            // Auth tabs
+            // Вкладки авторизации
             document.querySelectorAll('.auth-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
                     const formId = this.getAttribute('data-form');
@@ -1824,14 +1860,14 @@
                     document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
                     document.getElementById(formId).classList.add('active');
                     
-                    // Hide messages when switching tabs
+                    // Скрываем сообщения при переключении вкладок
                     document.getElementById('login-error').style.display = 'none';
                     document.getElementById('register-error').style.display = 'none';
                     document.getElementById('register-success').style.display = 'none';
                 });
             });
 
-            // Logout
+            // Выход из системы
             document.addEventListener('click', function(e) {
                 if (e.target.id === 'logout-btn' || e.target.closest('#logout-btn')) {
                     e.preventDefault();
@@ -1839,7 +1875,7 @@
                 }
             });
 
-            // Login form
+            // Форма логина
             document.getElementById('login-form').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -1849,7 +1885,7 @@
                 await logAnalyzer.login(username, password);
             });
 
-            // Register form
+            // Форма регистрации
             document.getElementById('register-form').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 await logAnalyzer.register(
@@ -1859,7 +1895,7 @@
                 );
             });
 
-            // File upload
+            // Загрузка файлов
             const fileInput = document.getElementById('file-input');
             const fileDropArea = document.getElementById('file-drop-area');
             const fileInfo = document.getElementById('file-info');
@@ -1911,7 +1947,7 @@
                 }
             });
 
-            // Analyze button
+            // Кнопка анализа
             document.getElementById('analyze-btn').addEventListener('click', async function() {
                 if (!logAnalyzer.currentUser) {
                     alert('Please login first!');
@@ -1930,7 +1966,7 @@
                     return;
                 }
                 
-                // Check daily limit
+                // Проверяем дневной лимит
                 const scanResult = await logAnalyzer.incrementScanCount();
                 if (!scanResult.success) {
                     alert(scanResult.message);
@@ -1940,7 +1976,7 @@
                 const mode = document.getElementById('search-mode').value;
                 const cheatDetection = document.getElementById('cheat-detection').value;
                 
-                // Show loading
+                // Показываем загрузку
                 this.innerHTML = '<div class="pulse-loader"></div> ANALYZING...';
                 this.disabled = true;
                 
@@ -1948,7 +1984,7 @@
                     const results = await logAnalyzer.analyzeLogFile(currentFile, pattern, mode, cheatDetection);
                     logAnalyzer.displayResults(results);
                     
-                    // Show results
+                    // Показываем результаты
                     document.getElementById('results').classList.add('active');
                     
                 } catch (error) {
@@ -1959,7 +1995,7 @@
                 }
             });
 
-            // Copy results
+            // Копирование результатов
             document.getElementById('copy-results-btn').addEventListener('click', function() {
                 const results = document.querySelectorAll('.log-item');
                 if (results.length === 0) {
@@ -1982,7 +2018,7 @@
                 });
             });
 
-            // Export results
+            // Экспорт результатов
             document.getElementById('export-results-btn').addEventListener('click', function() {
                 const results = document.querySelectorAll('.log-item');
                 if (results.length === 0) {
@@ -2017,7 +2053,7 @@
                 }, 2000);
             });
 
-            // Clear results
+            // Очистка результатов
             document.getElementById('clear-results-btn').addEventListener('click', function() {
                 document.getElementById('log-list').innerHTML = '';
                 document.getElementById('results').classList.remove('active');
@@ -2029,30 +2065,15 @@
                 fileInput.value = '';
             });
 
-            // Close modal when clicking outside
+            // Закрытие модального окна при клике снаружи
             document.getElementById('upgradeModal').addEventListener('click', function(e) {
                 if (e.target === this) {
                     closeUpgradeModal();
                 }
             });
-
-            // Create demo users on first load
-            if (!localStorage.getItem('cyrox_users')) {
-                const demoUsers = [
-                    {
-                        id: 'demo-admin',
-                        username: 'admin',
-                        email: 'admin@cyrox.com',
-                        password: 'admin123',
-                        subscription: 'free',
-                        createdAt: new Date().toISOString()
-                    }
-                ];
-                localStorage.setItem('cyrox_users', JSON.stringify(demoUsers));
-            }
         });
 
-        // Utility function
+        // Утилитарная функция
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -2061,7 +2082,7 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Auto-fill demo credentials
+        // Автозаполнение демо аккаунта
         setTimeout(() => {
             if (!logAnalyzer.currentUser) {
                 document.getElementById('login-username').value = 'admin';
@@ -2069,8 +2090,5 @@
             }
         }, 500);
     </script>
-    
-    <!-- Back4App Parse SDK -->
-    <script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 </body>
 </html>
